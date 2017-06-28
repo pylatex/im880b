@@ -1,22 +1,16 @@
 //------------------------------------------------------------------------------
 //
 //	File:		CRC16.cpp
-//
 //	Abstract:	CRC16 calculation
-//
 //	Version:	0.2
-//
 //	Date:		18.05.2016
-//
 //	Disclaimer:	This example code is provided by IMST GmbH on an "AS IS"
 //              basis without any warranties.
 //
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-//
 //  Section Include Files
-//
 //------------------------------------------------------------------------------
 
 #include "crc16.h"
@@ -24,20 +18,15 @@
 // use fast table algorithm
 #define __CRC16_TABLE__
 //------------------------------------------------------------------------------
-//
 //  Section CONST
-//
 //------------------------------------------------------------------------------
 
 #ifdef    __CRC16_TABLE__
-//------------------------------------------------------------------------------
-//
-//  Lookup Table for fast CRC16 calculation
-//
-//------------------------------------------------------------------------------
 
-const UINT16 CRC16_Table[] =
-{
+/**
+ * Lookup Table for fast CRC16 calculation
+ */
+const UINT16 CRC16_Table[] = {
     0x0000, 0x1189, 0x2312, 0x329B, 0x4624, 0x57AD, 0x6536, 0x74BF,
     0x8C48, 0x9DC1, 0xAF5A, 0xBED3, 0xCA6C, 0xDBE5, 0xE97E, 0xF8F7,
     0x1081, 0x0108, 0x3393, 0x221A, 0x56A5, 0x472C, 0x75B7, 0x643E,
@@ -73,28 +62,16 @@ const UINT16 CRC16_Table[] =
 };
 #endif
 //------------------------------------------------------------------------------
-//
 //  Section Code
-//
 //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-//
-//  CRC16_Calc
-//
-//------------------------------------------------------------------------------
-//
-//  @brief:  calculate CRC16
-//
-//------------------------------------------------------------------------------
-//
-//  This function calculates the one's complement of the standard
-//  16-BIT CRC CCITT polynomial G(x) = 1 + x^5 + x^12 + x^16
-//
-//------------------------------------------------------------------------------
-
+/**
+ * CRC16_Calc
+ * @brief:  calculate CRC16
+ * This function calculates the one's complement of the standard
+ * 16-BIT CRC CCITT polynomial G(x) = 1 + x^5 + x^12 + x^16
+ */
 #ifdef    __CRC16_TABLE__
-
 UINT16
 CRC16_Calc  (UINT8*             data,
              UINT16             length,
@@ -113,9 +90,7 @@ CRC16_Calc  (UINT8*             data,
     // return result
     return crc;
 }
-
 #else
-
 UINT16
 CRC16_Calc  (UINT8*             data,
              UINT16             length,
@@ -151,20 +126,11 @@ CRC16_Calc  (UINT8*             data,
 }
 #endif
 
-//------------------------------------------------------------------------------
-//
-//  CRC16_Check
-//
-//------------------------------------------------------------------------------
-//
-//  @brief   calculate & test CRC16
-//
-//------------------------------------------------------------------------------
-//
-//  This function checks a data block with attached CRC16
-//
-//------------------------------------------------------------------------------
-
+/**
+ * CRC16_Check
+ * @brief   calculate & test CRC16
+ * This function checks a data block with attached CRC16
+ */
 bool
 CRC16_Check     (UINT8*                    data,
                  UINT16                    length,

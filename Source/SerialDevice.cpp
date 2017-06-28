@@ -14,17 +14,13 @@
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-//
 //  Include Files
-//
 //------------------------------------------------------------------------------
 
 #include "SerialDevice.h"
 
 //------------------------------------------------------------------------------
-//
 //  Section RAM
-//
 //------------------------------------------------------------------------------
 
 #ifdef Q_OS_WIN
@@ -37,19 +33,13 @@ static HANDLE   ComHandle = INVALID_HANDLE_VALUE;
 #endif
 
 //------------------------------------------------------------------------------
-//
 //  Section Code
-//
 //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-//
-//  Open
-//
-//  @brief: open serial device
-//
-//------------------------------------------------------------------------------
-
+/**
+ * Open
+ * @brief: open serial device
+ */
 bool
 SerialDevice_Open(const char*   comPort,
                   UINT32        baudRate,
@@ -78,11 +68,9 @@ SerialDevice_Open(const char*   comPort,
                             NULL);
 
     // handle valid ?
-    if (ComHandle != INVALID_HANDLE_VALUE)
-    {
+    if (ComHandle != INVALID_HANDLE_VALUE) {
         DCB dcb;
-        if (GetCommState(ComHandle, &dcb))
-        {
+        if (GetCommState(ComHandle, &dcb)) {
             dcb.DCBlength           = sizeof(DCB);
             dcb.BaudRate            = baudRate;
             dcb.ByteSize            = dataBits;
@@ -100,8 +88,7 @@ SerialDevice_Open(const char*   comPort,
             dcb.fRtsControl         = RTS_CONTROL_DISABLE;
             dcb.fAbortOnError       = FALSE;
 
-            if (SetCommState(ComHandle, &dcb))
-            {
+            if (SetCommState(ComHandle, &dcb)) {
                 COMMTIMEOUTS commTimeouts;
                 commTimeouts.ReadIntervalTimeout 		= MAXDWORD;
                 commTimeouts.ReadTotalTimeoutMultiplier = 0;
@@ -126,21 +113,16 @@ SerialDevice_Open(const char*   comPort,
     return false;
 }
 
-//------------------------------------------------------------------------------
-//
-//  Close
-//
-//  @brief: close serial device
-//
-//------------------------------------------------------------------------------
-
+/**
+ * Close
+ * @brief: close serial device
+ */
 bool
 SerialDevice_Close()
 {
 #ifdef Q_OS_WIN
     // handle valid ?
-    if (ComHandle != INVALID_HANDLE_VALUE)
-    {
+    if (ComHandle != INVALID_HANDLE_VALUE) {
         // cancel last operation
         CancelIo(ComHandle);
 
@@ -163,14 +145,10 @@ SerialDevice_Close()
     return false;
 }
 
-//------------------------------------------------------------------------------
-//
-//  SendData
-//
-//  @brief: send data
-//
-//------------------------------------------------------------------------------
-
+/**
+ * SendData
+ * @brief: send data
+ */
 int
 SerialDevice_SendData(UINT8* txBuffer, int txLength)
 {
@@ -200,14 +178,10 @@ SerialDevice_SendData(UINT8* txBuffer, int txLength)
     return -1;
 }
 
-//------------------------------------------------------------------------------
-//
-//  SendByte
-//
-//  @brief: send single byte
-//
-//------------------------------------------------------------------------------
-
+/**
+ * SendByte
+ * @brief: send single byte
+ */
 int
 SerialDevice_SendByte(UINT8 txByte)
 {
@@ -237,14 +211,10 @@ SerialDevice_SendByte(UINT8 txByte)
     return -1;
 }
 
-//------------------------------------------------------------------------------
-//
-//  ReadData
-//
-//  @brief: read data
-//
-//------------------------------------------------------------------------------
-
+/**
+ * ReadData
+ * @brief: read data
+ */
 int
 SerialDevice_ReadData(UINT8* rxBuffer, int rxBufferSize)
 {

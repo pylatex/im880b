@@ -34,13 +34,10 @@
 #define	SLIPDEC_ESC_STATE			3
 
 //------------------------------------------------------------------------------
-//
 // Declare SLIP Variables
-//
 //------------------------------------------------------------------------------
 
-typedef struct
-{
+typedef struct {
     // Decoder
     int                 RxState;
     int                 RxIndex;
@@ -55,31 +52,21 @@ typedef struct
 }TSLIP;
 
 //------------------------------------------------------------------------------
-//
 // Section RAM
-//
 //------------------------------------------------------------------------------
 
 // SLIP Instance
 static TSLIP   SLIP;
 
 //------------------------------------------------------------------------------
-//
 // Section Code
-//
 //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-//
-//  Init
-//
-//  @brief: init SLIP decoder
-//
-//------------------------------------------------------------------------------
-
-void
-SLIP_Init(TSLIP_CbRxMessage cbRxMessage)
-{
+/**
+ * Init
+ * @brief: init SLIP decoder
+ */
+void SLIP_Init(TSLIP_CbRxMessage cbRxMessage) {
     // init decoder to idle state, no rx-buffer avaliable
     SLIP.RxState         =   SLIPDEC_IDLE_STATE;
     SLIP.RxIndex         =   0;
@@ -95,32 +82,20 @@ SLIP_Init(TSLIP_CbRxMessage cbRxMessage)
     SLIP.TxBufferSize    =   0;
 }
 
-//------------------------------------------------------------------------------
-//
-//  SLIP_StoreTxByte
-//
-//  @brief: store a byte into TxBuffer
-//
-//------------------------------------------------------------------------------
-
-static void
-SLIP_StoreTxByte(UINT8 txByte)
-{
+/**
+ * SLIP_StoreTxByte
+ * @brief: store a byte into TxBuffer
+ */
+static void SLIP_StoreTxByte(UINT8 txByte) {
   if (SLIP.TxIndex < SLIP.TxBufferSize)
       SLIP.TxBuffer[SLIP.TxIndex++] = txByte;
 }
 
-//------------------------------------------------------------------------------
-//
-//  EncodeData
-//
-//  @brief: encode a messages into dstBuffer
-//
-//------------------------------------------------------------------------------
-
-int
-SLIP_EncodeData(UINT8* dstBuffer, int dstBufferSize, UINT8* srcData, int srcLength)
-{
+/**
+ * EncodeData
+ * @brief: encode a messages into dstBuffer
+ */
+int SLIP_EncodeData(UINT8* dstBuffer, int dstBufferSize, UINT8* srcData, int srcLength) {
     // save start pointer
     int txLength = 0;
 
@@ -170,17 +145,11 @@ SLIP_EncodeData(UINT8* dstBuffer, int dstBufferSize, UINT8* srcData, int srcLeng
     return -1;
 }
 
-//------------------------------------------------------------------------------
-//
-//  SetRxBuffer
-//
-//  @brief: configure a rx-buffer and enable receiver/decoder
-//
-//------------------------------------------------------------------------------
-
-bool
-SLIP_SetRxBuffer(UINT8* rxBuffer, int rxBufferSize)
-{
+/**
+ * SetRxBuffer
+ * @brief: configure a rx-buffer and enable receiver/decoder
+ */
+bool SLIP_SetRxBuffer(UINT8* rxBuffer, int rxBufferSize) {
     // receiver in IDLE state and client already registered ?
     if ((SLIP.RxState == SLIPDEC_IDLE_STATE) && SLIP.CbRxMessage)
     {
@@ -196,14 +165,10 @@ SLIP_SetRxBuffer(UINT8* rxBuffer, int rxBufferSize)
     return false;
 }
 
-//------------------------------------------------------------------------------
-//
-//  SLIP_StoreRxByte
-//
-//  @brief: store SLIP decoded rxByte
-//
-//------------------------------------------------------------------------------
-
+/**
+ * SLIP_StoreRxByte
+ * @brief: store SLIP decoded rxByte
+ */
 static void
 SLIP_StoreRxByte(UINT8 rxByte)
 {
@@ -211,17 +176,11 @@ SLIP_StoreRxByte(UINT8 rxByte)
         SLIP.RxBuffer[SLIP.RxIndex++] = rxByte;
 }
 
-//------------------------------------------------------------------------------
-//
-//  DecodeData
-//
-//  @brief: process received byte stream
-//
-//------------------------------------------------------------------------------
-
-void
-SLIP_DecodeData(UINT8* srcData, int srcLength)
-{
+/**
+ * DecodeData
+ * @brief: process received byte stream
+ */
+void SLIP_DecodeData(UINT8* srcData, int srcLength) {
     // init result
     int result = 0;
 

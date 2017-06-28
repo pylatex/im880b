@@ -1,22 +1,15 @@
-//------------------------------------------------------------------------------
-//
-//  File:		main.cpp
-//
-//  Abstract:	main module
-//
-//	Version:	0.1
-//
-//	Date:		18.05.2016
-//
-//  Disclaimer:	This example code is provided by IMST GmbH on an "AS IS"
-//              basis without any warranties.
-//
-//------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
+  File:		main.cpp
+  Abstract:	main module
+	Version:	0.1
+	Date:		18.05.2016
+  Disclaimer:	This example code is provided by IMST GmbH on an "AS IS"
+              basis without any warranties.
+
+------------------------------------------------------------------------------*/
 
 //------------------------------------------------------------------------------
-//
 //  Include Files
-//
 //------------------------------------------------------------------------------
 
 #include "WiMOD_LoRaWAN_API.h"
@@ -24,11 +17,9 @@
 #include <stdio.h>
 #include <string.h>
 //------------------------------------------------------------------------------
-//
-//  Declarations
-//
+//  Declarations and Definitions
 //------------------------------------------------------------------------------
-
+#define defPORT "COM6"  //Cambiar aqui el puerto si es necesario.
 // forward declarations
 static void     ShowMenu(const char*);
 static void     Ping();
@@ -38,30 +29,21 @@ static void     SendUData();
 static void     SendCData();
 
 //------------------------------------------------------------------------------
-//
 //  Section Code
-//
 //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-//
-// main
-//
-//------------------------------------------------------------------------------
-int
-main(int argc, char *argv[])
-{
+/**
+ * Main
+ */
+int main(int argc, char *argv[]) {
     bool run = true;
 
     char comPort[40];
 
     // comport parameter attached ?
-    if (argc >= 2)
-    {
+    if (argc >= 2) {
         strncpy(comPort, argv[1], 40);
-    }
-    else
-    {
+    } else {
         // TODO: change comport if needed !!!
         strcpy(comPort, "COM64");
 
@@ -69,8 +51,7 @@ main(int argc, char *argv[])
     }
 
     // init interface:
-    if(!WiMOD_LoRaWAN_Init(comPort))
-    {
+    if(!WiMOD_LoRaWAN_Init(comPort)) {
         printf("error - couldn't open interface on comport:%s\r\n");
         printf("try: WiMOD_LoRaWAN_HCI_C_ExampleCode COMxy to select another comport\n\r");
 
@@ -81,22 +62,19 @@ main(int argc, char *argv[])
     ShowMenu(comPort);
 
     // main loop
-    while(run)
-    {
+    while(run) {
         // handle receiver process
         WiMOD_LoRaWAN_Process();
 
         // keyboard pressed ?
-        if(kbhit())
-        {
+        if(kbhit()) {
             // get command
             char cmd = getch();
 
             printf("\n\r");
 
             // handle commands
-            switch(cmd)
-            {
+            switch(cmd) {
                 case    'e':
                 case    'x':
                         run = false;
@@ -136,16 +114,12 @@ main(int argc, char *argv[])
     }
     return 1;
 }
-//------------------------------------------------------------------------------
-//
-//  ShowMenu
-//
-//  @brief: show main menu
-//
-//------------------------------------------------------------------------------
-void
-ShowMenu(const char* comPort)
-{
+
+/**
+ * ShowMenu
+ * @brief: show main menu
+ */
+void ShowMenu(const char* comPort) {
     printf("\n\r");
     printf("------------------------------\n\r");
     printf("Using comport:%s\r\n", comPort);
@@ -160,58 +134,42 @@ ShowMenu(const char* comPort)
     printf("\n\r-> enter command: ");
 
 }
-//------------------------------------------------------------------------------
-//
-//  Ping
-//
-//  @brief: ping device
-//
-//------------------------------------------------------------------------------
-void
-Ping()
-{
+
+/**
+ * Ping
+ * @brief: ping device
+ */
+void Ping() {
     printf("ping request\n\r");
 
     WiMOD_LoRaWAN_SendPing();
 }
-//------------------------------------------------------------------------------
-//
-//  GetDeviceInfo
-//
-//  @brief: get device information
-//
-//------------------------------------------------------------------------------
-void
-GetDeviceInfo()
-{
+
+/**
+ * GetDeviceInfo
+ * @brief: get device information
+ */
+void GetDeviceInfo() {
     printf("get firmware version\n\r");
 
     WiMOD_LoRaWAN_GetFirmwareVersion();
 }
-//------------------------------------------------------------------------------
-//
-//  Join
-//
-//  @brief: ping device
-//
-//------------------------------------------------------------------------------
-void
-Join()
-{
+
+/**
+ * Join
+ * @brief: ping device
+ */
+void Join() {
     printf("join network request\n\r");
 
     WiMOD_LoRaWAN_JoinNetworkRequest();
 }
-//------------------------------------------------------------------------------
-//
-//  SendUData
-//
-//  @brief: send unconfirmed radio message
-//
-//------------------------------------------------------------------------------
-void
-SendUData()
-{
+
+/**
+ * SendUData
+ * @brief: send unconfirmed radio message
+ */
+void SendUData() {
     printf("send U-Data\n\r");
 
     // port 0x21
@@ -227,16 +185,12 @@ SendUData()
     // send unconfirmed radio message
     WiMOD_LoRaWAN_SendURadioData(port, data, 4);
 }
-//------------------------------------------------------------------------------
-//
-//  SendCData
-//
-//  @brief: send confirmed radio message
-//
-//------------------------------------------------------------------------------
-void
-SendCData()
-{
+
+/**
+ * SendCData
+ * @brief: send confirmed radio message
+ */
+void SendCData() {
     printf("send C-Data\n\r");
 
     // port 0x21
