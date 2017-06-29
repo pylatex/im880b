@@ -19,7 +19,7 @@
 //------------------------------------------------------------------------------
 //  Declarations and Definitions
 //------------------------------------------------------------------------------
-#define defPORT "COM6"  //Cambiar aqui el puerto (por defecto) si es necesario.
+#define defPORT "COM4"  //Cambiar aqui el puerto (por defecto) si es necesario.
                         //Tambien se puede con el valor ingresado por consola.
 // forward declarations
 static void     ShowMenu(const char*);
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     else
     {
         // TODO: change comport if needed !!!
-        strcpy(comPort, "COM64");
+        strcpy(comPort, defPORT);
 
         printf("usage: WiMOD_LoRaWAN_HCI_C_ExampleCode COMxy");
     }
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
             // get command
             char cmd = getch();
 
-            printf("\n\r");
+            printf("%c\n\r",cmd);
 
             // handle commands
             switch(cmd)
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
             }
         }
     }
-    return 1;
+    return 0;
 }
 
 /**
