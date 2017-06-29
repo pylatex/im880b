@@ -19,7 +19,8 @@
 //------------------------------------------------------------------------------
 //  Declarations and Definitions
 //------------------------------------------------------------------------------
-#define defPORT "COM6"  //Cambiar aqui el puerto si es necesario.
+#define defPORT "COM6"  //Cambiar aqui el puerto (por defecto) si es necesario.
+                        //Tambien se puede con el valor ingresado por consola.
 // forward declarations
 static void     ShowMenu(const char*);
 static void     Ping();
@@ -35,15 +36,19 @@ static void     SendCData();
 /**
  * Main
  */
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     bool run = true;
 
     char comPort[40];
 
     // comport parameter attached ?
-    if (argc >= 2) {
+    if (argc >= 2)
+    {
         strncpy(comPort, argv[1], 40);
-    } else {
+    }
+    else
+    {
         // TODO: change comport if needed !!!
         strcpy(comPort, "COM64");
 
@@ -51,8 +56,9 @@ int main(int argc, char *argv[]) {
     }
 
     // init interface:
-    if(!WiMOD_LoRaWAN_Init(comPort)) {
-        printf("error - couldn't open interface on comport:%s\r\n");
+    if(!WiMOD_LoRaWAN_Init(comPort))
+    {
+        printf("error - couldn't open interface on comport:%s\r\n",comPort);
         printf("try: WiMOD_LoRaWAN_HCI_C_ExampleCode COMxy to select another comport\n\r");
 
         return -1;
@@ -67,14 +73,16 @@ int main(int argc, char *argv[]) {
         WiMOD_LoRaWAN_Process();
 
         // keyboard pressed ?
-        if(kbhit()) {
+        if(kbhit())
+        {
             // get command
             char cmd = getch();
 
             printf("\n\r");
 
             // handle commands
-            switch(cmd) {
+            switch(cmd)
+            {
                 case    'e':
                 case    'x':
                         run = false;

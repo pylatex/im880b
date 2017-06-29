@@ -1,30 +1,22 @@
 //------------------------------------------------------------------------------
 //
 //  File:		SLIP.cpp
-//
 //  Abstract:	SLIP Encoder / Decoder
-//
 //  Version:	0.2
-//
 //  Date:		18.05.2016
-//
 //  Disclaimer:	This example code is provided by IMST GmbH on an "AS IS"
 //              basis without any warranties.
 //
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-//
 //  Include Files
-//
 //------------------------------------------------------------------------------
 
 #include "SLIP.h"
 
 //------------------------------------------------------------------------------
-//
 //  Protocol Definitions
-//
 //------------------------------------------------------------------------------
 
 // SLIP Receiver/Decoder States
@@ -66,8 +58,9 @@ static TSLIP   SLIP;
  * Init
  * @brief: init SLIP decoder
  */
-void SLIP_Init(TSLIP_CbRxMessage cbRxMessage) {
-    // init decoder to idle state, no rx-buffer avaliable
+void SLIP_Init(TSLIP_CbRxMessage cbRxMessage)
+{
+    // init decoder to idle state, no rx-buffer available
     SLIP.RxState         =   SLIPDEC_IDLE_STATE;
     SLIP.RxIndex         =   0;
     SLIP.RxBuffer        =   0;
@@ -86,7 +79,8 @@ void SLIP_Init(TSLIP_CbRxMessage cbRxMessage) {
  * SLIP_StoreTxByte
  * @brief: store a byte into TxBuffer
  */
-static void SLIP_StoreTxByte(UINT8 txByte) {
+static void SLIP_StoreTxByte(UINT8 txByte)
+{
   if (SLIP.TxIndex < SLIP.TxBufferSize)
       SLIP.TxBuffer[SLIP.TxIndex++] = txByte;
 }
@@ -95,9 +89,10 @@ static void SLIP_StoreTxByte(UINT8 txByte) {
  * EncodeData
  * @brief: encode a messages into dstBuffer
  */
-int SLIP_EncodeData(UINT8* dstBuffer, int dstBufferSize, UINT8* srcData, int srcLength) {
+int SLIP_EncodeData(UINT8* dstBuffer, int dstBufferSize, UINT8* srcData, int srcLength)
+{
     // save start pointer
-    int txLength = 0;
+    //int txLength = 0; //No se usa... dice el compilador
 
     // init TxBuffer
     SLIP.TxBuffer = dstBuffer;
@@ -149,7 +144,8 @@ int SLIP_EncodeData(UINT8* dstBuffer, int dstBufferSize, UINT8* srcData, int src
  * SetRxBuffer
  * @brief: configure a rx-buffer and enable receiver/decoder
  */
-bool SLIP_SetRxBuffer(UINT8* rxBuffer, int rxBufferSize) {
+bool SLIP_SetRxBuffer(UINT8* rxBuffer, int rxBufferSize)
+{
     // receiver in IDLE state and client already registered ?
     if ((SLIP.RxState == SLIPDEC_IDLE_STATE) && SLIP.CbRxMessage)
     {
@@ -180,9 +176,10 @@ SLIP_StoreRxByte(UINT8 rxByte)
  * DecodeData
  * @brief: process received byte stream
  */
-void SLIP_DecodeData(UINT8* srcData, int srcLength) {
+void SLIP_DecodeData(UINT8* srcData, int srcLength)
+{
     // init result
-    int result = 0;
+    //int result = 0;   //No se usa (dice el compilador)
 
     // iterate over all received bytes
     while(srcLength--)
@@ -266,7 +263,7 @@ void SLIP_DecodeData(UINT8* srcData, int srcLength) {
                                 break;
 
                         default:
-                                // abort frame receiption
+                                // abort frame reception
                                 SLIP.RxState = SLIPDEC_START_STATE;
                                 break;
                     }

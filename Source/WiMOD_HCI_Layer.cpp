@@ -30,14 +30,10 @@
 // SLIP Message Receiver Callback
 static UINT8*   WiMOD_HCI_ProcessRxMessage(UINT8* rxData, int rxLength);
 
-//------------------------------------------------------------------------------
-//
-// Declare Layer Instance
-//
-//------------------------------------------------------------------------------
-
-typedef struct
-{
+/**
+ * Layer Instance
+ */
+typedef struct {
     // CRC Error counter
     UINT32                  CRCErrors;
 
@@ -50,9 +46,7 @@ typedef struct
 }TWiMOD_HCI_MsgLayer;
 
 //------------------------------------------------------------------------------
-//
 //  Section RAM
-//
 //------------------------------------------------------------------------------
 
 // reserve HCI Instance
@@ -61,14 +55,10 @@ static TWiMOD_HCI_MsgLayer  HCI;
 // reserve one TxBuffer
 static UINT8                TxBuffer[sizeof( TWiMOD_HCI_Message ) * 2 + 2];
 
-//------------------------------------------------------------------------------
-//
-//  Init
-//
-//  @brief: Init HCI Message layer
-//
-//------------------------------------------------------------------------------
-
+/**
+ * Init
+ * @brief: Init HCI Message layer
+ */
 bool
 WiMOD_HCI_Init(const char*              comPort,        // comPort
                TWiMOD_HCI_CbRxMessage   cbRxMessage,    // HCI msg recv. callback
@@ -93,16 +83,11 @@ WiMOD_HCI_Init(const char*              comPort,        // comPort
     return SerialDevice_Open(comPort, Baudrate_115200, DataBits_8, Parity_None);
 }
 
-//------------------------------------------------------------------------------
-//
-//  SendMessage
-//
-//  @brief: Send a HCI message (with or without payload)
-//
-//------------------------------------------------------------------------------
-
-int
-WiMOD_HCI_SendMessage(TWiMOD_HCI_Message* txMessage)
+/**
+ * SendMessage
+ * @brief: Send a HCI message (with or without payload)
+ */
+int WiMOD_HCI_SendMessage(TWiMOD_HCI_Message* txMessage)
 {
     // 1. check parameter
     //
@@ -156,16 +141,11 @@ WiMOD_HCI_SendMessage(TWiMOD_HCI_Message* txMessage)
     return -1;
 }
 
-//------------------------------------------------------------------------------
-//
-//  Process
-//
-//  @brief: read incoming serial data
-//
-//------------------------------------------------------------------------------
-
-void
-WiMOD_HCI_Process()
+/**
+ * Process
+ * @brief: read incoming serial data
+ */
+void WiMOD_HCI_Process()
 {
     UINT8   rxBuf[20];
 
@@ -181,16 +161,11 @@ WiMOD_HCI_Process()
     }
 }
 
-//------------------------------------------------------------------------------
-//
-//  WiMOD_HCI_ProcessRxMessage
-//
-//  @brief: process received SLIP message and return new rxBuffer
-//
-//------------------------------------------------------------------------------
-
-static UINT8*
-WiMOD_HCI_ProcessRxMessage(UINT8* rxData, int rxLength)
+/**
+ * WiMOD_HCI_ProcessRxMessage
+ * @brief: process received SLIP message and return new rxBuffer
+ */
+static UINT8* WiMOD_HCI_ProcessRxMessage(UINT8* rxData, int rxLength)
 {
     // check min length
     if (rxLength >= (WIMOD_HCI_MSG_HEADER_SIZE + WIMOD_HCI_MSG_FCS_SIZE))
