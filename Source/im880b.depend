@@ -1,24 +1,25 @@
 # depslib dependency file v1.0
-1498609897 source:d:\documentos\gitud\documents\im880b\codigohci_repogit\im880b\source\crc16.cpp
+1498616879 source:d:\documentos\gitud\documents\im880b\codigohci_repogit\im880b\source\crc16.cpp
 	"crc16.h"
 
 1498609897 d:\documentos\gitud\documents\im880b\codigohci_repogit\im880b\source\crc16.h
 	<stdint.h>
 
-1498609897 source:d:\documentos\gitud\documents\im880b\codigohci_repogit\im880b\source\serialdevice.cpp
+1498787695 source:d:\documentos\gitud\documents\im880b\codigohci_repogit\im880b\source\serialdevice.cpp
 	"SerialDevice.h"
 
-1498609897 d:\documentos\gitud\documents\im880b\codigohci_repogit\im880b\source\serialdevice.h
+1498786721 d:\documentos\gitud\documents\im880b\codigohci_repogit\im880b\source\serialdevice.h
 	<stdint.h>
+	"main.h"
 	<windows.h>
 
-1498609897 source:d:\documentos\gitud\documents\im880b\codigohci_repogit\im880b\source\slip.cpp
+1498701218 source:d:\documentos\gitud\documents\im880b\codigohci_repogit\im880b\source\slip.cpp
 	"SLIP.h"
 
 1498609897 d:\documentos\gitud\documents\im880b\codigohci_repogit\im880b\source\slip.h
 	<stdint.h>
 
-1498609897 source:d:\documentos\gitud\documents\im880b\codigohci_repogit\im880b\source\wimod_hci_layer.cpp
+1498784983 source:d:\documentos\gitud\documents\im880b\codigohci_repogit\im880b\source\wimod_hci_layer.cpp
 	"WiMOD_HCI_Layer.h"
 	"CRC16.h"
 	"SLIP.h"
@@ -36,4 +37,13 @@
 
 1498609897 d:\documentos\gitud\documents\im880b\codigohci_repogit\im880b\source\wimod_lorawan_api.h
 	<stdint.h>
+
+1498788002 source:d:\documentos\gitud\documents\im880b\codigohci_repogit\im880b\source\main.cpp
+	"main.h"
+	"WiMOD_LoRaWAN_API.h"
+
+1498787014 d:\documentos\gitud\documents\im880b\codigohci_repogit\im880b\source\main.h
+	<conio.h>
+	<stdio.h>
+	<string.h>
 

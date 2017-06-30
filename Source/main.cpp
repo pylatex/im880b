@@ -61,6 +61,7 @@ int main(int argc, char *argv[])
 
     // show menu
     ShowMenu(comPort);
+    printf(">> ");
 
     // main loop
     while(run) {
@@ -113,6 +114,7 @@ int main(int argc, char *argv[])
                         ShowMenu(comPort);
                         break;
             }
+            printf(">> ");
         }
     }
     return 0;
@@ -125,16 +127,15 @@ int main(int argc, char *argv[])
 void ShowMenu(const char* comPort) {
     printf("\n\r");
     printf("------------------------------\n\r");
-    printf("Using comport:%s\r\n", comPort);
+    printf("Using comport: %s\r\n", comPort);
     printf("------------------------------\n\r");
-    printf("[SPACE] : show this menu\n\r");
-    printf("[p]     : ping device\n\r");
-    printf("[i]     : get device information\n\r");
-    printf("[j]     : join network request\n\r");
-    printf("[u]     : send unconfirmed radio message\n\r");
-    printf("[c]     : send confirmed radio message\n\r");
-    printf("[e|x]   : exit program\n\r");
-    printf("\n\r-> enter command: ");
+    printf("[SPACE]\t: show this menu\n\r");
+    printf("[p]\t: ping device\n\r");
+    printf("[i]\t: get device information\n\r");
+    printf("[j]\t: join network request\n\r");
+    printf("[u]\t: send unconfirmed radio message\n\r");
+    printf("[c]\t: send confirmed radio message\n\r");
+    printf("[e|x]\t: exit program\n\r");
 
 }
 
