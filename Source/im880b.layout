@@ -2,38 +2,64 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Debug" />
-	<File name="CRC16.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="WiMOD_LoRaWAN_API.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="4640" topLine="122" />
+			<Cursor1 position="2156" topLine="12" />
 		</Cursor>
 	</File>
-	<File name="main.cpp" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="CRC16.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1583" topLine="45" />
+			<Cursor1 position="4640" topLine="10" />
+		</Cursor>
+	</File>
+	<File name="CRC16.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="435" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="SLIP.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1669" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="SerialDevice.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="3820" topLine="150" />
+			<Cursor1 position="1330" topLine="147" />
 		</Cursor>
 	</File>
 	<File name="SLIP.cpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="4891" topLine="167" />
+			<Cursor1 position="4475" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="WiMOD_HCI_Layer.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="0" topLine="33" />
 		</Cursor>
 	</File>
 	<File name="SerialDevice.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="204" topLine="0" />
+			<Cursor1 position="132" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="WiMOD_LoRaWAN_API.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="8535" topLine="265" />
 		</Cursor>
 	</File>
 	<File name="WiMOD_HCI_Layer.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="5465" topLine="108" />
+			<Cursor1 position="2281" topLine="36" />
 		</Cursor>
-		<Folding>
-			<Collapse line="65" />
-			<Collapse line="90" />
-		</Folding>
+	</File>
+	<File name="main.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="646" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="main.cpp" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="3507" topLine="105" />
+		</Cursor>
 	</File>
 </CodeBlocks_layout_file>
