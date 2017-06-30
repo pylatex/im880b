@@ -12,15 +12,12 @@
 //  Include Files
 //------------------------------------------------------------------------------
 
+#include "main.h"   //Open and modify to change the target system (WIN/UX)
 #include "WiMOD_LoRaWAN_API.h"
-#include <conio.h>
-#include <stdio.h>
-#include <string.h>
 //------------------------------------------------------------------------------
 //  Declarations and Definitions
 //------------------------------------------------------------------------------
-#define defPORT "COM4"  //Cambiar aqui el puerto (por defecto) si es necesario.
-                        //Tambien se puede con el valor ingresado por consola.
+
 // forward declarations
 static void     ShowMenu(const char*);
 static void     Ping();
@@ -49,16 +46,14 @@ int main(int argc, char *argv[])
     }
     else
     {
-        // TODO: change comport if needed !!!
         strcpy(comPort, defPORT);
-
         printf("usage: WiMOD_LoRaWAN_HCI_C_ExampleCode COMxy");
     }
 
     // init interface:
     if(!WiMOD_LoRaWAN_Init(comPort))
     {
-        printf("error - couldn't open interface on comport:%s\r\n",comPort);
+        printf("error - couldn't open interface on comport %s\r\n",comPort);
         printf("try: WiMOD_LoRaWAN_HCI_C_ExampleCode COMxy to select another comport\n\r");
 
         return -1;
