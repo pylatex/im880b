@@ -61,7 +61,6 @@ int main(int argc, char *argv[])
 
     // show menu
     ShowMenu(comPort);
-    printf(">> ");
 
     // main loop
     while(run) {
@@ -114,7 +113,6 @@ int main(int argc, char *argv[])
                         ShowMenu(comPort);
                         break;
             }
-            printf(">> ");
         }
     }
     return 0;
