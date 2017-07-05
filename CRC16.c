@@ -14,7 +14,6 @@
 //------------------------------------------------------------------------------
 
 #include "CRC16.h"
-#include "globaldefs.h"
 
 // use fast table algorithm
 #define __CRC16_TABLE__

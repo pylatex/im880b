@@ -18,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "globaldefs.h"
 
 //------------------------------------------------------------------------------
 //  General Declarations & Definitions

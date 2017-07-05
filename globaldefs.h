@@ -9,6 +9,7 @@
 #define	GLOBALDEFS_H
 
 //#define Q_OS_WIN  //Comentado por logicas razones
+#define UC_PIC8
 
 #ifdef	__cplusplus
 extern "C" {

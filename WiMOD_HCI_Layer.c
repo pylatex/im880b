@@ -18,7 +18,6 @@
 #include "SLIP.h"
 #include "SerialDevice.h"
 #include <string.h>
-#include "globaldefs.h"
 
 //------------------------------------------------------------------------------
 //  Forward Declaration

@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "globaldefs.h"
+
+#if defined Q_OS_WIN
+#include <windows.h>
 
 #define Baudrate_9600       9600
 #define Baudrate_115200     115200
@@ -10,6 +14,10 @@
 #define DataBits_8          8
 #define Parity_Even         EVENPARITY
 #define Parity_None         NOPARITY
+
+#elif defined UC_PIC
+
+#endif
 
 typedef uint8_t             UINT8;
 typedef uint32_t            UINT32;
