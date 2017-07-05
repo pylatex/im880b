@@ -101,8 +101,8 @@ SerialDevice_Open(const char*   comPort,
         // close device
         SerialDevice_Close();
     }
-#else
-    // Todo : add your own platform specific code here
+#elif defined UC_PIC8
+    // TODO : add your own platform specific code here
 #endif
     // error
     return false;
@@ -133,8 +133,8 @@ SerialDevice_Close()
         // ok
         return true;
     }
-#else
-    // Todo : add your own platform specific code here
+#elif defined UC_PIC8
+    // TODO : add your own platform specific code here
 #endif
     // error
     return false;
@@ -166,8 +166,8 @@ SerialDevice_SendData(UINT8* txBuffer, int txLength)
         // ok
         return numTxBytes;
     }
-#else
-    // Todo : add your own platform specific code here
+#elif defined UC_PIC8
+    // TODO : add your own platform specific code here
 #endif
     // error
     return -1;

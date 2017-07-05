@@ -15,7 +15,14 @@
 #define Parity_Even         EVENPARITY
 #define Parity_None         NOPARITY
 
-#elif defined UC_PIC
+#elif defined UC_PIC8
+
+#define Baudrate_9600       9600
+#define Baudrate_115200     115200
+#define DataBits_7          7
+#define DataBits_8          8
+//#define Parity_Even         EVENPARITY
+//#define Parity_None         NOPARITY
 
 #endif
 
