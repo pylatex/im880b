@@ -7,6 +7,8 @@
  * y han sido ligeramente modificados para soportar tipos estandar.
  */
 #include <xc.h>
+#include "lorawan_hci.h"
+#include "globaldefs.h"
 
 void main(void) {
     

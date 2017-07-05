@@ -18,20 +18,21 @@
 #include "SLIP.h"
 #include "SerialDevice.h"
 #include <string.h>
+#include "globaldefs.h"
 
 //------------------------------------------------------------------------------
 //  Forward Declaration
 //------------------------------------------------------------------------------
 
 // SLIP Message Receiver Callback
-static unsigned char*   WiMOD_HCI_ProcessRxMessage(unsigned char* rxData, int rxLength);
+static UINT8*   WiMOD_HCI_ProcessRxMessage(UINT8* rxData, int rxLength);
 
 /**
  * Layer Instance
  */
 typedef struct {
     // CRC Error counter
-    unsigned long                  CRCErrors;
+    UINT32                  CRCErrors;
 
     // RxMessage
     TWiMOD_HCI_Message*     RxMessage;
@@ -49,7 +50,7 @@ typedef struct {
 static TWiMOD_HCI_MsgLayer  HCI;
 
 // reserve one TxBuffer
-static unsigned char                TxBuffer[sizeof( TWiMOD_HCI_Message ) * 2 + 2];
+static UINT8                TxBuffer[sizeof( TWiMOD_HCI_Message ) * 2 + 2];
 
 /**
  * Init
@@ -198,5 +199,4 @@ static UINT8* WiMOD_HCI_ProcessRxMessage(UINT8* rxData, int rxLength)
 //------------------------------------------------------------------------------
 // end of file
 //------------------------------------------------------------------------------
-
 
