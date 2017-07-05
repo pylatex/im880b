@@ -7,6 +7,7 @@
 //	Disclaimer:	This example code is provided by IMST GmbH on an "AS IS"
 //              basis without any warranties.
 //  
+//  Modificado para ser mas acorde a ANSI C y asi ser compatible con mas uC
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
@@ -14,19 +15,19 @@
 //------------------------------------------------------------------------------
 
 #include "crc16.h"
+#include "tipos.h"
 
 // use fast table algorithm
 #define __CRC16_TABLE__
 //------------------------------------------------------------------------------
 //  Section CONST
 //------------------------------------------------------------------------------
-
 #ifdef    __CRC16_TABLE__
 
 /**
  * Lookup Table for fast CRC16 calculation
  */
-const UINT16 CRC16_Table[] = {
+const unsigned int CRC16_Table[] = {
     0x0000, 0x1189, 0x2312, 0x329B, 0x4624, 0x57AD, 0x6536, 0x74BF,
     0x8C48, 0x9DC1, 0xAF5A, 0xBED3, 0xCA6C, 0xDBE5, 0xE97E, 0xF8F7,
     0x1081, 0x0108, 0x3393, 0x221A, 0x56A5, 0x472C, 0x75B7, 0x643E,
@@ -72,13 +73,13 @@ const UINT16 CRC16_Table[] = {
  * 16-BIT CRC CCITT polynomial G(x) = 1 + x^5 + x^12 + x^16
  */
 #ifdef    __CRC16_TABLE__
-UINT16
-CRC16_Calc  (UINT8*             data,
-             UINT16             length,
-             UINT16             initVal)
+unsigned int
+CRC16_Calc  (unsigned char*             data,
+             unsigned int             length,
+             unsigned int             initVal)
 {
     // init crc
-    UINT16    crc = initVal;
+    unsigned int    crc = initVal;
 
     // iterate over all bytes
     while(length--)
@@ -132,12 +133,12 @@ CRC16_Calc  (UINT8*             data,
  * This function checks a data block with attached CRC16
  */
 bool
-CRC16_Check     (UINT8*                    data,
-                 UINT16                    length,
-                 UINT16                    initVal)
+CRC16_Check     (unsigned char*                    data,
+                 unsigned int                    length,
+                 unsigned int                    initVal)
 {
     // calc ones complement of CRC16
-    UINT16 crc = ~CRC16_Calc(data, length, initVal);
+    unsigned int crc = ~CRC16_Calc(data, length, initVal);
 
     // CRC ok ?
     return (bool)(crc == CRC16_GOOD_VALUE);
