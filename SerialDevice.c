@@ -42,7 +42,7 @@ SerialDevice_Open(const char*   comPort,
                   UINT8         parity)
 {
 
-#ifdef Q_OS_WIN
+#if defined Q_OS_WIN
     // handle valid ?
     if (ComHandle != INVALID_HANDLE_VALUE)
         SerialDevice_Close();
