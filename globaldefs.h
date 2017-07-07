@@ -11,6 +11,8 @@
 //#define Q_OS_WIN  //Comentado por logicas razones
 #define UC_PIC8 //Familia PIC de 8 bits
 
+#include <stdbool.h>
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -23,5 +25,6 @@ extern "C" {
 
 #if !(defined Q_OS_WIN || defined UC_PIC8)
 #error "No se ha definido entorno de compilacion valido"
-#endif	/* GLOBALDEFS_H */
+#endif
 
+#endif	/* GLOBALDEFS_H */
