@@ -7,13 +7,21 @@
  * y han sido ligeramente modificados para soportar tipos estandar.
  */
 #include <xc.h>
+//#include <string.h>
+#include <stdbool.h>
 #include "globaldefs.h"
+#include "lorawan_hci.h"
 
 #ifdef UC_PIC8
 
+volatile bool ping;
+volatile unsigned char rx_err,rx_val; //Relacionados con el receptor
+volatile unsigned char estado_rx;   //Reflejo de la maquina de estados de recepcion.
+
+#define _XTAL_FREQ 8000000  //RC interno
+//#define _XTAL_FREQ 7372800  //Cristal externo
 //*
-//Configuracion valida para PIC18F2550, con oscilador interno
-#define _XTAL_FREQ 8000000
+//Configuracion valida para PIC18F2550, con INTOSC en 8 MHz
 #pragma config PLLDIV = 1, CPUDIV = OSC1_PLL2, USBDIV = 1
 #pragma config FOSC = INTOSCIO_EC,  FCMEN = ON, IESO = OFF
 #pragma config PWRT = ON, BOR = OFF, BORV = 3, VREGEN = OFF
@@ -22,8 +30,8 @@
 #pragma config STVREN = OFF, LVP = OFF, DEBUG=OFF, XINST = OFF
 //*/
 
-#define LED LATA0 //(Usado para la prueba de parpadeo)
-#define PIN RC0
+#define LED LATA0 //Para las pruebas de parpadeo y ping
+#define PIN RC0 //Para prueba LED=PIN
 
 void cienmilis (unsigned char cant) {
     while (cant--)
@@ -32,16 +40,15 @@ void cienmilis (unsigned char cant) {
 #endif
 
 #ifdef Q_OS_WIN
-
-//Todo el codigo del main del ejemplo de IMST...
 int main(int argc, char *argv[])
-#elif defined UC_PIC8
+#endif
+#ifdef UC_PIC8
 void main(void) 
 #endif
 {
 #ifdef Q_OS_WIN
     ////////////////////////////////////////////////////////////////////////////
-    //Codigo del main del ejemplo de IMST:
+    //Codigo del main() del ejemplo de IMST:
     ////////////////////////////////////////////////////////////////////////////
 
     bool run = true;
@@ -133,8 +140,8 @@ void main(void)
     //Codigo para PIC de 8 bits.
 
     //INICIALIZACION
-    OSCCON=0x73;    //Interno a 8 MHz
-    while(!IOFS);   //Espera que se estabilize
+    OSCCON=0x73;    //Interno a 8 MHz (aplica a: 18F2550)
+    while(!IOFS);   //Espera que se estabilice
     
     //Parpadeo de LED (idealmente) en RC0
     ADCON1=0x0F;    //Todos los pines son digitales
@@ -142,23 +149,40 @@ void main(void)
     LATA=0;
     TRISA=0xFE; //Para RC0 como salida.
     
+    //UART, Ajustes comunes a Rx y Tx. Inicializado de acuerdo a datasheet 16F2550
+    //Se prueba con 8(interno) y 7.3728(externo) MHz
+    ////1: (En reset,SPBRG=0). Usar BRG16=1 y BRGH=1. Velocidades despues de PLL (si lo hay)
+    SPBRG=16;   //Fosc=8 MHz (ejm,interno)
+    //SPBRG=15;   //Fosc=7.3728 MHz (externo)
+    SYNC=0; //2. Modo Asincrono
+    SPEN=1; //2. Habilita Puerto Serie
+    TXEN=1; //6,Tx. Habilita transmisor
     //BUCLE
+    ping=false;
     while (true) {
-        //LED=PIN;
-        //*
-        LED=1;
+        //Enviar Ping
+        //SendHCI();    //TXREG=0x69;
+        //Booleano indicando respuesta pendiente = true
+        //Habilitar interrupcion por recepcion
+        
+        LED=ping;
         cienmilis(5);
-        LED=0;
+        ping=false;
+        LED=false;
         cienmilis(5);
-        //*/
+        
     }
     //Fin Codigo PIC 8 bits
     ////////////////////////////////////////////////////////////////////////////
 #endif
 }
 
-#if defined UC_PIC8
+#ifdef UC_PIC8
 void interrupt ISR (void) {
-    ;
+    if (RCIE && RCIF) {
+        rx_err=RCSTA;
+        rx_val=RCREG;
+        estado_rx=ProcessHCI(rx_val);
+    }
 }
 #endif

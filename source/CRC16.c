@@ -13,6 +13,7 @@
 //  Section Include Files
 //------------------------------------------------------------------------------
 
+#include <stdbool.h>
 #include "CRC16.h"
 
 // use fast table algorithm
@@ -71,11 +72,11 @@ const UINT16 CRC16_Table[] = {
  * This function calculates the one's complement of the standard
  * 16-BIT CRC CCITT polynomial G(x) = 1 + x^5 + x^12 + x^16
  */
-#ifdef    __CRC16_TABLE__
 UINT16
 CRC16_Calc  (UINT8*             data,
              UINT16             length,
              UINT16             initVal)
+#ifdef    __CRC16_TABLE__
 {
     // init crc
     UINT16    crc = initVal;
@@ -91,10 +92,6 @@ CRC16_Calc  (UINT8*             data,
     return crc;
 }
 #else
-UINT16
-CRC16_Calc  (UINT8*             data,
-             UINT16             length,
-             UINT16             initVal)
 {
     // init crc
     UINT16    crc = initVal;
@@ -145,6 +142,3 @@ CRC16_Check     (UINT8*                    data,
 //------------------------------------------------------------------------------
 // end of file
 //------------------------------------------------------------------------------
-
-
-

@@ -8,21 +8,22 @@
 #ifndef GLOBALDEFS_H
 #define	GLOBALDEFS_H
 
+//Agregar los entornos de compilacion validos aca:
 //#define Q_OS_WIN  //Comentado por logicas razones
 #define UC_PIC8 //Familia PIC de 8 bits
-
-#include <stdbool.h>
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-    //Ni idea... esto lo coloco mplabx/netbeans
-
+    //Insertar prototipos de funciones en C aqui...
+    
 #ifdef	__cplusplus
 }
 #endif
 
+//Actualizar segun el entorno de programacion. Si se creo un entorno nuevo,
+//adicionarlo dentro del parentesis.
 #if !(defined Q_OS_WIN || defined UC_PIC8)
 #error "No se ha definido entorno de compilacion valido"
 #endif

@@ -11,22 +11,17 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
+
+    //--------------------------------------------------------------------------
+    //  Section CONST
+    //--------------------------------------------------------------------------
     
-    #include "globaldefs.h"
-
-    //------------------------------------------------------------------------------
-    //  Include Files
-    //------------------------------------------------------------------------------
-
-    //------------------------------------------------------------------------------
-    //  Endpoint (SAP) Identifier
-    //------------------------------------------------------------------------------
+    ////Endpoint (SAP) Identifier
     #define DEVMGMT_SAP_ID                      0x01
     #define LORAWAN_SAP_ID                      0x10
-
-    //------------------------------------------------------------------------------
-    //  Device Management SAP Message Identifier
-    //------------------------------------------------------------------------------
+    
+    ////Device Management SAP Message Identifier:
+    
     // Status Identifier
     #define	DEVMGMT_STATUS_OK                       0x00
     #define	DEVMGMT_STATUS_ERROR                    0x01
@@ -41,9 +36,8 @@ extern "C" {
     #define DEVMGMT_MSG_GET_FW_VERSION_REQ          0x05
     #define DEVMGMT_MSG_GET_FW_VERSION_RSP          0x06
 
-    //------------------------------------------------------------------------------
-    //  LoRaWAN SAP Message Identifier
-    //------------------------------------------------------------------------------
+    ////LoRaWAN SAP Message Identifier:
+    
     // Status Identifier
     #define LORAWAN_STATUS_OK                       0x00
     #define	LORAWAN_STATUS_ERROR                    0x01
@@ -73,9 +67,15 @@ extern "C" {
     #define LORAWAN_MSG_RECV_ACK_IND                0x15
     #define LORAWAN_MSG_RECV_NODATA_IND             0x16
 
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     //  Function Prototypes
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    
+    //Envio de un comando HCI
+    bool SendHCI (unsigned char destId, unsigned char msgId, unsigned char* payload, unsigned char size);
+    
+    //Procesamiento de HCI entrante.
+    bool ProcessHCI (unsigned char valor);
 
 #ifdef	__cplusplus
 }
