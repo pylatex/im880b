@@ -16,7 +16,10 @@
 
 volatile bool ping;
 volatile unsigned char rx_err,rx_val; //Relacionados con el receptor
-volatile unsigned char estado_rx;   //Reflejo de la maquina de estados de recepcion.
+
+volatile unsigned char estado_rx;   //Reflejo del ultimo estado HCI del receptor
+volatile unsigned char buffer1[20]; //Buffer de salida
+//volatile unsigned char buffer2[20]; //Buffer de llegada
 
 #define _XTAL_FREQ 8000000  //RC interno
 //#define _XTAL_FREQ 7372800  //Cristal externo
@@ -180,8 +183,10 @@ void main(void)
 #ifdef UC_PIC8
 void interrupt ISR (void) {
     if (RCIE && RCIF) {
+        //Borrado de Bandera
         rx_err=RCSTA;
-        rx_val=RCREG;
+        rx_val=RCREG; //Esto borra RCIF (PIR1)
+        //Procesamiento
         estado_rx=ProcessHCI(rx_val);
     }
 }
