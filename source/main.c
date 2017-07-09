@@ -6,13 +6,39 @@
  * WiMOD_LoRaWAN_ExampleCode_HCI_C_V0_1.zip
  * y han sido ligeramente modificados para soportar tipos estandar.
  */
-#include <xc.h>
+
+//------------------------------------------------------------------------------
+//  Include Files
+//------------------------------------------------------------------------------
 //#include <string.h>
 #include <stdbool.h>
 #include "globaldefs.h"
 #include "lorawan_hci.h"
+#include "SerialDevice.h"
 
 #ifdef UC_PIC8
+#include <xc.h>
+#endif
+
+//------------------------------------------------------------------------------
+//  Declarations and Definitions
+//------------------------------------------------------------------------------
+
+#ifdef Q_OS_WIN
+// forward declarations
+static void     ShowMenu(const char*);
+static void     Ping();
+static void     GetDeviceInfo();
+static void     Join();
+static void     SendUData();
+static void     SendCData();
+#endif
+
+#ifdef UC_PIC8
+
+//------------------------------------------------------------------------------
+//  Section Code
+//------------------------------------------------------------------------------
 
 volatile bool ping;
 volatile unsigned char rx_err,rx_val; //Relacionados con el receptor
@@ -42,14 +68,17 @@ void cienmilis (unsigned char cant) {
 }
 #endif
 
+/**
+ * Main
+ */
 #ifdef Q_OS_WIN
 int main(int argc, char *argv[])
 #endif
 #ifdef UC_PIC8
 void main(void) 
 #endif
-{
 #ifdef Q_OS_WIN
+{
     ////////////////////////////////////////////////////////////////////////////
     //Codigo del main() del ejemplo de IMST:
     ////////////////////////////////////////////////////////////////////////////
@@ -137,8 +166,10 @@ void main(void)
     return 0;
     //Fin Codigo IMST.
     ////////////////////////////////////////////////////////////////////////////
+}
 #endif
 #ifdef UC_PIC8
+{
     ////////////////////////////////////////////////////////////////////////////
     //Codigo para PIC de 8 bits.
 
@@ -152,14 +183,7 @@ void main(void)
     LATA=0;
     TRISA=0xFE; //Para RC0 como salida.
     
-    //UART, Ajustes comunes a Rx y Tx. Inicializado de acuerdo a datasheet 16F2550
-    //Se prueba con 8(interno) y 7.3728(externo) MHz
-    ////1: (En reset,SPBRG=0). Usar BRG16=1 y BRGH=1. Velocidades despues de PLL (si lo hay)
-    SPBRG=16;   //Fosc=8 MHz (ejm,interno)
-    //SPBRG=15;   //Fosc=7.3728 MHz (externo)
-    SYNC=0; //2. Modo Asincrono
-    SPEN=1; //2. Habilita Puerto Serie
-    TXEN=1; //6,Tx. Habilita transmisor
+    SerialDevice_Open(0,0,0);
     //BUCLE
     ping=false;
     while (true) {
@@ -189,5 +213,100 @@ void interrupt ISR (void) {
         //Procesamiento
         estado_rx=ProcessHCI(rx_val);
     }
+}
+#endif
+
+#ifdef Q_OS_WIN
+/**
+ * ShowMenu
+ * @brief: show main menu
+ */
+void ShowMenu(const char* comPort) {
+    printf("\n\r");
+    printf("------------------------------\n\r");
+    printf("Using comport: %s\r\n", comPort);
+    printf("------------------------------\n\r");
+    printf("[SPACE]\t: show this menu\n\r");
+    printf("[p]\t: ping device\n\r");
+    printf("[i]\t: get device information\n\r");
+    printf("[j]\t: join network request\n\r");
+    printf("[u]\t: send unconfirmed radio message\n\r");
+    printf("[c]\t: send confirmed radio message\n\r");
+    printf("[e|x]\t: exit program\n\r");
+
+}
+
+/**
+ * Ping
+ * @brief: ping device
+ */
+void Ping() {
+    printf("ping request\n\r");
+
+    WiMOD_LoRaWAN_SendPing();
+}
+
+/**
+ * GetDeviceInfo
+ * @brief: get device information
+ */
+void GetDeviceInfo() {
+    printf("get firmware version\n\r");
+
+    WiMOD_LoRaWAN_GetFirmwareVersion();
+}
+
+/**
+ * Join
+ * @brief: ping device
+ */
+void Join() {
+    printf("join network request\n\r");
+
+    WiMOD_LoRaWAN_JoinNetworkRequest();
+}
+
+/**
+ * SendUData
+ * @brief: send unconfirmed radio message
+ */
+void SendUData() {
+    printf("send U-Data\n\r");
+
+    // port 0x21
+    UINT8 port = 0x21;
+
+    UINT8 data[4];
+
+    data[0] = 0x01;
+    data[1] = 0x02;
+    data[2] = 0x03;
+    data[3] = 0x04;
+
+    // send unconfirmed radio message
+    WiMOD_LoRaWAN_SendURadioData(port, data, 4);
+}
+
+/**
+ * SendCData
+ * @brief: send confirmed radio message
+ */
+void SendCData() {
+    printf("send C-Data\n\r");
+
+    // port 0x21
+    UINT8 port = 0x23;
+
+    UINT8 data[6];
+
+    data[0] = 0x0A;
+    data[1] = 0x0B;
+    data[2] = 0x0C;
+    data[3] = 0x0D;
+    data[4] = 0x0E;
+    data[5] = 0x0F;
+
+    // send unconfirmed radio message
+    WiMOD_LoRaWAN_SendCRadioData(port, data, 6);
 }
 #endif

@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include "lorawan_hci.h"
 #include "CRC16.h"
-#include "globaldefs.h" //Contexto de compilacion
+#include "SerialDevice.h"   //Acceso al puerto serie / UART
 
 //------------------------------------------------------------------------------
 // Codigo Fuente
@@ -17,11 +17,9 @@
  * Toma el comando HCI, calcula su CRC (SLIP) y lo envia.
  */
 bool SendHCI (unsigned char destId, unsigned char msgId, unsigned char* payload, unsigned char size)
-#ifdef UC_PIC8
 {
     return true;
 }
-#endif
 
 /**
  * @brief Procesa un octeto recibido por el UART
@@ -50,7 +48,32 @@ unsigned char ProcessHCI (unsigned char valor)
             break;
         case 2: //MID: Identificador del Mensaje.
             MID=valor;
-            estado=3;
+            if (valor==DEVMGMT_SAP_ID) {
+                switch (MID) {
+                //Todos los que devuelven solamente estado
+                case DEVMGMT_MSG_PING_RSP:
+                case DEVMGMT_MSG_RESET_RSP:
+                case DEVMGMT_MSG_SET_RTC_RSP:
+                case DEVMGMT_MSG_SET_RTC_ALARM_RSP:
+                case DEVMGMT_MSG_RTC_ALARM_IND:
+                case DEVMGMT_MSG_CLEAR_RTC_ALARM_RSP:
+                case DEVMGMT_MSG_SET_OPMODE_RSP:
+                    estado=3;
+                    break;
+                }
+            }
+            else if (valor==LORAWAN_SAP_ID)
+            {
+                switch (MID) {
+                //Todos los que devuelven solamente estado
+                case LORAWAN_MSG_ACTIVATE_DEVICE_RSP:
+                case LORAWAN_MSG_SET_JOIN_PARAM_RSP:
+                case LORAWAN_MSG_JOIN_NETWORK_RSP:
+                    estado=3;
+                    break;
+            }
+            }
+            
             break;
         case 3: //Carga Util o Fin de Mensaje
             break;

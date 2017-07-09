@@ -21,7 +21,6 @@ extern "C" {
 
     #include <stdint.h>
     #include <stdbool.h>
-    #include "globaldefs.h"
 
     //--------------------------------------------------------------------------
     // General Definitions

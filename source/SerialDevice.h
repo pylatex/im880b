@@ -1,43 +1,22 @@
 #ifndef SERIAL_DEVICE_H
 #define SERIAL_DEVICE_H
 
+#include <stdint.h>
+#include <stdbool.h>
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
-    #include <stdint.h>
-    #include <stdbool.h>
-    #include "globaldefs.h"
-
-    #if defined Q_OS_WIN
-    #include <windows.h>
-
-    #define Baudrate_9600       9600
-    #define Baudrate_115200     115200
-    #define DataBits_7          7
-    #define DataBits_8          8
-    #define Parity_Even         EVENPARITY
-    #define Parity_None         NOPARITY
-
-    #elif defined UC_PIC8
-
-    #define Baudrate_9600       9600
-    #define Baudrate_115200     115200
-    #define DataBits_7          7
-    #define DataBits_8          8
-    //#define Parity_Even         EVENPARITY
-    //#define Parity_None         NOPARITY
-
-    #endif
 
     typedef uint8_t             UINT8;
     typedef uint32_t            UINT32;
 
     // open serial device
     bool
-    SerialDevice_Open(const char*   comPort,
-                      UINT32        baudRate,
-                      int           dataBits,
-                      UINT8         parity);
+    SerialDevice_Open(UINT8         comNumber,
+                      //UINT32        baudRate, //115200, siempre.
+                      int           dataBits,   //8, siempre.
+                      UINT8         parity);    //Ninguna, siempre.
 
     // close serial device
     bool

@@ -7,13 +7,30 @@
 //	Disclaimer:	This example code is provided by IMST GmbH on an "AS IS" basis
 //				without any warranties.
 //
+//  Realizadas modificaciones adicionales a este fichero para permitir una
+//  implementacion mas independiente de la plataforma.
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 //  Include Files
 //------------------------------------------------------------------------------
-
+#include <stdbool.h>
+#include "globaldefs.h"
 #include "SerialDevice.h"
+
+#ifdef Q_OS_WIN
+#include <windows.h>
+#define Baudrate_9600       9600
+#define Baudrate_115200     115200
+#define DataBits_7          7
+#define DataBits_8          8
+#define Parity_Even         EVENPARITY
+#define Parity_None         NOPARITY
+#endif
+#ifdef UC_PIC8
+#include <xc.h>
+#endif
+
 //------------------------------------------------------------------------------
 //  Section RAM
 //------------------------------------------------------------------------------
@@ -34,15 +51,18 @@ static HANDLE   ComHandle = INVALID_HANDLE_VALUE;
 /**
  * Open
  * @brief: open serial device
+ * 
+ * Configura e Inicia el modulo/puerto serie.
  */
 bool
-SerialDevice_Open(const char*   comPort,
-                  UINT32        baudRate,
+SerialDevice_Open(UINT8         comNumber,
                   int           dataBits,
                   UINT8         parity)
+#ifdef Q_OS_WIN
 {
+    //POR HACER: el primer argumento ya no es un string, hay que armarlo aca
+    //si se requiere.
 
-#if defined Q_OS_WIN
     // handle valid ?
     if (ComHandle != INVALID_HANDLE_VALUE)
         SerialDevice_Close();
@@ -101,12 +121,24 @@ SerialDevice_Open(const char*   comPort,
         // close device
         SerialDevice_Close();
     }
-#elif defined UC_PIC8
-    // TODO : add your own platform specific code here
-#endif
     // error
     return false;
 }
+#endif
+#ifdef UC_PIC8
+{
+    //UART, Ajustes comunes a Rx y Tx. Inicializado de acuerdo a datasheet 16F2550
+    //Se prueba con 8(interno) y 7.3728(externo) MHz
+    ////1: (En reset,SPBRG=0). Usar BRG16=1 y BRGH=1. Velocidades despues de PLL (si lo hay)
+    SPBRG=16;   //Fosc=8 MHz (ejm,interno)
+    //SPBRG=15;   //Fosc=7.3728 MHz (externo)
+    SYNC=0; //2. Modo Asincrono
+    SPEN=1; //2. Habilita Puerto Serie
+    TXEN=1; //6,Tx. Habilita transmisor
+    
+    return true;
+}
+#endif
 
 /**
  * Close
@@ -114,8 +146,8 @@ SerialDevice_Open(const char*   comPort,
  */
 bool
 SerialDevice_Close()
-{
 #ifdef Q_OS_WIN
+{
     // handle valid ?
     if (ComHandle != INVALID_HANDLE_VALUE) {
         // cancel last operation
@@ -133,12 +165,15 @@ SerialDevice_Close()
         // ok
         return true;
     }
-#elif defined UC_PIC8
-    // TODO : add your own platform specific code here
-#endif
-    // error
     return false;
 }
+#endif
+#ifdef UC_PIC8
+{
+    // TODO : add your own platform specific code here
+    return false;
+}
+#endif
 
 /**
  * SendData
@@ -146,8 +181,8 @@ SerialDevice_Close()
  */
 int
 SerialDevice_SendData(UINT8* txBuffer, int txLength)
-{
 #ifdef Q_OS_WIN
+{
     // handle valid ?
     if (ComHandle == INVALID_HANDLE_VALUE)
         return -1;
@@ -166,12 +201,16 @@ SerialDevice_SendData(UINT8* txBuffer, int txLength)
         // ok
         return numTxBytes;
     }
-#elif defined UC_PIC8
-    // TODO : add your own platform specific code here
+}
 #endif
+#ifdef UC_PIC8
+{
+    // TODO : add your own platform specific code here
+
     // error
     return -1;
 }
+#endif
 
 /**
  * SendByte
@@ -179,8 +218,8 @@ SerialDevice_SendData(UINT8* txBuffer, int txLength)
  */
 int
 SerialDevice_SendByte(UINT8 txByte)
-{
 #ifdef Q_OS_WIN
+{
     // handle valid ?
     if (ComHandle == INVALID_HANDLE_VALUE)
         return -1;
@@ -199,12 +238,17 @@ SerialDevice_SendByte(UINT8 txByte)
         // ok
         return numTxBytes;
     }
-#else
-    // Todo : add your own platform specific code here
-#endif
     // error
     return -1;
 }
+#endif
+#ifdef UC_PIC8
+{
+    // Todo : add your own platform specific code here
+    // error
+    return -1;
+}
+#endif
 
 /**
  * ReadData
@@ -212,8 +256,8 @@ SerialDevice_SendByte(UINT8 txByte)
  */
 int
 SerialDevice_ReadData(UINT8* rxBuffer, int rxBufferSize)
-{
 #ifdef  Q_OS_WIN
+{
     // handle ok ?
     if (ComHandle == INVALID_HANDLE_VALUE)
         return -1;
@@ -226,12 +270,15 @@ SerialDevice_ReadData(UINT8* rxBuffer, int rxBufferSize)
         // return number of bytes read
         return (int)numRxBytes;
     }
-#else
-    // Todo : add your own platform specific code here
-#endif
     // error
     return -1;
 }
+#endif
+#ifdef UC_PIC8
+{
+    // Todo : add your own platform specific code here
+}
+#endif
 //------------------------------------------------------------------------------
 // end of file
 //------------------------------------------------------------------------------
