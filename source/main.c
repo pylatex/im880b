@@ -12,6 +12,7 @@
 //------------------------------------------------------------------------------
 //#include <string.h>
 #include <stdbool.h>
+#include <string.h>
 #include "globaldefs.h"
 #include "lorawan_hci.h"
 #include "SerialDevice.h"
@@ -34,15 +35,13 @@ static void     SendUData();
 static void     SendCData();
 #endif
 
-#ifdef UC_PIC8
-
 //------------------------------------------------------------------------------
 //  Section Code
 //------------------------------------------------------------------------------
+#ifdef UC_PIC8
 
 volatile bool ping;
 volatile unsigned char rx_err,rx_val; //Relacionados con el receptor
-
 volatile unsigned char estado_rx;   //Reflejo del ultimo estado HCI del receptor
 volatile unsigned char buffer1[20]; //Buffer de salida
 //volatile unsigned char buffer2[20]; //Buffer de llegada
@@ -191,13 +190,31 @@ void main(void)
         //SendHCI();    //TXREG=0x69;
         //Booleano indicando respuesta pendiente = true
         //Habilitar interrupcion por recepcion
+        /*
+        SerialDevice_SendByte(0xC0);
+        SerialDevice_SendByte(0x01);
+        SerialDevice_SendByte(0x02);
+        SerialDevice_SendByte(0x00);
+        SerialDevice_SendByte(0xA0);
+        SerialDevice_SendByte(0xAF);
+        SerialDevice_SendByte(0xC0);
+        */
+        /*
+        SerialDevice_SendByte('H');
+        SerialDevice_SendByte('o');
+        SerialDevice_SendByte('l');
+        SerialDevice_SendByte('a');
+        */
+        SerialDevice_SendData("holi",4);
+        cienmilis(10); //Espera un segundo
         
+        /*
         LED=ping;
         cienmilis(5);
         ping=false;
         LED=false;
         cienmilis(5);
-        
+        */
     }
     //Fin Codigo PIC 8 bits
     ////////////////////////////////////////////////////////////////////////////

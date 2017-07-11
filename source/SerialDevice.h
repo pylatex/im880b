@@ -29,7 +29,7 @@ extern "C" {
     // send data
     int
     SerialDevice_SendData(UINT8*    txBuffer,
-                          int       txLength);
+                          UINT8       txLength);
 
     // read data
     int

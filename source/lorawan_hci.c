@@ -18,6 +18,7 @@
  */
 bool SendHCI (unsigned char destId, unsigned char msgId, unsigned char* payload, unsigned char size)
 {
+
     return true;
 }
 

@@ -24,10 +24,10 @@ extern "C" {
     ////Device Management SAP Message Identifier:
     
     // Status Identifier
-    #define	DEVMGMT_STATUS_OK                       0x00
-    #define	DEVMGMT_STATUS_ERROR                    0x01
-    #define	DEVMGMT_STATUS_CMD_NOT_SUPPORTED        0x02
-    #define	DEVMGMT_STATUS_WRONG_PARAMETER          0x03
+    #define DEVMGMT_STATUS_OK                       0x00
+    #define DEVMGMT_STATUS_ERROR                    0x01
+    #define DEVMGMT_STATUS_CMD_NOT_SUPPORTED        0x02
+    #define DEVMGMT_STATUS_WRONG_PARAMETER          0x03
     #define DEVMGMT_STATUS_WRONG_DEVICE_MODE        0x04
 
     // Message Identifier --------------------------value---PayloadOctets

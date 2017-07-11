@@ -39,8 +39,8 @@
 
 // File Handle
 static HANDLE   ComHandle = INVALID_HANDLE_VALUE;
-
-#else
+#endif
+#ifdef UC_PIC8
 // Todo : add your own platform specific variables here
 #endif
 
@@ -133,9 +133,11 @@ SerialDevice_Open(UINT8         comNumber,
     SPBRG=16;   //Fosc=8 MHz (ejm,interno)
     //SPBRG=15;   //Fosc=7.3728 MHz (externo)
     SYNC=0; //2. Modo Asincrono
+    BRG16=1;
+    BRGH=1;
     SPEN=1; //2. Habilita Puerto Serie
     TXEN=1; //6,Tx. Habilita transmisor
-    
+
     return true;
 }
 #endif
@@ -180,7 +182,7 @@ SerialDevice_Close()
  * @brief: send data
  */
 int
-SerialDevice_SendData(UINT8* txBuffer, int txLength)
+SerialDevice_SendData(UINT8* txBuffer, UINT8 txLength)
 #ifdef Q_OS_WIN
 {
     // handle valid ?
@@ -205,10 +207,13 @@ SerialDevice_SendData(UINT8* txBuffer, int txLength)
 #endif
 #ifdef UC_PIC8
 {
-    // TODO : add your own platform specific code here
-
-    // error
-    return -1;
+    for (UINT8 i=0;i<txLength;i++) {
+        if (!SerialDevice_SendByte(txBuffer[i])) {
+            //Escapes the error
+            return false;
+        }
+    }
+    return true;
 }
 #endif
 
@@ -244,9 +249,13 @@ SerialDevice_SendByte(UINT8 txByte)
 #endif
 #ifdef UC_PIC8
 {
-    // Todo : add your own platform specific code here
-    // error
-    return -1;
+    if (SPEN && TXEN) {
+        while (!TRMT);  //Wait for a pending transmision, due to TSR busy
+        TXREG=txByte;
+        while (!TXIF);  //Esperar a que se pase el valor al TSR
+        return true;
+    }
+    return false;
 }
 #endif
 
