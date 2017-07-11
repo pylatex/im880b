@@ -14,7 +14,6 @@
 //------------------------------------------------------------------------------
 //  Include Files
 //------------------------------------------------------------------------------
-#include <stdbool.h>
 #include "globaldefs.h"
 #include "SerialDevice.h"
 
@@ -142,6 +141,15 @@ SerialDevice_Open(UINT8         comNumber,
 }
 #endif
 
+/*
+ * Simple check for the status of Tx module
+ */
+bool SerialSentIsOpen(void) {
+#ifdef UC_PIC8
+    return SPEN && TXEN;
+#endif
+}
+
 /**
  * Close
  * @brief: close serial device
@@ -249,10 +257,10 @@ SerialDevice_SendByte(UINT8 txByte)
 #endif
 #ifdef UC_PIC8
 {
-    if (SPEN && TXEN) {
+    if (SerialSentIsOpen()) {
         while (!TRMT);  //Wait for a pending transmision, due to TSR busy
         TXREG=txByte;
-        while (!TXIF);  //Esperar a que se pase el valor al TSR
+        while (!TXIF);  //Wait while TXREG value are transferred to TSR
         return true;
     }
     return false;

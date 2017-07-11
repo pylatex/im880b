@@ -11,13 +11,16 @@ extern "C" {
     typedef uint8_t             UINT8;
     typedef uint32_t            UINT32;
 
+    //Simple check
+    bool SerialSentIsOpen(void);
+
     // open serial device
     bool
     SerialDevice_Open(UINT8         comNumber,
                       //UINT32        baudRate, //115200, siempre.
                       int           dataBits,   //8, siempre.
                       UINT8         parity);    //Ninguna, siempre.
-
+    
     // close serial device
     bool
     SerialDevice_Close();

@@ -12,11 +12,18 @@
 extern "C" {
 #endif
 
+    #include <stdbool.h>
+
     //--------------------------------------------------------------------------
     //  Section CONST
     //--------------------------------------------------------------------------
     
-    #define WIMOD_WKUP  0xC0
+    // SLIP Protocol Characters
+    #define SLIP_END        0xC0
+    #define SLIP_ESC        0xDB
+    #define SLIP_ESC_END    0xDC
+    #define SLIP_ESC_ESC    0xDD
+
     ////Endpoint (SAP) Identifier
     #define DEVMGMT_SAP_ID                          0x01
     #define LORAWAN_SAP_ID                          0x10
@@ -24,11 +31,11 @@ extern "C" {
     ////Device Management SAP Message Identifier:
     
     // Status Identifier
-    #define DEVMGMT_STATUS_OK                       0x00
-    #define DEVMGMT_STATUS_ERROR                    0x01
-    #define DEVMGMT_STATUS_CMD_NOT_SUPPORTED        0x02
-    #define DEVMGMT_STATUS_WRONG_PARAMETER          0x03
-    #define DEVMGMT_STATUS_WRONG_DEVICE_MODE        0x04
+    #define DEVMGMT_STATUS_OK                   0x00
+    #define DEVMGMT_STATUS_ERROR                0x01
+    #define DEVMGMT_STATUS_CMD_NOT_SUPPORTED    0x02
+    #define DEVMGMT_STATUS_WRONG_PARAMETER      0x03
+    #define DEVMGMT_STATUS_WRONG_DEVICE_MODE    0x04
 
     // Message Identifier --------------------------value---PayloadOctets
     #define DEVMGMT_MSG_PING_REQ                    0x01    //0
@@ -145,7 +152,7 @@ extern "C" {
     //--------------------------------------------------------------------------
     
     //Envio de un comando HCI
-    bool SendHCI (unsigned char destId, unsigned char msgId, unsigned char* payload, unsigned char size);
+    bool SendHCI (unsigned char* payload, unsigned char size);
     
     //Procesamiento de HCI entrante.
     bool ProcessHCI (unsigned char valor);

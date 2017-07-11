@@ -13,7 +13,6 @@
 //  Section Include Files
 //------------------------------------------------------------------------------
 
-#include <stdbool.h>
 #include "CRC16.h"
 
 // use fast table algorithm

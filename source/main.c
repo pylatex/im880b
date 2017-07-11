@@ -11,7 +11,7 @@
 //  Include Files
 //------------------------------------------------------------------------------
 //#include <string.h>
-#include <stdbool.h>
+//#include <stdbool.h>
 #include <string.h>
 #include "globaldefs.h"
 #include "lorawan_hci.h"
@@ -190,22 +190,23 @@ void main(void)
         //SendHCI();    //TXREG=0x69;
         //Booleano indicando respuesta pendiente = true
         //Habilitar interrupcion por recepcion
-        /*
+        //*
+        //Hacer creer que es el modulo y se esta enviando DEVMGMT_MSG_PING_RSP:
         SerialDevice_SendByte(0xC0);
-        SerialDevice_SendByte(0x01);
-        SerialDevice_SendByte(0x02);
+        SerialDevice_SendByte(DEVMGMT_SAP_ID);
+        SerialDevice_SendByte(DEVMGMT_MSG_PING_RSP);
         SerialDevice_SendByte(0x00);
         SerialDevice_SendByte(0xA0);
         SerialDevice_SendByte(0xAF);
         SerialDevice_SendByte(0xC0);
-        */
+        //*/
         /*
         SerialDevice_SendByte('H');
         SerialDevice_SendByte('o');
         SerialDevice_SendByte('l');
         SerialDevice_SendByte('a');
-        */
-        SerialDevice_SendData("holi",4);
+        //*/
+        //SerialDevice_SendData("holi",4);
         cienmilis(10); //Espera un segundo
         
         /*
