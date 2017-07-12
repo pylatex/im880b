@@ -180,8 +180,9 @@ void main(void)
     LATA=0;
     TRISA=0xFE; //Para RC0 como salida.
     
-    SerialDevice_Open(0,0,0);   //Habilita Serie, con Emisor y Receptor
-    GIE=true;   
+    SerialDevice_Open(0,0,0);   //Habilita Serie, con Emisor y Receptor (Incl. interrup por Rx)
+    PEIE=true;  //Interrupciones por perifericos
+    GIE=true;   //Interrupciones Globales
     //BUCLE
     ping=false;
     while (true) {
@@ -195,6 +196,7 @@ void main(void)
         buffer1[1]=DEVMGMT_MSG_PING_REQ;
         //buffer1[2]=0;
         SendHCI(buffer1,0);
+        //*/
         /*
         //Hacer creer que es el modulo y se esta enviando DEVMGMT_MSG_PING_RSP:
         SerialDevice_SendByte(0xC0);
@@ -214,13 +216,30 @@ void main(void)
         //SerialDevice_SendData("holi",4);
         //cienmilis(10); //Espera un segundo
         
+        /*
+        ProcessHCI(buffer1,SLIP_END);
+        ProcessHCI(buffer1,SLIP_END);
+        ProcessHCI(buffer1,SLIP_END);
+        ProcessHCI(buffer1,DEVMGMT_SAP_ID);
+        ProcessHCI(buffer1,DEVMGMT_MSG_PING_RSP);
+        ProcessHCI(buffer1,DEVMGMT_STATUS_OK);
+        ProcessHCI(buffer1,0xA0);
+        ProcessHCI(buffer1,0xAF);
+        if (ProcessHCI(buffer1,SLIP_END)>=0) {
+            ping=true;
+        }
+        //*/
         //*
         //while(!ping);   //Esperar
-        LED=ping;
-        cienmilis(5);
-        if (ping) ping=false;
-        LED=false;
-        cienmilis(5);
+        __delay_ms(10);
+        
+        if (ping) {
+            ping=false;
+            LED=true;
+            cienmilis(5);
+            LED=false;
+            cienmilis(5);
+        } else cienmilis(10);
         //*/
     }
     //Fin Codigo PIC 8 bits

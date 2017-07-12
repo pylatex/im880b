@@ -131,15 +131,15 @@ SerialDevice_Open(UINT8         comNumber,
     ////1: (En reset,SPBRG=0). Usar BRG16=1 y BRGH=1. Velocidades despues de PLL (si lo hay)
     SPBRG=16;   //Fosc=8 MHz (ejm,interno)
     //SPBRG=15;   //Fosc=7.3728 MHz (externo)
-    SYNC=0; //2. Modo Asincrono
-    BRG16=1;
-    BRGH=1;
-    SPEN=1; //2. Habilita Puerto Serie
+    SYNC=false; //2. Modo Asincrono
+    BRG16=true;
+    BRGH=true;
+    SPEN=true; //2. Habilita Puerto Serie
     //TRANSMISOR
-    TXEN=1; //6,Tx. Habilita transmisor
+    TXEN=true; //6,Tx. Habilita transmisor
     //RECEPTOR
-    RCIE=true;  //Interrupcion por recepcion habilitada
-    PEIE=true;  //Interrupciones por perifericos habilitadas
+    CREN=true;  //6,Rx. Habilita receptor
+    RCIE=true;  //7,Rx. Interrupcion por recepcion habilitada
     return true;
 }
 #endif
@@ -297,6 +297,7 @@ SerialDevice_ReadData(UINT8* rxBuffer, int rxBufferSize)
 #ifdef UC_PIC8
 {
     // Todo : add your own platform specific code here
+    return -1;
 }
 #endif
 //------------------------------------------------------------------------------
