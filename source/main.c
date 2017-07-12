@@ -10,7 +10,7 @@
 //------------------------------------------------------------------------------
 //  Include Files
 //------------------------------------------------------------------------------
-#include <string.h>
+//#include <string.h>
 #include "globaldefs.h"
 #include "lorawan_hci.h"
 #include "SerialDevice.h"

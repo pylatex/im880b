@@ -20,7 +20,7 @@
  */
 bool SendHCI (unsigned char *HCImsg, unsigned char size)
 {   
-    unsigned char destId;
+    unsigned char aux=wkupchars;
     unsigned int crc;
     
     //SERIAL WRAPPING LAYER
@@ -31,11 +31,13 @@ bool SendHCI (unsigned char *HCImsg, unsigned char size)
     HCImsg[2 + size++]=(unsigned char)(crc&0x00FF);
     HCImsg[2 + size++]=(unsigned char)(crc>>8);
 
+    while(aux--)
+        SerialDevice_SendByte(SLIP_END);
     //UART LAYER + SLIP ENCODING
     SerialDevice_SendByte(SLIP_END);
     for (unsigned char i=0;i<size+2;i++) {
-        destId=HCImsg[i];   //Recycling of unused variable
-        switch (destId) {
+        aux=HCImsg[i];   //Recycling of unused variable
+        switch (aux) {
             case SLIP_END:
                 SerialDevice_SendByte(SLIP_ESC);
                 SerialDevice_SendByte(SLIP_ESC_END);
@@ -45,7 +47,7 @@ bool SendHCI (unsigned char *HCImsg, unsigned char size)
                 SerialDevice_SendByte(SLIP_ESC_ESC);
                 break;
             default:
-                SerialDevice_SendByte(destId);
+                SerialDevice_SendByte(aux);
                 break;
         }
     }
