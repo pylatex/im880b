@@ -77,9 +77,9 @@ extern "C" {
     
     // Status Identifier
     #define LORAWAN_STATUS_OK                       0x00
-    #define	LORAWAN_STATUS_ERROR                    0x01
-    #define	LORAWAN_STATUS_CMD_NOT_SUPPORTED        0x02
-    #define	LORAWAN_STATUS_WRONG_PARAMETER          0x03
+    #define LORAWAN_STATUS_ERROR                    0x01
+    #define LORAWAN_STATUS_CMD_NOT_SUPPORTED        0x02
+    #define LORAWAN_STATUS_WRONG_PARAMETER          0x03
     #define LORAWAN_STATUS_WRONG_DEVICE_MODE        0x04
     #define LORAWAN_STATUS_NOT_ACTIVATED            0x05
     #define LORAWAN_STATUS_BUSY                     0x06
@@ -152,10 +152,10 @@ extern "C" {
     //--------------------------------------------------------------------------
     
     //Envio de un comando HCI
-    bool SendHCI (unsigned char* payload, unsigned char size);
+    bool SendHCI (unsigned char *HCImsg, unsigned char size);
     
     //Procesamiento de HCI entrante.
-    bool ProcessHCI (unsigned char valor);
+    signed char ProcessHCI (unsigned char *HCImsg, unsigned char valor);
 
 #ifdef	__cplusplus
 }
