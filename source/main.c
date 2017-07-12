@@ -40,7 +40,7 @@ static void     SendCData();
 
 volatile bool ping;
 volatile unsigned char rx_err,rx_val; //Relacionados con el receptor
-volatile unsigned char estado_rx;   //Reflejo del ultimo estado HCI del receptor
+volatile signed char estado_rx;   //Reflejo del ultimo estado HCI del receptor
 volatile unsigned char buffer1[20]; //Buffer de salida
 //volatile unsigned char buffer2[20]; //Buffer de llegada
 
@@ -180,7 +180,8 @@ void main(void)
     LATA=0;
     TRISA=0xFE; //Para RC0 como salida.
     
-    SerialDevice_Open(0,0,0);
+    SerialDevice_Open(0,0,0);   //Habilita Serie, con Emisor y Receptor
+    GIE=true;   
     //BUCLE
     ping=false;
     while (true) {
@@ -188,10 +189,12 @@ void main(void)
         //SendHCI();    //TXREG=0x69;
         //Booleano indicando respuesta pendiente = true
         //Habilitar interrupcion por recepcion
+        //SerialDevice_SendData("Holi",4);
+        //*
         buffer1[0]=DEVMGMT_SAP_ID;
-        buffer1[1]=DEVMGMT_MSG_PING_RSP;
-        buffer1[2]=0;
-        SendHCI(buffer1,1);
+        buffer1[1]=DEVMGMT_MSG_PING_REQ;
+        //buffer1[2]=0;
+        SendHCI(buffer1,0);
         /*
         //Hacer creer que es el modulo y se esta enviando DEVMGMT_MSG_PING_RSP:
         SerialDevice_SendByte(0xC0);
@@ -209,15 +212,16 @@ void main(void)
         SerialDevice_SendByte('a');
         //*/
         //SerialDevice_SendData("holi",4);
-        cienmilis(10); //Espera un segundo
+        //cienmilis(10); //Espera un segundo
         
-        /*
+        //*
+        //while(!ping);   //Esperar
         LED=ping;
         cienmilis(5);
-        ping=false;
+        if (ping) ping=false;
         LED=false;
         cienmilis(5);
-        */
+        //*/
     }
     //Fin Codigo PIC 8 bits
     ////////////////////////////////////////////////////////////////////////////
@@ -229,9 +233,11 @@ void interrupt ISR (void) {
     if (RCIE && RCIF) {
         //Borrado de Bandera
         rx_err=RCSTA;
-        rx_val=RCREG; //Esto borra RCIF (PIR1)
         //Procesamiento
-        estado_rx=ProcessHCI(buffer1,rx_val);
+        estado_rx=ProcessHCI(buffer1,RCREG); //Leer RCREG borra RCIF (PIR1)
+        if (estado_rx >= 0) {
+            ping=true;
+        }
     }
 }
 #endif

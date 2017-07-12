@@ -135,8 +135,11 @@ SerialDevice_Open(UINT8         comNumber,
     BRG16=1;
     BRGH=1;
     SPEN=1; //2. Habilita Puerto Serie
+    //TRANSMISOR
     TXEN=1; //6,Tx. Habilita transmisor
-
+    //RECEPTOR
+    RCIE=true;  //Interrupcion por recepcion habilitada
+    PEIE=true;  //Interrupciones por perifericos habilitadas
     return true;
 }
 #endif

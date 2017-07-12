@@ -21,17 +21,8 @@
 bool SendHCI (unsigned char *HCImsg, unsigned char size)
 {   
     unsigned char destId;
-    //unsigned char msgId;
     unsigned int crc;
-    /*
-    destId=HCImsg[0];
-    //HCI LAYER - Validation
-    if ((destId!=DEVMGMT_SAP_ID)||(destId!=LORAWAN_SAP_ID))
-        return false;
-    msgId=HCImsg[1];
-    if ((!msgId) || (msgId>0x38))
-        return false;
-     */
+    
     //SERIAL WRAPPING LAYER
     //CRC Generation and a bitwise negation of the result.
     crc= ~(CRC16_Calc(HCImsg,size+2,CRC16_INIT_VALUE));
@@ -71,17 +62,17 @@ signed char ProcessHCI (unsigned char *HCImsg, unsigned char valor)
     //Variables
     static bool escape = false;
     static unsigned char idx= 0;
+    unsigned char idxret=0;
+    unsigned int crcheck;
     
     if (valor==SLIP_END) {
-        if (idx>=4) {   //Dst+Msg+CRC
-            //Verificacion del CRC
-            
-            return idx-4;   //Payload Size
-        } else {
-            idx=0;
-            escape=false;
-            return -1;  //Incomplete HCI-SLIP message
+        idxret=-1;
+        if (idx>=4 && CRC16_Check(HCImsg, idx, CRC16_INIT_VALUE)) {   //Dst+Msg+CRC
+            idxret=idx-4;   //Payload Size
         }
+        idx=0;
+        escape=false;
+        return idxret;  //Incomplete HCI-SLIP message
     } else {
         if (escape) {
             if (valor==SLIP_ESC_END) {
