@@ -6,8 +6,6 @@ Microcontroller Implementation of the HCI LoRaWAN stack to put in run the iM880B
 
 The following table shows the files to be included on your IDE's proyect, depending on the compilation target (preferently defined in `globaldefs.h`).
 
-<center>
-
 | File | Q_OS_WIN | UC_PIC8 |
 | ---- |  :---:   |  :---:  |
 | ***Headers:***    |   |   |
@@ -24,8 +22,6 @@ The following table shows the files to be included on your IDE's proyect, depend
 |SerialDevice.c     | x | x |
 |SLIP.c             | x |   |
 |WiMOD_HCI_Layer.c  | x |   |
-
-</center>
 
 #####  Windows (Q_OS_WIN)
 
