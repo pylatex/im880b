@@ -2,8 +2,8 @@
 Microcontroller Implementation of the HCI LoRaWAN stack to put in run the iM880B module from IMST. Partially based from the [HCI LoRaWAN example code from IMST](https://wireless-solutions.de/products/radiomodules/im880b-l.html).
 ### Requirements:
 The following table shows the files to be included on your IDE's proyect, depending on the compilation target (preferently defined in `globaldefs.h`).
-|File|Q_OS_WIN|UC_PIC8|
-|----|--------|-------|
+| File | Q_OS_WIN | UC_PIC8 |
+| ---- | ---      | ---     |
 | ***Headers:***    |   |   |
 |CRC16.h            | x | x |
 |**globaldefs.h**   | x | x |
