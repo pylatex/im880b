@@ -1,4 +1,4 @@
-/**
+/*
  * Libreria para control del modulo iM880B-L con la pila LoRaWAN mediante HCI.
  * La gracia es que como minimo tenga dos funciones:
  *  - De envio de mensaje HCI (a ser usada en main posiblemente)

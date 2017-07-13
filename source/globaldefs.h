@@ -1,16 +1,26 @@
 /* 
  * File:   globaldefs.h
- * Author: GITUD
+ * Author: Alex Bustos
  *
- * Created on 4 de julio de 2017, 07:22 PM
+ * Global Header for Source File. Place here your target system definition.
+ * Current supported compilation targets:
+ *
+ * PC type systems:
+ *    Q_OS_WIN  Windows, starting from Windows 7 (not verified on prior versions)
+ *    UC_PIC8   Microcontroller PIC 8 bit, enhanced. Specifically with XC8 compiler and 18F2550
+ *
+ * Please only in the whole proyect modify this header (keep else *.h as same),
+ * make changes only in *.c source files.
  */
 
 #ifndef GLOBALDEFS_H
 #define	GLOBALDEFS_H
 
-//Agregar los entornos de compilacion validos aca:
-//#define Q_OS_WIN  //Comentado por logicas razones
-#define UC_PIC8 //Familia PIC de 8 bits
+// Choose/Add your compilation target, by adding and
+// uncommenting the corresponding line here:
+
+//#define Q_OS_WIN    //Not available yet...
+#define UC_PIC8     //8 bit PIC family.
 
 #ifdef	__cplusplus
 extern "C" {

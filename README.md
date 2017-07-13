@@ -1,2 +1,32 @@
 # im880b-micro
-Codigo para implementacion en microcontroladores (inicialmente PIC) del protocolo HCI para los modulos de IMST. Basado en el codigo de ejemplo de la zona de descargas de IMST.
+Microcontroller Implementation of the HCI LoRaWAN stack to put in run the iM880B module from IMST. Partially based from the [HCI LoRaWAN example code from IMST](https://wireless-solutions.de/products/radiomodules/im880b-l.html).
+### Requirements:
+The following table shows the files to be included on your IDE's proyect, depending on the compilation target (preferently defined in `globaldefs.h`).
+|File|Q_OS_WIN|UC_PIC8|
+|----|--------|-------|
+|***Headers:***|||
+|CRC16.h| ✓ | ✓|
+|**globaldefs.h**|✓|✓|
+|lorawan_hci.h|  | ✓ |
+|SerialDevice.h| ✓| ✓ |
+|SLIP.h| ✓ | |
+|WiMOD_HCI_Layer.h|✓|  |
+|***Source Files:***|||
+|CRC16.c| ✓ | ✓|
+|lorawan_hci.c|  | ✓ |
+|**main.c**|✓ | ✓ |
+|SerialDevice.c| ✓| ✓ |
+|SLIP.c| ✓ | |
+|WiMOD_HCI_Layer.c|✓|  |
+#####  Windows (Q_OS_WIN)
+Surely not working from this repo at this time, but a working version for Windows can be found also in [our initial repo](https://github.com/pylatesUD/im880b). The goal are to merge both repos in just one, possibly this.
+##### Enhanced 8 bit PIC family (UC_PIC8)
+The PIC used was the [PIC18F2550](http://www.microchip.com/PIC18F2550). From this reference a EUSART module and interruptions by the Rx module was required. Includes the basic setup through the whole code (oscillator and EUSART module register values and steps) to use the internal 8 MHz oscillator.
+### Main Functions and Usage
+Please refer to `main.c` file.
+ - `bool SendHCI (unsigned char *HCImsg, unsigned char size)`
+   *HCImsg* is an array that starts with the Destination Endpoint ID (DstID), then the Message ID and finally the Payload.
+   *size* are the quantity of octets in the payload.
+   Internally the function calculates the CRC, adds it at the end of the HCI message and then encodes in SLIP format and send through the UART.
+ - `signed char ProcessHCI (unsigned char *HCImsg, unsigned char valor)`
+   As the code were intended to run on a microcontroller, usually with low resources, this function lies on interruptions to work. At interruption time (due to a received byte available to read), the function uses the *HCImsg* as a buffer of the decoded bytes part of the HCI message sent from the module (Be it events or responses to requests), and depending on the received *valor* byte, indicates that there is no full HCI message yet (returning -1) or that a complete HCI message (again, event or response) are ready, returning the size of the attached payload (>=0)
