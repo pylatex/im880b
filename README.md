@@ -5,7 +5,9 @@ Microcontroller Implementation of the HCI LoRaWAN stack to put in run the iM880B
 ### Requirements:
 
 The following table shows the files to be included on your IDE's proyect, depending on the compilation target (preferently defined in `globaldefs.h`).
+
 <center>
+
 | File | Q_OS_WIN | UC_PIC8 |
 | ---- |  :---:   |  :---:  |
 | ***Headers:***    |   |   |
@@ -22,7 +24,9 @@ The following table shows the files to be included on your IDE's proyect, depend
 |SerialDevice.c     | x | x |
 |SLIP.c             | x |   |
 |WiMOD_HCI_Layer.c  | x |   |
+
 </center>
+
 #####  Windows (Q_OS_WIN)
 
 Surely not working from this repo at this time, but a working version for Windows can be found also in [our initial repo](https://github.com/pylatesUD/im880b). The goal are to merge both repos in just one, possibly this.
