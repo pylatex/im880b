@@ -5,7 +5,7 @@ Microcontroller Implementation of the HCI LoRaWAN stack to put in run the iM880B
 ### Requirements:
 
 The following table shows the files to be included on your IDE's proyect, depending on the compilation target (preferently defined in `globaldefs.h`).
-
+<center>
 | File | Q_OS_WIN | UC_PIC8 |
 | ---- |  :---:   |  :---:  |
 | ***Headers:***    |   |   |
@@ -22,7 +22,7 @@ The following table shows the files to be included on your IDE's proyect, depend
 |SerialDevice.c     | x | x |
 |SLIP.c             | x |   |
 |WiMOD_HCI_Layer.c  | x |   |
-
+</center>
 #####  Windows (Q_OS_WIN)
 
 Surely not working from this repo at this time, but a working version for Windows can be found also in [our initial repo](https://github.com/pylatesUD/im880b). The goal are to merge both repos in just one, possibly this.
@@ -43,4 +43,4 @@ Please refer to `main.c` file.
    *size* are the quantity of octets in the payload.
    Internally the function calculates the CRC, adds it at the end of the HCI message and then encodes in SLIP format and send through the UART.
  - `signed char ProcessHCI (unsigned char *HCImsg, unsigned char valor)`
-   This function will use the `HCImsg` as the reception buffer for an incoming HCI message from the iM880B module, and should be called every time a `valor` byte arrives to the Rx port of the UART. If there is successful HCI message (SLIP decoded + valid CRC16) ready to be readed from `HCImsg`, returns the size of the payload, else returns -1. This returned value can be used in interruption time to write a flag or something that starts the decoding of the HCI received message, out of the interrupt.
+   This function will use the `HCImsg` as the reception buffer for an incoming HCI message from the iM880B module, and should be called every time a `valor` byte arrives to the Rx port of the UART. If there is successful HCI message (SLIP decoded + valid CRC16) ready to be readed from `HCImsg`, returns the size of the payload (a number >= 0), else returns -1. This returned value can be used in interruption time to write a flag or something that starts the decoding of the HCI received message, out of the interrupt.
