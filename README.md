@@ -4,22 +4,24 @@ Microcontroller Implementation of the HCI LoRaWAN stack to put in run the iM880B
 The following table shows the files to be included on your IDE's proyect, depending on the compilation target (preferently defined in `globaldefs.h`).
 |File|Q_OS_WIN|UC_PIC8|
 |----|--------|-------|
-|***Headers:***|||
-|CRC16.h| ✓ | ✓|
-|**globaldefs.h**|✓|✓|
-|lorawan_hci.h|  | ✓ |
-|SerialDevice.h| ✓| ✓ |
-|SLIP.h| ✓ | |
-|WiMOD_HCI_Layer.h|✓|  |
-|***Source Files:***|||
-|CRC16.c| ✓ | ✓|
-|lorawan_hci.c|  | ✓ |
-|**main.c**|✓ | ✓ |
-|SerialDevice.c| ✓| ✓ |
-|SLIP.c| ✓ | |
-|WiMOD_HCI_Layer.c|✓|  |
+| ***Headers:***    |   |   |
+|CRC16.h            | x | x |
+|**globaldefs.h**   | x | x |
+|lorawan_hci.h      |   | x |
+|SerialDevice.h     | x | x |
+|SLIP.h             | x |   |
+|WiMOD_HCI_Layer.h  | x |   |
+|***Source Files:***|   |   |
+|CRC16.c            | x | x |
+|lorawan_hci.c      |   | x |
+|**main.c**         | x | x |
+|SerialDevice.c     | x | x |
+|SLIP.c             | x |   |
+|WiMOD_HCI_Layer.c  | x |   |
+
 #####  Windows (Q_OS_WIN)
 Surely not working from this repo at this time, but a working version for Windows can be found also in [our initial repo](https://github.com/pylatesUD/im880b). The goal are to merge both repos in just one, possibly this.
+
 ##### Enhanced 8 bit PIC family (UC_PIC8)
 The PIC used was the [PIC18F2550](http://www.microchip.com/PIC18F2550). From this reference a EUSART module and interruptions by the Rx module was required. Includes the basic setup through the whole code (oscillator and EUSART module register values and steps) to use the internal 8 MHz oscillator.
 ### Main Functions and Usage
