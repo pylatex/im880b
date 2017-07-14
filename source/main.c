@@ -8,7 +8,7 @@
  */
 
 //------------------------------------------------------------------------------
-//  Include Files
+//  Definitions and Setup
 //------------------------------------------------------------------------------
 //#include <string.h>
 #include "globaldefs.h"
@@ -17,35 +17,9 @@
 
 #ifdef UC_PIC8
 #include <xc.h>
-#endif
 
-//------------------------------------------------------------------------------
-//  Declarations and Definitions
-//------------------------------------------------------------------------------
-
-#ifdef Q_OS_WIN
-// forward declarations
-static void     ShowMenu(const char*);
-static void     Ping();
-static void     GetDeviceInfo();
-static void     Join();
-static void     SendUData();
-static void     SendCData();
-#endif
-
-//------------------------------------------------------------------------------
-//  Section Code
-//------------------------------------------------------------------------------
-#ifdef UC_PIC8
-
-volatile bool ping;
-volatile unsigned char rx_err,rx_val; //Relacionados con el receptor
-volatile signed char estado_rx;   //Reflejo del ultimo estado HCI del receptor
-volatile unsigned char buffer1[20]; //Buffer de salida
-//volatile unsigned char buffer2[20]; //Buffer de llegada
-
-#define _XTAL_FREQ 8000000  //RC interno
-//#define _XTAL_FREQ 7372800  //Cristal externo
+#define _XTAL_FREQ 8000000  //Internal RC
+//#define _XTAL_FREQ 7372800  //External Quartz Crystal to derivate common UART speeds
 //*
 //Configuracion valida para PIC18F2550, con INTOSC en 8 MHz
 #pragma config PLLDIV = 1, CPUDIV = OSC1_PLL2, USBDIV = 1
@@ -59,11 +33,35 @@ volatile unsigned char buffer1[20]; //Buffer de salida
 #define LED LATA0 //Para las pruebas de parpadeo y ping
 #define PIN RC0 //Para prueba LED=PIN
 
-void cienmilis (unsigned char cant) {
-    while (cant--)
-        __delay_ms(100);
-}
 #endif
+
+//------------------------------------------------------------------------------
+//  Declarations, Definitions and Variables
+//------------------------------------------------------------------------------
+
+#ifdef Q_OS_WIN
+// forward declarations
+static void     ShowMenu(const char*);
+static void     Ping();
+static void     GetDeviceInfo();
+static void     Join();
+static void     SendUData();
+static void     SendCData();
+#endif
+
+#ifdef UC_PIC8
+void ms100 (unsigned char q);    //A (100*q) ms delay
+
+volatile bool ping;
+volatile unsigned char rx_err,rx_val; //Relacionados con el receptor
+volatile signed char estado_rx;   //Reflejo del ultimo estado HCI del receptor
+volatile unsigned char buffer1[20]; //Buffer de salida
+//volatile unsigned char buffer2[20]; //Buffer de llegada
+#endif
+
+//------------------------------------------------------------------------------
+//  Section Code
+//------------------------------------------------------------------------------
 
 /**
  * Main
@@ -74,8 +72,8 @@ int main(int argc, char *argv[])
 #ifdef UC_PIC8
 void main(void) 
 #endif
-#ifdef Q_OS_WIN
 {
+#ifdef Q_OS_WIN
     ////////////////////////////////////////////////////////////////////////////
     //Codigo del main() del ejemplo de IMST:
     ////////////////////////////////////////////////////////////////////////////
@@ -163,83 +161,89 @@ void main(void)
     return 0;
     //Fin Codigo IMST.
     ////////////////////////////////////////////////////////////////////////////
-}
 #endif
 #ifdef UC_PIC8
-{
     ////////////////////////////////////////////////////////////////////////////
     //Codigo para PIC de 8 bits.
 
-    //INICIALIZACION
-    OSCCON=0x73;    //Interno a 8 MHz (aplica a: 18F2550)
-    while(!IOFS);   //Espera que se estabilice
+    //INITIALIZATION
+    OSCCON=0x73;    //Internal at 8 MHz (applies to: 18F2550)
+    while(!IOFS);   //Waits for stabilization
     
-    //Parpadeo de LED (idealmente) en RC0
-    ADCON1=0x0F;    //Todos los pines son digitales
+    //LED in RC0, based on datasheet sugestion.
+    ADCON1=0x0F;    //All pins as digital (applies to: 18F2550)
     PORTA=0;
     LATA=0;
-    TRISA=0xFE; //Para RC0 como salida.
+    TRISA=0xFE; //RC0 as output
     
-    SerialDevice_Open(0,0,0);   //Habilita Serie, con Emisor y Receptor (Incl. interrup por Rx)
-    PEIE=true;  //Interrupciones por perifericos
-    GIE=true;   //Interrupciones Globales
-    //BUCLE
+    SerialDevice_Open(0,0,0);   //Enables UART, and from it: RX, TX and interrupts by RX
+    PEIE=true;  //Peripheral Interrupts Enable
+    GIE=true;   //Global Interrupts Enable
+    
     ping=false;
+    //MAIN LOOP
     while (true) {
-        //Enviar Ping
-        //SendHCI();    //TXREG=0x69;
-        //Booleano indicando respuesta pendiente = true
-        //Habilitar interrupcion por recepcion
-        //SerialDevice_SendData("Holi",4);
-        //*
+
+        //------------------------------------------
+        // Serial Device Test
+        
+        //Using the function
+        //SerialDevice_SendData("Hello",5);
+
+        /*//Sending by appart
+        SerialDevice_SendByte('H');
+        SerialDevice_SendByte('e');
+        SerialDevice_SendByte('l');
+        SerialDevice_SendByte('l');
+        SerialDevice_SendByte('o');
+        //*/
+
+        //------------------------------------------
+        // HCI Send Test
+
+        //*// with the function
         buffer1[0]=DEVMGMT_SAP_ID;
         buffer1[1]=DEVMGMT_MSG_PING_REQ;
-        //buffer1[2]=0;
         SendHCI(buffer1,0);
         //*/
-        /*
-        //Hacer creer que es el modulo y se esta enviando DEVMGMT_MSG_PING_RSP:
+
+        /*// like the function
         SerialDevice_SendByte(0xC0);
         SerialDevice_SendByte(DEVMGMT_SAP_ID);
-        SerialDevice_SendByte(DEVMGMT_MSG_PING_RSP);
-        SerialDevice_SendByte(0x00);
-        SerialDevice_SendByte(0xA0);
-        SerialDevice_SendByte(0xAF);
+        SerialDevice_SendByte(DEVMGMT_MSG_PING_REQ);
+        SerialDevice_SendByte(0xA0);    //CRC
+        SerialDevice_SendByte(0xAF);    //CRC
         SerialDevice_SendByte(0xC0);
         //*/
-        /*
-        SerialDevice_SendByte('H');
-        SerialDevice_SendByte('o');
-        SerialDevice_SendByte('l');
-        SerialDevice_SendByte('a');
-        //*/
-        //SerialDevice_SendData("holi",4);
-        //cienmilis(10); //Espera un segundo
         
-        /*
+        //------------------------------------------
+        // HCI Receive Test
+        
+        /*//Comment this line to uncomment:
+        //Emulation of the UART succesive reception function
         ProcessHCI(buffer1,SLIP_END);
         ProcessHCI(buffer1,SLIP_END);
         ProcessHCI(buffer1,SLIP_END);
         ProcessHCI(buffer1,DEVMGMT_SAP_ID);
         ProcessHCI(buffer1,DEVMGMT_MSG_PING_RSP);
         ProcessHCI(buffer1,DEVMGMT_STATUS_OK);
-        ProcessHCI(buffer1,0xA0);
-        ProcessHCI(buffer1,0xAF);
+        ProcessHCI(buffer1,0xA0);   //CRC
+        ProcessHCI(buffer1,0xAF);   //CRC
         if (ProcessHCI(buffer1,SLIP_END)>=0) {
-            ping=true;
+            ping=true;  //This asignation should be done on interrupt time.
         }
         //*/
-        //*
-        //while(!ping);   //Esperar
-        __delay_ms(10);
+        
+        __delay_ms(10); //small delay to allow the processing of the HCI message
         
         if (ping) {
+            //A successfully decoded HCI message are ready to be read
             ping=false;
             LED=true;
-            cienmilis(5);
+            ms100(5);
             LED=false;
-            cienmilis(5);
-        } else cienmilis(10);
+            ms100(5);
+        } else ms100(10);
         //*/
     }
     //Fin Codigo PIC 8 bits
@@ -261,6 +265,15 @@ void interrupt ISR (void) {
 }
 #endif
 
+//Specific functions for PIC
+#ifdef UC_PIC8
+void ms100 (unsigned char q) {
+    while (q--)
+        __delay_ms(100);    //XC8 compiler
+}
+#endif
+
+//Specific functions for Windows
 #ifdef Q_OS_WIN
 /**
  * ShowMenu

@@ -19,8 +19,12 @@
 // Choose/Add your compilation target, by adding and
 // uncommenting the corresponding line here:
 
-//#define Q_OS_WIN    //Not available yet...
+//#define Q_OS_WIN    //Windows. Not available yet...
+//#define Q_OS_UX     //Unix Based Systems. Not availabe yet...
+
 #define UC_PIC8     //8 bit PIC family.
+
+#define DEFAULT_COMPORT "COM1"
 
 #ifdef	__cplusplus
 extern "C" {

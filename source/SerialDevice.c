@@ -7,8 +7,7 @@
 //	Disclaimer:	This example code is provided by IMST GmbH on an "AS IS" basis
 //				without any warranties.
 //
-//  Realizadas modificaciones adicionales a este fichero para permitir una
-//  implementacion mas independiente de la plataforma.
+//  This file were modified to allow as possible an independant platform implementation
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
@@ -57,8 +56,8 @@ bool
 SerialDevice_Open(UINT8         comNumber,
                   int           dataBits,
                   UINT8         parity)
-#ifdef Q_OS_WIN
 {
+#ifdef Q_OS_WIN
     //POR HACER: el primer argumento ya no es un string, hay que armarlo aca
     //si se requiere.
 
@@ -122,10 +121,8 @@ SerialDevice_Open(UINT8         comNumber,
     }
     // error
     return false;
-}
 #endif
 #ifdef UC_PIC8
-{
     //UART, Ajustes comunes a Rx y Tx. Inicializado de acuerdo a datasheet 16F2550
     //Se prueba con 8(interno) y 7.3728(externo) MHz
     ////1: (En reset,SPBRG=0). Usar BRG16=1 y BRGH=1. Velocidades despues de PLL (si lo hay)
@@ -141,15 +138,16 @@ SerialDevice_Open(UINT8         comNumber,
     CREN=true;  //6,Rx. Habilita receptor
     RCIE=true;  //7,Rx. Interrupcion por recepcion habilitada
     return true;
-}
 #endif
+}
 
 /*
  * Simple check for the status of Tx module
  */
-bool SerialSentIsOpen(void) {
+bool SerialSentIsOpen(void)
+{
 #ifdef UC_PIC8
-    return SPEN && TXEN;
+    return (bool)(SPEN && TXEN);
 #endif
 }
 
@@ -159,8 +157,8 @@ bool SerialSentIsOpen(void) {
  */
 bool
 SerialDevice_Close()
-#ifdef Q_OS_WIN
 {
+#ifdef Q_OS_WIN
     // handle valid ?
     if (ComHandle != INVALID_HANDLE_VALUE) {
         // cancel last operation
@@ -179,14 +177,14 @@ SerialDevice_Close()
         return true;
     }
     return false;
-}
 #endif
 #ifdef UC_PIC8
-{
-    // TODO : add your own platform specific code here
-    return false;
-}
+    SPEN=false; //2. Habilita Puerto Serie
+    TXEN=false; //6,Tx. Habilita transmisor
+    CREN=false;  //6,Rx. Habilita receptor
+    return true;
 #endif
+}
 
 /**
  * SendData
@@ -194,8 +192,8 @@ SerialDevice_Close()
  */
 int
 SerialDevice_SendData(UINT8* txBuffer, UINT8 txLength)
-#ifdef Q_OS_WIN
 {
+#ifdef Q_OS_WIN
     // handle valid ?
     if (ComHandle == INVALID_HANDLE_VALUE)
         return -1;
@@ -214,10 +212,8 @@ SerialDevice_SendData(UINT8* txBuffer, UINT8 txLength)
         // ok
         return numTxBytes;
     }
-}
 #endif
 #ifdef UC_PIC8
-{
     for (UINT8 i=0;i<txLength;i++) {
         if (!SerialDevice_SendByte(txBuffer[i])) {
             //Escapes the error
@@ -225,8 +221,8 @@ SerialDevice_SendData(UINT8* txBuffer, UINT8 txLength)
         }
     }
     return true;
-}
 #endif
+}
 
 /**
  * SendByte
@@ -234,8 +230,8 @@ SerialDevice_SendData(UINT8* txBuffer, UINT8 txLength)
  */
 int
 SerialDevice_SendByte(UINT8 txByte)
-#ifdef Q_OS_WIN
 {
+#ifdef Q_OS_WIN
     // handle valid ?
     if (ComHandle == INVALID_HANDLE_VALUE)
         return -1;
@@ -256,10 +252,8 @@ SerialDevice_SendByte(UINT8 txByte)
     }
     // error
     return -1;
-}
 #endif
 #ifdef UC_PIC8
-{
     if (SerialSentIsOpen()) {
         while (!TRMT);  //Wait for a pending transmision, due to TSR busy
         TXREG=txByte;
@@ -267,8 +261,8 @@ SerialDevice_SendByte(UINT8 txByte)
         return true;
     }
     return false;
-}
 #endif
+}
 
 /**
  * ReadData
@@ -276,8 +270,8 @@ SerialDevice_SendByte(UINT8 txByte)
  */
 int
 SerialDevice_ReadData(UINT8* rxBuffer, int rxBufferSize)
-#ifdef  Q_OS_WIN
 {
+#ifdef  Q_OS_WIN
     // handle ok ?
     if (ComHandle == INVALID_HANDLE_VALUE)
         return -1;
@@ -292,14 +286,12 @@ SerialDevice_ReadData(UINT8* rxBuffer, int rxBufferSize)
     }
     // error
     return -1;
-}
 #endif
 #ifdef UC_PIC8
-{
     // Todo : add your own platform specific code here
     return -1;
-}
 #endif
+}
 //------------------------------------------------------------------------------
 // end of file
 //------------------------------------------------------------------------------

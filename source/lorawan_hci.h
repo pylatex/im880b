@@ -17,7 +17,10 @@ extern "C" {
     //--------------------------------------------------------------------------
     //  Section CONST
     //--------------------------------------------------------------------------
-    
+
+    #define HCIWKUPCHARS    5
+    #define HCIBUFFSIZE     100
+
     // SLIP Protocol Characters
     #define SLIP_END        0xC0
     #define SLIP_ESC        0xDB
@@ -27,9 +30,9 @@ extern "C" {
     ////Endpoint (SAP) Identifier
     #define DEVMGMT_SAP_ID                          0x01
     #define LORAWAN_SAP_ID                          0x10
-    
+
     ////Device Management SAP Message Identifier:
-    
+
     // Status Identifier
     #define DEVMGMT_STATUS_OK                   0x00
     #define DEVMGMT_STATUS_ERROR                0x01
@@ -74,7 +77,7 @@ extern "C" {
     #define DEVMGMT_MSG_SET_OPMODE_RSP              0x0A    //1
 
     ////LoRaWAN SAP Message Identifier:
-    
+
     // Status Identifier
     #define LORAWAN_STATUS_OK                       0x00
     #define LORAWAN_STATUS_ERROR                    0x01
@@ -152,10 +155,10 @@ extern "C" {
     //--------------------------------------------------------------------------
     
     //Envio de un comando HCI
-    bool SendHCI (unsigned char *HCImsg, unsigned char size);
+    bool SendHCI (unsigned char *buffer, unsigned int size);
     
     //Procesamiento de HCI entrante.
-    signed char ProcessHCI (unsigned char *HCImsg, unsigned char valor);
+    signed char ProcessHCI (unsigned char *buffer, unsigned int size);
 
 #ifdef	__cplusplus
 }

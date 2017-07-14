@@ -88,7 +88,7 @@ CRC16_Calc  (UINT8*             data,
     }
 
     // return result
-    return crc;
+    return (UINT16)crc;
 }
 #else
 {
