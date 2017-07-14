@@ -43,9 +43,15 @@ The compiler used was [XC8](http://www.microchip.com/mplab/compilers), but you c
 ### Main Functions and Usage
 
 Please refer to `main.c` file.
- - `bool SendHCI (unsigned char *HCImsg, unsigned char size)`
-   *HCImsg* is an array that starts with the Destination Endpoint ID (DstID), then the Message ID and finally the Payload.
-   *size* are the quantity of octets in the payload.
-   Internally the function calculates the CRC, adds it at the end of the HCI message and then encodes in SLIP format and send through the UART.
- - `signed char ProcessHCI (unsigned char *HCImsg, unsigned char valor)`
-   This function will use the `HCImsg` as the reception buffer for an incoming HCI message from the iM880B module, and should be called every time a `valor` byte arrives to the Rx port of the UART. If there is successful HCI message (SLIP decoded + valid CRC16) ready to be readed from `HCImsg`, returns the size of the payload (a number >= 0), else returns -1. This returned value can be used in interruption time to write a flag or something that starts the decoding of the HCI received message, out of the interrupt.
+
+ - `bool SendHCI (unsigned char *buffer, unsigned char size)`
+ 
+   The function iterates over the `buffer`, that starts with the Destination Endpoint ID (DstID), followed by the Message ID (MsgID) and finally the Payload, with their specified `size`.
+   
+   Then it calculates the CRC and adds it at the end of the HCI message and finally encodes in SLIP format as it sends the octets through the UART.
+   
+ - `signed char ProcessHCI (unsigned char *buffer, unsigned char rxData)`
+ 
+   This function will use the array `buffer` for an incoming HCI message from the iM880B module, and should be called every time a `rxData` incoming byte are complete and ready to be read from the UART.
+   
+   When a successful HCI message (SLIP decoded + valid CRC16) are ready to be read from `buffer`, the function returns the size of the payload (a number >= 0), otherwise returns -1. This returned value can be used in interruption time to write a flag or something that starts the decoding of the HCI received message, out of the interrupt.
