@@ -2,6 +2,11 @@
 
 Microcontroller Implementation of the HCI LoRaWAN stack to put in run the iM880B module from IMST. Partially based from the [HCI LoRaWAN example code from IMST](https://wireless-solutions.de/products/radiomodules/im880b-l.html).
 
+
+### Status:
+
+For the working version in this repo (for PIC Enhanced Midrange), a `ping req` are sent out, and a LED conected to RA0 turns ON during half second if there are a successful HCI message as response of that request (specifically, but not limited to, a `ping rsp`)
+
 ### Requirements:
 
 The following table shows the files to be included on your IDE's proyect, depending on the compilation target (preferently defined in `globaldefs.h`).
