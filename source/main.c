@@ -17,11 +17,10 @@
 
 #ifdef UC_PIC8
 #include <xc.h>
-
 #define _XTAL_FREQ 8000000  //Internal RC
 //#define _XTAL_FREQ 7372800  //External Quartz Crystal to derivate common UART speeds
 //*
-//Configuracion valida para PIC18F2550, con INTOSC en 8 MHz
+//Valid Setupo for PIC18F2550, with INTOSC @ 8 MHz
 #pragma config PLLDIV = 1, CPUDIV = OSC1_PLL2, USBDIV = 1
 #pragma config FOSC = INTOSCIO_EC,  FCMEN = ON, IESO = OFF
 #pragma config PWRT = ON, BOR = OFF, BORV = 3, VREGEN = OFF
@@ -31,7 +30,7 @@
 //*/
 
 #define LED LATA0 //Para las pruebas de parpadeo y ping
-#define PIN RC0 //Para prueba LED=PIN
+//#define PIN RC0 //Para prueba LED=PIN
 
 #endif
 
@@ -217,7 +216,7 @@ void main(void)
         //*/
         
         //------------------------------------------
-        // HCI Receive Test
+        // HCI Message Reception Test
         
         /*//Comment this line to uncomment:
         //Emulation of the UART succesive reception function
@@ -235,12 +234,12 @@ void main(void)
         //*/
         
         __delay_ms(10); //small delay to allow the processing of the HCI message
-        
+        //The LED should blink on every complete HCI message.
         if (ping) {
             //A successfully decoded HCI message are ready to be read
             ping=false;
             LED=true;
-            ms100(5);
+            ms100(1);
             LED=false;
             ms100(5);
         } else ms100(10);

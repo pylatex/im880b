@@ -1,8 +1,9 @@
 /*
- * Libreria para control del modulo iM880B-L con la pila LoRaWAN mediante HCI.
- * La gracia es que como minimo tenga dos funciones:
- *  - De envio de mensaje HCI (a ser usada en main posiblemente)
- *  - De recepcion de mensaje HCI (posiblemente en interrupciones)
+ * File:    lorawan_hci.h
+ * Author:  Alex F. Bustos
+ * 
+ * Headers for the implementation of the HCI+CRC16+SLIP+UART functions to be
+ * used on WiMOD LoRaWAN EndNodes
  */
 
 #ifndef LORAWAN_HCI_H
@@ -18,8 +19,7 @@ extern "C" {
     //  Section CONST
     //--------------------------------------------------------------------------
 
-    #define HCIWKUPCHARS    5
-    #define HCIBUFFSIZE     100
+    #define HCI_WKUPCHARS    5
 
     // SLIP Protocol Characters
     #define SLIP_END        0xC0

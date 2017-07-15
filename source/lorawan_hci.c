@@ -1,3 +1,10 @@
+/*
+ * File:    lorawan_hci.c
+ * Author:  Alex F. Bustos
+ * 
+ * HCI+CRC16+SLIP implementation to be used with IMST Radio Modules.
+ */
+
 //------------------------------------------------------------------------------
 // Includings
 //------------------------------------------------------------------------------
@@ -9,35 +16,36 @@
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
-extern volatile unsigned char HCIstat;      //HCI Modules Status
-extern volatile unsigned char HCIbuff[HCIBUFFSIZE];    //Tx/Rx Buffer
+extern volatile unsigned char HCIstat;              //HCI Modules Status
 
 //------------------------------------------------------------------------------
 // Section Source
 //------------------------------------------------------------------------------
 
 /**
- * @brief: Envia un comando HCI
+ * @brief: Sends an HCI message
+ * Calculates the CRC to the HCI message to be sent, stored in buffer, then
+ * applies the SLIP wrapper to the result and sends it through the UART.
  * 
- * Verifica el comando HCI, calcula su CRC (SLIP) y lo envia.
- * @param HCImsg: HCI message. In 0 the EID, in 1 the MID.
+ * @param buffer: HCI message. In 0 the DstID, in 1 the MsgID. Else the payload
  * @param size: Size of the payload (starting in 2), NOT the full HCI message
  */
 bool SendHCI (unsigned char *buffer, unsigned int size)
 {   
-    unsigned char aux=HCIWKUPCHARS;
+    unsigned char aux=HCI_WKUPCHARS;
     unsigned int crc;
     size+=2;
     //SERIAL WRAPPING LAYER
     //CRC Generation and a bitwise negation of the result.
     crc= ~(CRC16_Calc(buffer,size,CRC16_INIT_VALUE));
-    
+
     //Attach CRC16 and correct length, LSB first
     buffer[size++]=(unsigned char)(crc&0x00FF);
     buffer[size++]=(unsigned char)(crc>>8);
 
     while(aux--)
         SerialDevice_SendByte(SLIP_END);
+
     //UART LAYER + SLIP ENCODING
     SerialDevice_SendByte(SLIP_END);
     for (unsigned char i=0;i<size;i++) {
@@ -61,15 +69,17 @@ bool SendHCI (unsigned char *buffer, unsigned int size)
 
 /**
  * @brief Procesa un octeto recibido por el UART
+ * State machine implementation to process the bytes of an incoming HCI message
  * 
- * Implementacion de una maquina de estados para el protocolo HCI en recepcion.
+ * @param buffer: Reception Buffer.
+ * @param rxData: Byte received by the UART
  */
 signed char ProcessHCI (unsigned char *buffer, unsigned int rxData)
 {
     //Variables
     static bool escape = false;
     static unsigned char size = 0;
-    unsigned char idxret;
+    signed char idxret;
     
     if (rxData==SLIP_END) {
         idxret=((size >= 4) && CRC16_Check(buffer, size, CRC16_INIT_VALUE)) ? size - 4 : -1 ;
@@ -77,19 +87,18 @@ signed char ProcessHCI (unsigned char *buffer, unsigned int rxData)
         escape=false;
         return idxret;  //Incomplete HCI-SLIP message
     } else {
-        if (escape) {
-            if (rxData==SLIP_ESC_END) {
-                rxData=SLIP_END;
-            } else if (rxData==SLIP_ESC_ESC) {
-                rxData=SLIP_ESC;
-            }
-            buffer[size++]=rxData;
-            escape=false;
-        } else if (rxData==SLIP_ESC) {
+        if (rxData==SLIP_ESC) {
             escape=true;
         } else {
+            if (escape) {
+                if (rxData==SLIP_ESC_END) {
+                    rxData=SLIP_END;
+                } else if (rxData==SLIP_ESC_ESC) {
+                    rxData=SLIP_ESC;
+                }
+                escape=false;
+            }
             buffer[size++]=rxData;
-            escape=false;
         }
         return -1;
     }

@@ -34,7 +34,6 @@
 //------------------------------------------------------------------------------
 
 #ifdef Q_OS_WIN
-
 // File Handle
 static HANDLE   ComHandle = INVALID_HANDLE_VALUE;
 #endif
