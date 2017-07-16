@@ -51,11 +51,8 @@ static void     SendCData();
 #ifdef UC_PIC8
 void ms100 (unsigned char q);    //A (100*q) ms delay
 
-volatile bool ping;
-volatile unsigned char rx_err,rx_val; //Relacionados con el receptor
-volatile signed char estado_rx;   //Reflejo del ultimo estado HCI del receptor
-volatile unsigned char buffer1[20]; //Buffer de salida
-//volatile unsigned char buffer2[20]; //Buffer de llegada
+volatile unsigned char rx_err; //Relacionados con el receptor
+volatile unsigned char buffer[20]; //Buffer de salida
 #endif
 
 //------------------------------------------------------------------------------
@@ -175,11 +172,10 @@ void main(void)
     LATA=0;
     TRISA=0xFE; //RC0 as output
     
-    SerialDevice_Open(0,0,0);   //Enables UART, and from it: RX, TX and interrupts by RX
+    InitHCI();  //Full Duplex UART and Rx interruptions enabled
     PEIE=true;  //Peripheral Interrupts Enable
     GIE=true;   //Global Interrupts Enable
     
-    ping=false;
     //MAIN LOOP
     while (true) {
 
@@ -201,9 +197,9 @@ void main(void)
         // HCI Send Test
 
         //*// with the function
-        buffer1[0]=DEVMGMT_SAP_ID;
-        buffer1[1]=DEVMGMT_MSG_PING_REQ;
-        SendHCI(buffer1,0);
+        buffer[0]=DEVMGMT_SAP_ID;
+        buffer[1]=DEVMGMT_MSG_PING_REQ;
+        SendHCI(buffer,0);
         //*/
 
         /*// like the function
@@ -216,7 +212,7 @@ void main(void)
         //*/
         
         //------------------------------------------
-        // HCI Message Reception Test
+        // HCI Message Reception and Validation Test
         
         /*//Comment this line to uncomment:
         //Emulation of the UART succesive reception function
@@ -235,13 +231,16 @@ void main(void)
         
         __delay_ms(10); //small delay to allow the processing of the HCI message
         //The LED should blink on every complete HCI message.
-        if (ping) {
+        if (PendingRxHCI()) {
+            ClearRxHCI();   //Call when the HCI message can be overwrited
             //A successfully decoded HCI message are ready to be read
-            ping=false;
-            LED=true;
-            ms100(1);
-            LED=false;
-            ms100(5);
+            if (buffer[0]==DEVMGMT_SAP_ID && buffer[1]==DEVMGMT_MSG_PING_RSP) {
+                //The response corresponds to the request sent.
+                LED=true;
+                ms100(1);
+                LED=false;
+                ms100(5);
+            }
         } else ms100(10);
         //*/
     }
@@ -253,13 +252,10 @@ void main(void)
 #ifdef UC_PIC8
 void interrupt ISR (void) {
     if (RCIE && RCIF) {
-        //Borrado de Bandera
+        //Error reading
         rx_err=RCSTA;
-        //Procesamiento
-        estado_rx=ProcessHCI(buffer1,RCREG); //Leer RCREG borra RCIF (PIR1)
-        if (estado_rx >= 0) {
-            ping=true;
-        }
+        //As RCREG is argument, their reading implies the RCIF erasing
+        ProcessHCI(buffer,RCREG);
     }
 }
 #endif

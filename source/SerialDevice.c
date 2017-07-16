@@ -136,7 +136,7 @@ SerialDevice_Open(UINT8         comNumber,
     //RECEPTOR
     CREN=true;  //6,Rx. Habilita receptor
     RCIE=true;  //7,Rx. Interrupcion por recepcion habilitada
-    return true;
+    return SerialSentIsOpen();
 #endif
 }
 

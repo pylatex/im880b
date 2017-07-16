@@ -19,7 +19,9 @@ extern "C" {
     //  Section CONST
     //--------------------------------------------------------------------------
 
-    #define HCI_WKUPCHARS    5
+    #define HCI_WKUPCHARS       5
+    #define HCI_RX_RESETSTAT    -1
+    #define HCI_RX_PENDING      -2
 
     // SLIP Protocol Characters
     #define SLIP_END        0xC0
@@ -154,11 +156,19 @@ extern "C" {
     //  Function Prototypes
     //--------------------------------------------------------------------------
     
+    bool PendingRxHCI(void);
+    
+    //Use after reading the Rx buffer
+    void ClearRxHCI (void);
+    
+    //HCI Initialization
+    bool InitHCI (void);
+    
     //Envio de un comando HCI
     bool SendHCI (unsigned char *buffer, unsigned int size);
     
     //Procesamiento de HCI entrante.
-    signed char ProcessHCI (unsigned char *buffer, unsigned int size);
+    void ProcessHCI (unsigned char *buffer, unsigned int size);
 
 #ifdef	__cplusplus
 }

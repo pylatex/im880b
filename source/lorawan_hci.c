@@ -9,9 +9,9 @@
 // Includings
 //------------------------------------------------------------------------------
 
-#include "lorawan_hci.h"
-#include "CRC16.h"
-#include "SerialDevice.h"   //Acceso al puerto serie / UART
+#include "lorawan_hci.h"    //WiMOD LoRaWAN HCI Constants
+#include "CRC16.h"          //CRC16 Calculation and Checking functions
+#include "SerialDevice.h"   //UART interface
 
 //------------------------------------------------------------------------------
 // Variables
@@ -39,10 +39,31 @@ typedef union {
 
 //volatile SEG8 HCIstat;              //HCI Modules Status
 //#define ble HCIstat.B0  //
+volatile signed char rxStatus;   //Reflejo del ultimo estado HCI del receptor
 
 //------------------------------------------------------------------------------
 // Section Source
 //------------------------------------------------------------------------------
+
+bool PendingRxHCI(void) {
+    return (rxStatus >= 0);
+}
+
+/**
+ * Use after reading the buffer.
+ */
+void ClearRxHCI (void) {
+    rxStatus=HCI_RX_RESETSTAT;
+}
+
+/**
+ * Initializes the serial port / UART
+ * @return True if success.
+ */
+bool InitHCI (void) {
+    ClearRxHCI();
+    return SerialDevice_Open(0,0,0);   //Enables UART, and from it: RX, TX and interrupts by RX
+}
 
 /**
  * @brief: Sends an HCI message
@@ -50,7 +71,7 @@ typedef union {
  * applies the SLIP wrapper to the result and sends it through the UART.
  * 
  * @param buffer: HCI message. In 0 the DstID, in 1 the MsgID. Else the payload
- * @param size: Size of the payload (starting in 2), NOT the full HCI message
+ * @param size: Size of the payload of the HCI message
  */
 bool SendHCI (unsigned char *buffer, unsigned int size)
 {   
@@ -95,23 +116,22 @@ bool SendHCI (unsigned char *buffer, unsigned int size)
  * 
  * @param buffer: Reception Buffer.
  * @param rxData: Byte received by the UART
+ * @return -1 when no message, -2 when receiving and >=0 as the size of a valid HCI.
  */
-signed char ProcessHCI (unsigned char *buffer, unsigned int rxData)
+void ProcessHCI (unsigned char *buffer, unsigned int rxData)
 {
     //Variables
     static bool escape = false;
     static unsigned char size = 0;
-    signed char idxret;
     
     if (rxData==SLIP_END) {
         if ((size >= 4) && CRC16_Check(buffer, size, CRC16_INIT_VALUE)) {
-            idxret = size - 4;
+            rxStatus=size - 4;  //Valid HCI message with (size-4) payload bytes
         } else {
-            idxret = -1;
+            rxStatus=HCI_RX_RESETSTAT;    // Aborted/non valid HCI message
         }
         size=0;
         escape=false;
-        return idxret;  //Incomplete HCI-SLIP message
     } else {
         if (rxData==SLIP_ESC) {
             escape=true;
@@ -126,6 +146,6 @@ signed char ProcessHCI (unsigned char *buffer, unsigned int rxData)
             }
             buffer[size++]=rxData;
         }
-        return -1;
+        rxStatus=HCI_RX_PENDING;
     }
 }
