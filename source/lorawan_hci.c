@@ -16,7 +16,29 @@
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
-extern volatile unsigned char HCIstat;              //HCI Modules Status
+
+//8 bit segmented union...
+typedef union {
+    unsigned        UREG    :8;
+    signed          SREG    :8;
+    struct  {
+        unsigned    NIB0    :4;
+        unsigned    NIB1    :4;
+    };
+    struct {
+        unsigned    B0      :1;
+        unsigned    B1      :1;
+        unsigned    B2      :1;
+        unsigned    B3      :1;
+        unsigned    B4      :1;
+        unsigned    B5      :1;
+        unsigned    B6      :1;
+        unsigned    B7      :1;
+    };
+} SEG8;
+
+//volatile SEG8 HCIstat;              //HCI Modules Status
+//#define ble HCIstat.B0  //
 
 //------------------------------------------------------------------------------
 // Section Source
@@ -82,7 +104,11 @@ signed char ProcessHCI (unsigned char *buffer, unsigned int rxData)
     signed char idxret;
     
     if (rxData==SLIP_END) {
-        idxret=((size >= 4) && CRC16_Check(buffer, size, CRC16_INIT_VALUE)) ? size - 4 : -1 ;
+        if ((size >= 4) && CRC16_Check(buffer, size, CRC16_INIT_VALUE)) {
+            idxret = size - 4;
+        } else {
+            idxret = -1;
+        }
         size=0;
         escape=false;
         return idxret;  //Incomplete HCI-SLIP message
