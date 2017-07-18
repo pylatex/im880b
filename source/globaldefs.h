@@ -21,7 +21,6 @@
 
 //#define Q_OS_WIN    //Windows. Not available yet...
 //#define Q_OS_UX     //Unix Based Systems. Not availabe yet...
-
 #define UC_PIC8     //8 bit PIC family.
 
 #define DEFAULT_COMPORT "COM1"
