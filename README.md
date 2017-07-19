@@ -14,7 +14,7 @@ The following table shows the files to be included on your IDE's proyect, depend
 | File              | Description                     |  WIN  |  PIC  |
 | ---               |     ---                         | :---: | :---: |
 | CRC16.c           |CRC16 Creation and Checking      |   X   |   X   |
-|lorawan_hci.c      |The whole WiMOD HCI Stack        |       |   X   |
+|lorawan_hci.c      |Small WiMOD HCI Stack implementation |    |   X  |
 |main___.c          |                                 | _win  | _pic8 |
 |SerialDevice___.c" |UART Interface                   | _win  | _pic8 |
 |SLIP.c             |SLIP Encoding and Decoding Layer |   X   |       |
