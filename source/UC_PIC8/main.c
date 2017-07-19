@@ -11,16 +11,16 @@
 //  Definitions and Setup
 //------------------------------------------------------------------------------
 //#include <string.h>
-#include "globaldefs.h"
-#include "lorawan_hci.h"
-#include "SerialDevice.h"
+#include "..\globaldefs.h"
+#include "..\lorawan_hci.h"
+#include "..\SerialDevice.h"
 
 #ifdef UC_PIC8
 #include <xc.h>
 #define _XTAL_FREQ 8000000  //Internal RC
 //#define _XTAL_FREQ 7372800  //External Quartz Crystal to derivate common UART speeds
 //*
-//Valid Setupo for PIC18F2550, with INTOSC @ 8 MHz
+//Valid Setup for PIC18F2550, with INTOSC @ 8 MHz
 #pragma config PLLDIV = 1, CPUDIV = OSC1_PLL2, USBDIV = 1
 #pragma config FOSC = INTOSCIO_EC,  FCMEN = ON, IESO = OFF
 #pragma config PWRT = ON, BOR = OFF, BORV = 3, VREGEN = OFF

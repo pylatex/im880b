@@ -75,8 +75,9 @@ UINT16
 CRC16_Calc  (UINT8*             data,
              UINT16             length,
              UINT16             initVal)
-#ifdef    __CRC16_TABLE__
 {
+#ifdef    __CRC16_TABLE__
+
     // init crc
     UINT16    crc = initVal;
 
@@ -89,9 +90,7 @@ CRC16_Calc  (UINT8*             data,
 
     // return result
     return (UINT16)crc;
-}
 #else
-{
     // init crc
     UINT16    crc = initVal;
 
@@ -119,8 +118,8 @@ CRC16_Calc  (UINT8*             data,
 
     // return result
     return crc;
-}
 #endif
+}
 
 /**
  * CRC16_Check

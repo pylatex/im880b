@@ -13,8 +13,8 @@
 //------------------------------------------------------------------------------
 //  Include Files
 //------------------------------------------------------------------------------
-#include "globaldefs.h"
-#include "SerialDevice.h"
+#include "..\globaldefs.h"
+#include "..\SerialDevice.h"
 
 #ifdef Q_OS_WIN
 #include <windows.h>
