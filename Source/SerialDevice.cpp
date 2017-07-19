@@ -1,13 +1,9 @@
 //------------------------------------------------------------------------------
 //
 //	File:		SerialDevice.cpp
-//
 //	Abstract:	Serial Device Abstraction
-//
 //	Version:	0.1
-//
 //	Date:		18.05.2016
-//
 //	Disclaimer:	This example code is provided by IMST GmbH on an "AS IS" basis
 //				without any warranties.
 //

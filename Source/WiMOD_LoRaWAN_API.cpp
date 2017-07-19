@@ -1,22 +1,16 @@
 //------------------------------------------------------------------------------
 //
 //	File:		WiMOD_LoRaWAN_API.cpp
-//
 //	Abstract:	API Layer of LoRaWAN Host Controller Interface
-//
 //	Version:	0.1
-//
 //	Date:		18.05.2016
-//
 //	Disclaimer:	This example code is provided by IMST GmbH on an "AS IS" basis
 //				without any warranties.
 //
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-//
 // Include Files
-//
 //------------------------------------------------------------------------------
 
 #include "WiMOD_LoRaWAN_API.h"
@@ -28,9 +22,7 @@
 #define MAKELONG(lo,hi) ((lo)|((hi) << 16))
 
 //------------------------------------------------------------------------------
-//
 //  Forward Declarations
-//
 //------------------------------------------------------------------------------
 
 // HCI Message Receiver callback
@@ -74,12 +66,12 @@ TWiMOD_HCI_Message TxMessage;
 TWiMOD_HCI_Message RxMessage;
 
 //------------------------------------------------------------------------------
-//
 //  Section Const
-//
 //------------------------------------------------------------------------------
 
-// Status Codes for DeviceMgmt Response Messages
+/**
+ * Status Codes for DeviceMgmt Response Messages
+ */
 static const TIDString WiMOD_DeviceMgmt_StatusStrings[] =
 {
     { DEVMGMT_STATUS_OK,                   "ok" },
@@ -92,7 +84,9 @@ static const TIDString WiMOD_DeviceMgmt_StatusStrings[] =
     { 0, 0 }
 };
 
-// Status Codes for LoRaWAN Response Messages
+/**
+ * Status Codes for LoRaWAN Response Messages
+ */
 static const TIDString WiMOD_LoRaWAN_StatusStrings[] =
 {
     { LORAWAN_STATUS_OK,                    "ok" },
@@ -112,19 +106,13 @@ static const TIDString WiMOD_LoRaWAN_StatusStrings[] =
     { 0, 0 }
 };
 //------------------------------------------------------------------------------
-//
 //  Section Code
-//
 //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-//
-//  Init
-//
-//  @brief: init complete interface
-//
-//------------------------------------------------------------------------------
-
+/**
+ * Init
+ * @brief: init complete interface
+ */
 bool
 WiMOD_LoRaWAN_Init(const char* comPort)
 {
@@ -134,14 +122,10 @@ WiMOD_LoRaWAN_Init(const char* comPort)
                    &RxMessage);                     // rx message
 }
 
-//------------------------------------------------------------------------------
-//
-//  Ping
-//
-//  @brief: ping device
-//
-//------------------------------------------------------------------------------
-
+/**
+ * Ping
+ * @brief: ping device
+ */
 int
 WiMOD_LoRaWAN_SendPing()
 {
@@ -154,14 +138,10 @@ WiMOD_LoRaWAN_SendPing()
     return WiMOD_HCI_SendMessage(&TxMessage);
 }
 
-//------------------------------------------------------------------------------
-//
-//  GetFirmwareVersion
-//
-//  @brief: get firmware version
-//
-//------------------------------------------------------------------------------
-
+/**
+ * GetFirmwareVersion
+ * @brief: get firmware version
+ */
 int
 WiMOD_LoRaWAN_GetFirmwareVersion()
 {
@@ -174,14 +154,10 @@ WiMOD_LoRaWAN_GetFirmwareVersion()
     return WiMOD_HCI_SendMessage(&TxMessage);
 }
 
-//------------------------------------------------------------------------------
-//
-//  JoinNetworkRequest
-//
-//  @brief: send join radio message
-//
-//------------------------------------------------------------------------------
-
+/**
+ * JoinNetworkRequest
+ * @brief: send join radio message
+ */
 int
 WiMOD_LoRaWAN_JoinNetworkRequest()
 {
@@ -194,14 +170,10 @@ WiMOD_LoRaWAN_JoinNetworkRequest()
     return WiMOD_HCI_SendMessage(&TxMessage);
 }
 
-//------------------------------------------------------------------------------
-//
-//  SendURadioData
-//
-//  @brief: send unconfirmed radio message
-//
-//------------------------------------------------------------------------------
-
+/**
+ * SendURadioData
+ * @brief: send unconfirmed radio message
+ */
 int
 WiMOD_LoRaWAN_SendURadioData(UINT8  port,       // LoRaWAN Port
                              UINT8* srcData,    // application payload
@@ -230,14 +202,10 @@ WiMOD_LoRaWAN_SendURadioData(UINT8  port,       // LoRaWAN Port
     return WiMOD_HCI_SendMessage(&TxMessage);
 }
 
-//------------------------------------------------------------------------------
-//
-//  SendCRadioData
-//
-//  @brief: send confirmed radio message
-//
-//------------------------------------------------------------------------------
-
+/**
+ * SendCRadioData
+ * @brief: send confirmed radio message
+ */
 int
 WiMOD_LoRaWAN_SendCRadioData(UINT8  port,       // LoRaWAN Port
                              UINT8* srcData,    // application data
@@ -266,14 +234,10 @@ WiMOD_LoRaWAN_SendCRadioData(UINT8  port,       // LoRaWAN Port
     return WiMOD_HCI_SendMessage(&TxMessage);
 }
 
-//------------------------------------------------------------------------------
-//
-//  Process
-//
-//  @brief: handle receiver process
-//
-//------------------------------------------------------------------------------
-
+/**
+ * Process
+ * @brief: handle receiver process
+ */
 void
 WiMOD_LoRaWAN_Process()
 {
@@ -281,14 +245,10 @@ WiMOD_LoRaWAN_Process()
     WiMOD_HCI_Process();
 }
 
-//------------------------------------------------------------------------------
-//
-//  Process
-//
-//  @brief: handle receiver process
-//
-//------------------------------------------------------------------------------
-
+/**
+ * Process
+ * @brief: handle receiver process
+ */
 static TWiMOD_HCI_Message*
 WiMOD_LoRaWAN_Process_RxMessage(TWiMOD_HCI_Message*  rxMessage)
 {
@@ -306,14 +266,10 @@ WiMOD_LoRaWAN_Process_RxMessage(TWiMOD_HCI_Message*  rxMessage)
     return &RxMessage;
 }
 
-//------------------------------------------------------------------------------
-//
-//  Process_DevMgmt_Message
-//
-//  @brief: handle received Device Management SAP messages
-//
-//------------------------------------------------------------------------------
-
+/**
+ * Process_DevMgmt_Message
+ * @brief: handle received Device Management SAP messages
+ */
 static void
 WiMOD_LoRaWAN_Process_DevMgmt_Message(TWiMOD_HCI_Message*  rxMessage)
 {
@@ -333,14 +289,10 @@ WiMOD_LoRaWAN_Process_DevMgmt_Message(TWiMOD_HCI_Message*  rxMessage)
     }
 }
 
-//------------------------------------------------------------------------------
-//
-//  WiMOD_LoRaWAN_DevMgmt_FirmwareVersion_Rsp
-//
-//  @brief: show firmware version
-//
-//------------------------------------------------------------------------------
-
+/**
+ * WiMOD_LoRaWAN_DevMgmt_FirmwareVersion_Rsp
+ * @brief: show firmware version
+ */
 static void
 WiMOD_LoRaWAN_DevMgmt_FirmwareVersion_Rsp(TWiMOD_HCI_Message*  rxMessage)
 {
@@ -367,14 +319,10 @@ WiMOD_LoRaWAN_DevMgmt_FirmwareVersion_Rsp(TWiMOD_HCI_Message*  rxMessage)
     }
 }
 
-//------------------------------------------------------------------------------
-//
-//  Process_LoRaWAN_Message
-//
-//  @brief: handle received LoRaWAN SAP messages
-//
-//------------------------------------------------------------------------------
-
+/**
+ * Process_LoRaWAN_Message
+ * @brief: handle received LoRaWAN SAP messages
+ */
 static void
 WiMOD_LoRaWAN_Process_LoRaWAN_Message(TWiMOD_HCI_Message*  rxMessage)
 {
@@ -418,14 +366,10 @@ WiMOD_LoRaWAN_Process_LoRaWAN_Message(TWiMOD_HCI_Message*  rxMessage)
     }
 }
 
-//------------------------------------------------------------------------------
-//
-//  WiMOD_LoRaWAN_Process_JoinTxIndication
-//
-//  @brief: show join transmit indicaton
-//
-//------------------------------------------------------------------------------
-
+/**
+ * WiMOD_LoRaWAN_Process_JoinTxIndication
+ * @brief: show join transmit indicaton
+ */
 static void
 WiMOD_LoRaWAN_Process_JoinTxIndication(TWiMOD_HCI_Message* rxMessage)
 {
@@ -444,14 +388,10 @@ WiMOD_LoRaWAN_Process_JoinTxIndication(TWiMOD_HCI_Message* rxMessage)
     }
 }
 
-//------------------------------------------------------------------------------
-//
-//  WiMOD_LoRaWAN_Process_JoinNetworkIndication
-//
-//  @brief: show join network indicaton
-//
-//------------------------------------------------------------------------------
-
+/**
+ * WiMOD_LoRaWAN_Process_JoinNetworkIndication
+ * @brief: show join network indicaton
+ */
 void
 WiMOD_LoRaWAN_Process_JoinNetworkIndication(TWiMOD_HCI_Message* rxMessage)
 {
@@ -477,14 +417,10 @@ WiMOD_LoRaWAN_Process_JoinNetworkIndication(TWiMOD_HCI_Message* rxMessage)
     }
 }
 
-//------------------------------------------------------------------------------
-//
-//  WiMOD_LoRaWAN_Process_U_DataRxIndication
-//
-//  @brief: show received U-Data
-//
-//------------------------------------------------------------------------------
-
+/**
+ * WiMOD_LoRaWAN_Process_U_DataRxIndication
+ * @brief: show received U-Data
+ */
 void
 WiMOD_LoRaWAN_Process_U_DataRxIndication(TWiMOD_HCI_Message* rxMessage)
 {
@@ -522,14 +458,10 @@ WiMOD_LoRaWAN_Process_U_DataRxIndication(TWiMOD_HCI_Message* rxMessage)
     }
 }
 
-//------------------------------------------------------------------------------
-//
-//  WiMOD_LoRaWAN_Process_C_DataRxIndication
-//
-//  @brief: show received C-Data
-//
-//------------------------------------------------------------------------------
-
+/**
+ * WiMOD_LoRaWAN_Process_C_DataRxIndication
+ * @brief: show received C-Data
+ */
 void
 WiMOD_LoRaWAN_Process_C_DataRxIndication(TWiMOD_HCI_Message* rxMessage)
 {
@@ -567,14 +499,10 @@ WiMOD_LoRaWAN_Process_C_DataRxIndication(TWiMOD_HCI_Message* rxMessage)
     }
 }
 
-//------------------------------------------------------------------------------
-//
-//  WiMOD_LoRaWAN_ShowResponse
-//
-//  @brief: show response status as human readable string
-//
-//------------------------------------------------------------------------------
-
+/**
+ * WiMOD_LoRaWAN_ShowResponse
+ * @brief: show response status as human readable string
+ */
 static void
 WiMOD_LoRaWAN_ShowResponse(const char* string, const TIDString* statusTable, UINT8 statusID)
 {

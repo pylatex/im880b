@@ -1,13 +1,9 @@
 //------------------------------------------------------------------------------
 //
 //	File:		WiMOD_HCI_Layer.h
-//
 //	Abstract:	WiMOD HCI Message Layer
-//
 //	Version:	0.1
-//
 //	Date:		18.05.2016
-//
 //	Disclaimer:	This example code is provided by IMST GmbH on an "AS IS"
 //              basis without any warranties.
 //
@@ -17,17 +13,13 @@
 #define WIMOD_HCI_LAYER_H
 
 //------------------------------------------------------------------------------
-//
 //  Include Files
-//
 //------------------------------------------------------------------------------
 
 #include <stdint.h>
 
 //------------------------------------------------------------------------------
-//
 //  General Declarations & Definitions
-//
 //------------------------------------------------------------------------------
 
 typedef unsigned char                   UINT8;
@@ -40,12 +32,9 @@ typedef uint16_t                        UINT16;
 #define LOBYTE(x)                       (x)
 #define HIBYTE(x)                       ((UINT16)(x) >> 8)
 
-//------------------------------------------------------------------------------
-//
-//  HCI Message Structure (internal software usage)
-//
-//------------------------------------------------------------------------------
-
+/**
+ * HCI Message Structure (internal software usage)
+ */
 typedef struct
 {
     // Payload Length Information,
@@ -67,25 +56,23 @@ typedef struct
 }TWiMOD_HCI_Message;
 
 //------------------------------------------------------------------------------
-//
 //  Function Prototypes
-//
 //------------------------------------------------------------------------------
 
-// Message receiver callback
+//Message receiver callback
 typedef TWiMOD_HCI_Message* (*TWiMOD_HCI_CbRxMessage)(TWiMOD_HCI_Message* rxMessage);
 
-// Init HCI Layer
+//Init HCI Layer
 bool
 WiMOD_HCI_Init(const char*              comPort,
                TWiMOD_HCI_CbRxMessage   cbRxMessage,
                TWiMOD_HCI_Message*      rxMessage);
 
-// Send HCI Message
+//Send HCI Message
 int
 WiMOD_HCI_SendMessage(TWiMOD_HCI_Message* txMessage);
 
-// Receiver Process
+//Receiver Process
 void
 WiMOD_HCI_Process();
 

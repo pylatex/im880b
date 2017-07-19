@@ -32,18 +32,18 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="CRC16.cpp" />
-		<Unit filename="CRC16.h" />
-		<Unit filename="SLIP.cpp" />
-		<Unit filename="SLIP.h" />
-		<Unit filename="SerialDevice.cpp" />
-		<Unit filename="SerialDevice.h" />
-		<Unit filename="WiMOD_HCI_Layer.cpp" />
-		<Unit filename="WiMOD_HCI_Layer.h" />
-		<Unit filename="WiMOD_LoRaWAN_API.cpp" />
-		<Unit filename="WiMOD_LoRaWAN_API.h" />
-		<Unit filename="main.cpp" />
-		<Unit filename="main.h" />
+		<Unit filename="Source/CRC16.cpp" />
+		<Unit filename="Source/CRC16.h" />
+		<Unit filename="Source/SLIP.cpp" />
+		<Unit filename="Source/SLIP.h" />
+		<Unit filename="Source/SerialDevice.cpp" />
+		<Unit filename="Source/SerialDevice.h" />
+		<Unit filename="Source/WiMOD_HCI_Layer.cpp" />
+		<Unit filename="Source/WiMOD_HCI_Layer.h" />
+		<Unit filename="Source/WiMOD_LoRaWAN_API.cpp" />
+		<Unit filename="Source/WiMOD_LoRaWAN_API.h" />
+		<Unit filename="Source/main.cpp" />
+		<Unit filename="Source/main.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

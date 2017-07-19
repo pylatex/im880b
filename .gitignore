@@ -7,5 +7,5 @@
 *.o
 *.so
 
-Source/bin/*
-Source/obj/*
+bin/*
+obj/*
