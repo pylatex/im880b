@@ -9,24 +9,18 @@ For the working version in this repo (for PIC Enhanced Midrange), a `ping req` a
 
 ### Requirements:
 
-The following table shows the files to be included on your IDE's proyect, depending on the compilation target (preferently defined in `globaldefs.h`).
+The following table shows the files to be included on your IDE's proyect, depending on the compilation target (preferently defined in `globaldefs.h`). In general, the whole `*.c` files should be included for compilation but if some of them ends in `_win` or `_pic8` means for a special implementation for the platform, so just only one of them should be compiled. Every `*.c` included will call their needed headers.
 
-| File | Q_OS_WIN | UC_PIC8 |
-| ---- |  :---:   |  :---:  |
-| ***Headers:***    |   |   |
-|CRC16.h            | x | x |
-|**globaldefs.h**   | x | x |
-|lorawan_hci.h      |   | x |
-|SerialDevice.h     | x | x |
-|SLIP.h             | x |   |
-|WiMOD_HCI_Layer.h  | x |   |
-|***Source Files:***|   |   |
-|CRC16.c            | x | x |
-|lorawan_hci.c      |   | x |
-|**main.c**         | x | x |
-|SerialDevice.c     | x | x |
-|SLIP.c             | x |   |
-|WiMOD_HCI_Layer.c  | x |   |
+| File              | Description                     |  WIN  |  PIC  |
+| ---               |     ---                         | :---: | :---: |
+| CRC16.c           |CRC16 Creation and Checking      |   X   |   X   |
+|lorawan_hci.c      |The whole WiMOD HCI Stack        |       |   X   |
+|main___.c          |                                 | _win  | _pic8 |
+|SerialDevice___.c" |UART Interface                   | _win  | _pic8 |
+|SLIP.c             |SLIP Encoding and Decoding Layer |   X   |       |
+|WiMOD_HCI_Layer.c  |Only the HCI Layer               |   X   |       |
+
+We're working on a Makefile to avoid the most possible this mishaps...
 
 #####  Windows (Q_OS_WIN)
 
@@ -45,13 +39,13 @@ The compiler used was [XC8](http://www.microchip.com/mplab/compilers), but you c
 Please refer to `main.c` file.
 
  - `bool SendHCI (unsigned char *buffer, unsigned char size)`
- 
+
    The function iterates over the `buffer`, that starts with the Destination Endpoint ID (DstID), followed by the Message ID (MsgID) and finally the Payload, with their specified `size`.
-   
+
    Then it calculates the CRC and adds it at the end of the HCI message and finally encodes in SLIP format as it sends the octets through the UART.
-   
+
  - `signed char ProcessHCI (unsigned char *buffer, unsigned char rxData)`
- 
+
    This function will use the array `buffer` for an incoming HCI message from the iM880B module, and should be called every time a `rxData` incoming byte are complete and ready to be read from the UART.
-   
+
    When a successful HCI message (SLIP decoded + valid CRC16) are ready to be read from `buffer`, the function returns the size of the payload (a number >= 0), otherwise returns -1. This returned value can be used in interruption time to write a flag or something that starts the decoding of the HCI received message, out of the interrupt.

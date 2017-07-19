@@ -13,10 +13,8 @@
 //------------------------------------------------------------------------------
 //  Include Files
 //------------------------------------------------------------------------------
-#include "..\globaldefs.h"
-#include "..\SerialDevice.h"
-
-#ifdef Q_OS_WIN
+#include "SerialDevice.h"
+#include <stdbool.h>
 #include <windows.h>
 #define Baudrate_9600       9600
 #define Baudrate_115200     115200
@@ -24,22 +22,13 @@
 #define DataBits_8          8
 #define Parity_Even         EVENPARITY
 #define Parity_None         NOPARITY
-#endif
-#ifdef UC_PIC8
-#include <xc.h>
-#endif
 
 //------------------------------------------------------------------------------
 //  Section RAM
 //------------------------------------------------------------------------------
 
-#ifdef Q_OS_WIN
 // File Handle
 static HANDLE   ComHandle = INVALID_HANDLE_VALUE;
-#endif
-#ifdef UC_PIC8
-// Todo : add your own platform specific variables here
-#endif
 
 //------------------------------------------------------------------------------
 //  Section Code
@@ -48,7 +37,7 @@ static HANDLE   ComHandle = INVALID_HANDLE_VALUE;
 /**
  * Open
  * @brief: open serial device
- * 
+ *
  * Configura e Inicia el modulo/puerto serie.
  */
 bool
@@ -56,7 +45,6 @@ SerialDevice_Open(UINT8         comNumber,
                   int           dataBits,
                   UINT8         parity)
 {
-#ifdef Q_OS_WIN
     //POR HACER: el primer argumento ya no es un string, hay que armarlo aca
     //si se requiere.
 
@@ -120,34 +108,15 @@ SerialDevice_Open(UINT8         comNumber,
     }
     // error
     return false;
-#endif
-#ifdef UC_PIC8
-    //UART, Ajustes comunes a Rx y Tx. Inicializado de acuerdo a datasheet 16F2550
-    //Se prueba con 8(interno) y 7.3728(externo) MHz
-    ////1: (En reset,SPBRG=0). Usar BRG16=1 y BRGH=1. Velocidades despues de PLL (si lo hay)
-    SPBRG=16;   //Fosc=8 MHz (ejm,interno)
-    //SPBRG=15;   //Fosc=7.3728 MHz (externo)
-    SYNC=false; //2. Modo Asincrono
-    BRG16=true;
-    BRGH=true;
-    SPEN=true; //2. Habilita Puerto Serie
-    //TRANSMISOR
-    TXEN=true; //6,Tx. Habilita transmisor
-    //RECEPTOR
-    CREN=true;  //6,Rx. Habilita receptor
-    RCIE=true;  //7,Rx. Interrupcion por recepcion habilitada
-    return SerialSentIsOpen();
-#endif
+
 }
 
-/*
+/**
  * Simple check for the status of Tx module
  */
 bool SerialSentIsOpen(void)
 {
-#ifdef UC_PIC8
-    return (bool)(SPEN && TXEN);
-#endif
+    return true;
 }
 
 /**
