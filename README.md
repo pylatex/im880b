@@ -1,13 +1,8 @@
 # im880b-micro
 
-Microcontroller Implementation of the HCI LoRaWAN stack to put in run the iM880B module from IMST. Partially based from the [HCI LoRaWAN example code from IMST](https://wireless-solutions.de/products/radiomodules/im880b-l.html).
+Multiplatform Implementation of the HCI stack to command the WiMOD iM880B-L LoRaWAN module from IMST. Based on the [HCI LoRaWAN example code from IMST](https://wireless-solutions.de/products/radiomodules/im880b-l.html).
 
-
-### Status:
-
-For the working version in this repo (for PIC Enhanced Midrange), a `ping req` are sent out, and a LED conected to RA0 turns ON during half second if there are a successful HCI message as response of that request (specifically, but not limited to, a `ping rsp`)
-
-### Requirements:
+# Compiling
 
 The following table shows the files to be included on your IDE's proyect, depending on the compilation target (preferently defined in `globaldefs.h`). In general, the whole `*.c` files should be included for compilation but if some of them ends in `_win` or `_pic8` means for a special implementation for the platform, so just only one of them should be compiled. Every `*.c` included will call their needed headers.
 
@@ -22,19 +17,23 @@ The following table shows the files to be included on your IDE's proyect, depend
 
 We're working on a Makefile to avoid the most possible this mishaps...
 
-#####  Windows (Q_OS_WIN)
+## Target Platforms
 
-Surely not working from this repo at this time, but a working version for Windows can be found also in [our initial repo](https://github.com/pylatesUD/im880b). The goal are to merge both repos in just one, possibly this.
+The source code can be compiled from the following platforms:
 
-The IDE used was [Code::Blocks](http://www.codeblocks.org), with mingw included, a Windows port that includes `g++` from [GCC](https://gcc.gnu.org/).
+### Microchip PIC 8 bit family - Working Correctly.
 
-##### Enhanced 8 bit PIC family (UC_PIC8)
+The PIC used was the [PIC18F2550](http://www.microchip.com/PIC18F2550), but the code can be easily ported to another PIC that has at least a UART module. From this reference a EUSART module and interruptions by the Rx module from the UART were required. Includes the basic setup through the whole code (oscillator and EUSART module register values and steps) to use the internal 8 MHz oscillator.
 
-The PIC used was the [PIC18F2550](http://www.microchip.com/PIC18F2550). From this reference a EUSART module and interruptions by the Rx module was required. Includes the basic setup through the whole code (oscillator and EUSART module register values and steps) to use the internal 8 MHz oscillator.
+For the working version in this repo, a `ping req` are sent out, and a LED conected to RA0 turns ON during half second if there are a successful HCI message as response of that request (specifically, but not limited to, a `ping rsp`).
 
-The compiler used was [XC8](http://www.microchip.com/mplab/compilers), but you can choose any IDE that supports this ANSI C compliant compiler, like [MPLAB X](http://www.microchip.com/mplab/mplab-x-ide) or [Proteus](https://www.labcenter.com/)
+The compiler used was [XC8](http://www.microchip.com/mplab/compilers), but you can choose any IDE that supports this ANSI C compliant compiler, like [MPLAB X](http://www.microchip.com/mplab/mplab-x-ide) or [Labcenter's Proteus](https://www.labcenter.com/).
 
-### Main Functions and Usage
+### Windows - Not tested, Migrating.
+
+Compiled on Windows 7 with the mingw compiler ([GCC](https://gcc.gnu.org/) port for Windows) included within [Code::Blocks](http://www.codeblocks.org). Currently the version on this repo was not tested, but a working version (the compiled one that we are taling about) can be found also in [our initial repo](https://github.com/pylatesUD/im880b).
+
+# Main Functions and Usage
 
 Please refer to `main.c` file.
 
