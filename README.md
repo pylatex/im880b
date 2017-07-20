@@ -14,6 +14,7 @@ The following table shows the files to be included on your IDE's proyect, depend
 |SerialDevice___.c  |UART Interface                   | _win  | _pic8 |
 |SLIP.c             |SLIP Encoding and Decoding Layer |   X   |       |
 |WiMOD_HCI_Layer.c  |Only the HCI Layer               |   X   |       |
+|WiMOD_LoRaWAN_API.cpp|LoRaWAN API Functions          |   X   |       |
 
 We're working on a Makefile to avoid the most possible this mishaps...
 
