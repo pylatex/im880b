@@ -13,7 +13,6 @@
 // Include Files
 //------------------------------------------------------------------------------
 
-#include "globaldefs.h"
 #include "WiMOD_HCI_Layer.h"
 #include "CRC16.h"
 #include "SLIP.h"
@@ -77,12 +76,8 @@ WiMOD_HCI_Init(const char*              comPort,        // comPort
     SLIP_SetRxBuffer(&rxMessage->SapID, sizeof(TWiMOD_HCI_Message) - sizeof(UINT16));
 
     // init serial device
-#ifdef Q_OS_WIN
     return SerialDevice_Open(comPort, Baudrate_115200, DataBits_8, Parity_None);
-#endif
-#ifdef UC_PIC8
-    return SerialDevice_Open(0,0,0);
-#endif
+    //return SerialDevice_Open(0,0,0);
 }
 
 /**
