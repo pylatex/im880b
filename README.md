@@ -28,15 +28,17 @@ The PIC used was the [PIC18F2550](http://www.microchip.com/PIC18F2550), but the 
 
 For the working version in this repo, a `ping req` are sent out, and a LED conected to RA0 turns ON during half second if there are a successful HCI message as response of that request (specifically, but not limited to, a `ping rsp`).
 
-The compiler used was [XC8](http://www.microchip.com/mplab/compilers), but you can choose any IDE that supports this ANSI C compliant compiler, like [MPLAB X](http://www.microchip.com/mplab/mplab-x-ide) or [Labcenter's Proteus](https://www.labcenter.com/).
+The compiler used was [XC8](http://www.microchip.com/mplab/compilers), but you can choose any IDE that supports this ANSI C compliant compiler, like [MPLAB X IDE](http://www.microchip.com/mplab/mplab-x-ide) or [Labcenter's Proteus](https://www.labcenter.com/).
 
 ### Windows - Not tested, Migrating.
 
-Compiled on Windows 7 with the mingw compiler ([GCC](https://gcc.gnu.org/) port for Windows) included within [Code::Blocks](http://www.codeblocks.org). Currently the version on this repo was not tested, but a working version (the compiled one that we are taling about) can be found also in [our initial repo](https://github.com/pylatesUD/im880b).
+Compiled on Windows 7 with the mingw compiler (a [GCC](https://gcc.gnu.org/) port for Windows) included within [Code::Blocks](http://www.codeblocks.org). Currently the version on this repo was not tested, but a working version (the compiled one that we are talking about) can be found in [our initial repo](https://github.com/pylatesUD/im880b). Honestly at time it has minimal modifications to the original IMST code. 
 
 # Main Functions and Usage
 
 Please refer to `main.c` file.
+
+## For microcontrollers, use `lorawan_hci.h`.
 
  - `bool SendHCI (unsigned char *buffer, unsigned char size)`
 
@@ -47,5 +49,17 @@ Please refer to `main.c` file.
  - `signed char ProcessHCI (unsigned char *buffer, unsigned char rxData)`
 
    This function will use the array `buffer` for an incoming HCI message from the iM880B module, and should be called every time a `rxData` incoming byte are complete and ready to be read from the UART.
-
+   
    When a successful HCI message (SLIP decoded + valid CRC16) are ready to be read from `buffer`, the function returns the size of the payload (a number >= 0), otherwise returns -1. This returned value can be used in interruption time to write a flag or something that starts the decoding of the HCI received message, out of the interrupt.
+   
+[//]: # (TAREA: cambiar la funcion siguiente, por una que devuelva lo que supuestamente devuelve la anterior)
+   
+ - `bool PendingRxHCI(void)`
+   
+   This function returns `true` when in `buffer` are an HCI message ready to be read (SLIP decoded + valid CRC16).
+
+   
+
+## In Windows, use `WiMOD_LoRaWAN_API.h`
+
+Currently porting this file, has minimal modifications with respect to the IMST sample code.
