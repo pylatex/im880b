@@ -9,7 +9,7 @@
 // Includings
 //------------------------------------------------------------------------------
 
-#include "lorawan_hci.h"    //WiMOD LoRaWAN HCI Constants
+#include "hci_stack.h"      //WiMOD LoRaWAN HCI Constants
 #include "CRC16.h"          //CRC16 Calculation and Checking functions
 #include "SerialDevice.h"   //UART interface
 

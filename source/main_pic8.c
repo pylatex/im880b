@@ -11,7 +11,7 @@
 //  Definitions and Setup
 //------------------------------------------------------------------------------
 //#include <string.h>
-#include "lorawan_hci.h"
+#include "hci_stack.h"
 #include "SerialDevice.h"
 
 #include <xc.h>
