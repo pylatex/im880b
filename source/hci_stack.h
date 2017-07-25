@@ -155,18 +155,22 @@ extern "C" {
     //--------------------------------------------------------------------------
     //  Function Prototypes
     //--------------------------------------------------------------------------
-    
+
+    //State of the HCI receiver or payload size of a complete incoming HCI message
+    signed char BuffSizeHCI(void);
+
+    //Deprecated: True if the buffer can be readed. Please use a comparison against BuffSizeHCI()
     bool PendingRxHCI(void);
-    
+
     //Use after reading the Rx buffer
     void ClearRxHCI (void);
-    
+
     //HCI Initialization
     bool InitHCI (void);
-    
+
     //Envio de un comando HCI
     bool SendHCI (unsigned char *buffer, unsigned int size);
-    
+
     //Procesamiento de HCI entrante.
     void ProcessHCI (unsigned char *buffer, unsigned int size);
 

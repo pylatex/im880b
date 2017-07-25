@@ -11,9 +11,6 @@ extern "C" {
     typedef uint8_t             UINT8;
     typedef uint32_t            UINT32;
 
-    //Simple check
-    bool SerialSentIsOpen(void);
-
     // open serial device
     bool
     SerialDevice_Open(UINT8         comNumber,

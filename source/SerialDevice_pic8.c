@@ -17,10 +17,11 @@
 #include <xc.h>
 
 //------------------------------------------------------------------------------
-//  Section RAM
+//  Section RAM and Function Prototypes
 //------------------------------------------------------------------------------
 
-// Todo : add your own platform specific variables here
+//Simple check
+bool SerialSentIsOpen(void);
 
 //------------------------------------------------------------------------------
 //  Section Code

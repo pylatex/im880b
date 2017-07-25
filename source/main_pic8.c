@@ -17,6 +17,7 @@
 #include <xc.h>
 #define _XTAL_FREQ 8000000  //Internal RC
 //#define _XTAL_FREQ 7372800  //External Quartz Crystal to derivate common UART speeds
+
 //*
 //Valid Setup for PIC18F2550, with INTOSC @ 8 MHz
 #pragma config PLLDIV = 1, CPUDIV = OSC1_PLL2, USBDIV = 1
@@ -117,8 +118,7 @@ void main(void)
         
         __delay_ms(10); //small delay to allow the processing of the HCI message
         //The LED should blink on every complete HCI message.
-        if (PendingRxHCI()) {
-            ClearRxHCI();   //Call when the HCI message can be overwrited
+        if (BuffSizeHCI()>=0) {
             //A successfully decoded HCI message are ready to be read
             if (buffer[0]==DEVMGMT_SAP_ID && buffer[1]==DEVMGMT_MSG_PING_RSP) {
                 //The response corresponds to the request sent.
@@ -127,6 +127,7 @@ void main(void)
                 LED=false;
                 ms100(5);
             }
+            ClearRxHCI();   //Call when the HCI message can be overwrited
         } else ms100(10);
         //*/
     }
