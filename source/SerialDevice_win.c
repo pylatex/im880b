@@ -126,7 +126,6 @@ bool SerialSentIsOpen(void)
 bool
 SerialDevice_Close()
 {
-#ifdef Q_OS_WIN
     // handle valid ?
     if (ComHandle != INVALID_HANDLE_VALUE) {
         // cancel last operation
@@ -145,13 +144,6 @@ SerialDevice_Close()
         return true;
     }
     return false;
-#endif
-#ifdef UC_PIC8
-    SPEN=false; //2. Habilita Puerto Serie
-    TXEN=false; //6,Tx. Habilita transmisor
-    CREN=false;  //6,Rx. Habilita receptor
-    return true;
-#endif
 }
 
 /**
@@ -161,7 +153,6 @@ SerialDevice_Close()
 int
 SerialDevice_SendData(UINT8* txBuffer, UINT8 txLength)
 {
-#ifdef Q_OS_WIN
     // handle valid ?
     if (ComHandle == INVALID_HANDLE_VALUE)
         return -1;
@@ -180,16 +171,6 @@ SerialDevice_SendData(UINT8* txBuffer, UINT8 txLength)
         // ok
         return numTxBytes;
     }
-#endif
-#ifdef UC_PIC8
-    for (UINT8 i=0;i<txLength;i++) {
-        if (!SerialDevice_SendByte(txBuffer[i])) {
-            //Escapes the error
-            return false;
-        }
-    }
-    return true;
-#endif
 }
 
 /**
@@ -199,7 +180,6 @@ SerialDevice_SendData(UINT8* txBuffer, UINT8 txLength)
 int
 SerialDevice_SendByte(UINT8 txByte)
 {
-#ifdef Q_OS_WIN
     // handle valid ?
     if (ComHandle == INVALID_HANDLE_VALUE)
         return -1;
@@ -220,16 +200,6 @@ SerialDevice_SendByte(UINT8 txByte)
     }
     // error
     return -1;
-#endif
-#ifdef UC_PIC8
-    if (SerialSentIsOpen()) {
-        while (!TRMT);  //Wait for a pending transmision, due to TSR busy
-        TXREG=txByte;
-        while (!TXIF);  //Wait while TXREG value are transferred to TSR
-        return true;
-    }
-    return false;
-#endif
 }
 
 /**
@@ -239,7 +209,6 @@ SerialDevice_SendByte(UINT8 txByte)
 int
 SerialDevice_ReadData(UINT8* rxBuffer, int rxBufferSize)
 {
-#ifdef  Q_OS_WIN
     // handle ok ?
     if (ComHandle == INVALID_HANDLE_VALUE)
         return -1;
@@ -254,11 +223,6 @@ SerialDevice_ReadData(UINT8* rxBuffer, int rxBufferSize)
     }
     // error
     return -1;
-#endif
-#ifdef UC_PIC8
-    // Todo : add your own platform specific code here
-    return -1;
-#endif
 }
 //------------------------------------------------------------------------------
 // end of file
