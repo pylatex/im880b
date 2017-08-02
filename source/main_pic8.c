@@ -12,13 +12,12 @@
 //------------------------------------------------------------------------------
 //#include <string.h>
 #include "hci_stack.h"
-#include "SerialDevice.h"
-
+//#include "SerialDevice.h"
 #include <xc.h>
-#define _XTAL_FREQ 8000000  //Internal RC
+#define _XTAL_FREQ 8000000  //May be either Internal RC or external oscillator.
 //#define _XTAL_FREQ 7372800  //External Quartz Crystal to derivate common UART speeds
-//*
-//Valid Setup for PIC18F2550, with INTOSC @ 8 MHz
+
+//* Remove a '/' to comment the setup for PIC18F2550 wiht INTOSC@8MHz
 #pragma config PLLDIV = 1, CPUDIV = OSC1_PLL2, USBDIV = 1
 #pragma config FOSC = INTOSCIO_EC,  FCMEN = ON, IESO = OFF
 #pragma config PWRT = ON, BOR = OFF, BORV = 3, VREGEN = OFF
@@ -69,9 +68,11 @@ void main(void)
         // Serial Device Test
         
         //Using the function
+        //Don't forget to include SerialDevice.h
         //SerialDevice_SendData("Hello",5);
 
         /*//Sending by appart
+        //Don't forget to include SerialDevice.h
         SerialDevice_SendByte('H');
         SerialDevice_SendByte('e');
         SerialDevice_SendByte('l');
@@ -88,13 +89,14 @@ void main(void)
         SendHCI(buffer,0);
         //*/
 
-        /*// like the function
-        SerialDevice_SendByte(0xC0);
+        /*// Emulate the function
+        //Don't forget to include SerialDevice.h
+        SerialDevice_SendByte(SLIP_END);
         SerialDevice_SendByte(DEVMGMT_SAP_ID);
         SerialDevice_SendByte(DEVMGMT_MSG_PING_REQ);
         SerialDevice_SendByte(0xA0);    //CRC
         SerialDevice_SendByte(0xAF);    //CRC
-        SerialDevice_SendByte(0xC0);
+        SerialDevice_SendByte(SLIP_END);
         //*/
         
         //------------------------------------------

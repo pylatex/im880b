@@ -8,9 +8,7 @@
 //  Definitions and Setup
 //------------------------------------------------------------------------------
 //#include <string.h>
-#include "globaldefs.h"
-#include "lorawan_hci.h"
-#include "SerialDevice.h"
+#include "WiMOD_LoRaWAN_API.h"
 
 //------------------------------------------------------------------------------
 //  Declarations, Definitions and Variables
@@ -33,10 +31,6 @@ static void     SendCData();
  */
 int main(int argc, char *argv[])
 {
-    ////////////////////////////////////////////////////////////////////////////
-    //Codigo del main() del ejemplo de IMST:
-    ////////////////////////////////////////////////////////////////////////////
-
     bool run = true;
 
     char comPort[40];
@@ -56,7 +50,7 @@ int main(int argc, char *argv[])
     if(!WiMOD_LoRaWAN_Init(comPort))
     {
         printf("error - couldn't open interface on comport %s\r\n",comPort);
-        printf("try: iMOD_LoRaWAN_HCI_C_ExampleCode COMxy to select another comport\n\r");
+        printf("try: WiMOD_LoRaWAN_HCI_C_ExampleCode COMxy to select another comport\n\r");
 
         return -1;
     }
@@ -118,11 +112,8 @@ int main(int argc, char *argv[])
         }
     }
     return 0;
-    //Fin Codigo IMST.
-    ////////////////////////////////////////////////////////////////////////////
 }
 
-//Specific functions for Windows
 /**
  * ShowMenu
  * @brief: show main menu
