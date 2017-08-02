@@ -134,7 +134,7 @@ void main(void)
     }
 }
 
-void interrupt ISR (void) {
+void __interrupt ISR (void) {
     if (RCIE && RCIF) {
         //Error reading
         rx_err=RCSTA;

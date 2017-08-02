@@ -1,5 +1,5 @@
 /*
- * File:    lorawan_hci.h
+ * File:    hci_stack.h
  * Author:  Alex F. Bustos
  * 
  * Headers for the implementation of the HCI+CRC16+SLIP+UART functions to be
@@ -156,11 +156,11 @@ extern "C" {
     //  Function Prototypes
     //--------------------------------------------------------------------------
 
-    //State of the HCI receiver or payload size of a complete incoming HCI message
-    signed char BuffSizeHCI(void);
+    //State of the HCI receiver. -1:idle, -2:receiving, >=0: Size of the payload of a ready HCI message.
+    signed char BuffSizeHCI (void);
 
     //Deprecated: True if the buffer can be readed. Please use a comparison against BuffSizeHCI()
-    bool PendingRxHCI(void);
+    bool PendingRxHCI (void);
 
     //Use after reading the Rx buffer
     void ClearRxHCI (void);
