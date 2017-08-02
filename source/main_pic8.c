@@ -119,8 +119,7 @@ void main(void)
         
         __delay_ms(10); //small delay to allow the processing of the HCI message
         //The LED should blink on every complete HCI message.
-        if (PendingRxHCI()) {
-            ClearRxHCI();   //Call when the HCI message can be overwrited
+        if (BuffSizeHCI()>=0) {
             //A successfully decoded HCI message are ready to be read
             if (buffer[0]==DEVMGMT_SAP_ID && buffer[1]==DEVMGMT_MSG_PING_RSP) {
                 //The response corresponds to the request sent.
@@ -129,6 +128,7 @@ void main(void)
                 LED=false;
                 ms100(5);
             }
+            ClearRxHCI();   //Call when the HCI message can be overwrited
         } else ms100(10);
         //*/
     }

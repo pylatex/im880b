@@ -46,19 +46,13 @@ Please refer to `main.c` file.
 
    Then it calculates the CRC and adds it at the end of the HCI message and finally encodes in SLIP format as it sends the octets through the UART.
 
- - `signed char ProcessHCI (unsigned char *buffer, unsigned char rxData)`
+ - `signed char ProcessHCI (unsigned char *buffer, unsigned char rxByte)`
 
-   This function will use the `buffer` array for an incoming HCI message from the iM880B module, and should be called every time a `rxData` incoming byte are complete and ready to be read from the UART.
+   This function will write in the `buffer` array, depending on the value of the received `rxByte` from the UART. This function should be called every time there are an incoming byte complete and ready to be read from the UART, possibly inside the UART interruption function.
 
-   When a successful HCI message (SLIP decoded + valid CRC16) are ready to be read from `buffer`, the function returns the size of the payload (a number >= 0), otherwise returns -1. This returned value can be used in interruption time to write a flag or something that starts the decoding of the HCI received message, out of the interrupt.
+ - `signed char BuffSizeHCI(void)`
 
-[//]: # (TAREA: cambiar la funcion siguiente, por una que devuelva lo que supuestamente devuelve la anterior)
-
- - `bool PendingRxHCI(void)`
-
-   This function returns `true` when in `buffer` are an HCI message ready to be read (SLIP decoded + valid CRC16).
-
-
+   When a successful HCI message (SLIP decoded + valid CRC16) are ready to be read from the `buffer` indicated to `ProcessHCI()`, this function returns the size of the payload (a number >= 0), otherwise returns -1 when the receiver are idle or -2 if are currently receiving an HCI message.
 
 ## In Windows, use `WiMOD_LoRaWAN_API.h`
 

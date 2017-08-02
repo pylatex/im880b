@@ -17,36 +17,29 @@
 // Variables
 //------------------------------------------------------------------------------
 
-//8 bit segmented union...
-typedef union {
-    unsigned        UREG    :8;
-    signed          SREG    :8;
-    struct  {
-        unsigned    NIB0    :4;
-        unsigned    NIB1    :4;
-    };
-    struct {
-        unsigned    B0      :1;
-        unsigned    B1      :1;
-        unsigned    B2      :1;
-        unsigned    B3      :1;
-        unsigned    B4      :1;
-        unsigned    B5      :1;
-        unsigned    B6      :1;
-        unsigned    B7      :1;
-    };
-} SEG8;
-
-//volatile SEG8 HCIstat;              //HCI Modules Status
-//#define ble HCIstat.B0  //
 volatile signed char rxStatus;   //Reflejo del ultimo estado HCI del receptor
 
 //------------------------------------------------------------------------------
 // Section Source
 //------------------------------------------------------------------------------
 
+/**
+ * State of the HCI receiver or payload size of a complete incoming HCI message.
+ * 
+ * @return -1 when no message, -2 when receiving and >=0 as the size of a valid HCI.
+ */
+signed char BuffSizeHCI(void) {
+    return rxStatus;
+}
+
+/**
+ * Indicates if there is an available message to read
+ * 
+ * @deprecated Please use a comparison of the value returned by Buffsize()
+ * @return true or false, depending if there is a valid message available to be read
+ */
 bool PendingRxHCI(void) {
-    return (rxStatus >= 0);
+    return (bool)(rxStatus >= 0);
 }
 
 /**
@@ -111,20 +104,18 @@ bool SendHCI (unsigned char *buffer, unsigned int size)
 }
 
 /**
- * @brief Procesa un octeto recibido por el UART
- * State machine implementation to process the bytes of an incoming HCI message
+ * Evaluates every incoming octect from UART, in order to create an HCI message.
  * 
- * @param buffer: Reception Buffer.
- * @param rxData: Byte received by the UART
- * @return -1 when no message, -2 when receiving and >=0 as the size of a valid HCI.
+ * @param buffer: Buffer for the bytes of the incoming HCI message.
+ * @param rxByte: The byte received by the UART
  */
-void ProcessHCI (unsigned char *buffer, unsigned int rxData)
+void ProcessHCI (unsigned char *buffer, unsigned int rxByte)
 {
     //Variables
     static bool escape = false;
     static unsigned char size = 0;
     
-    if (rxData==SLIP_END) {
+    if (rxByte==SLIP_END) {
         if ((size >= 4) && CRC16_Check(buffer, size, CRC16_INIT_VALUE)) {
             rxStatus=size - 4;  //Valid HCI message with (size-4) payload bytes
         } else {
@@ -133,18 +124,18 @@ void ProcessHCI (unsigned char *buffer, unsigned int rxData)
         size=0;
         escape=false;
     } else {
-        if (rxData==SLIP_ESC) {
+        if (rxByte==SLIP_ESC) {
             escape=true;
         } else {
             if (escape) {
-                if (rxData==SLIP_ESC_END) {
-                    rxData=SLIP_END;
-                } else if (rxData==SLIP_ESC_ESC) {
-                    rxData=SLIP_ESC;
+                if (rxByte==SLIP_ESC_END) {
+                    rxByte=SLIP_END;
+                } else if (rxByte==SLIP_ESC_ESC) {
+                    rxByte=SLIP_ESC;
                 }
                 escape=false;
             }
-            buffer[size++]=rxData;
+            buffer[size++]=rxByte;
         }
         rxStatus=HCI_RX_PENDING;
     }
