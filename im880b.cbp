@@ -43,7 +43,7 @@
 		<Unit filename="Source/WiMOD_LoRaWAN_API.cpp" />
 		<Unit filename="Source/WiMOD_LoRaWAN_API.h" />
 		<Unit filename="Source/main.cpp" />
-		<Unit filename="Source/main.h" />
+		<Unit filename="Source/target.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

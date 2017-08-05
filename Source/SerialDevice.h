@@ -2,8 +2,7 @@
 #define SERIAL_DEVICE_H
 
 #include <stdint.h>
-#include "main.h"
-//#define Q_OS_WIN
+#include "target.h"
 
 #ifdef  Q_OS_WIN
 

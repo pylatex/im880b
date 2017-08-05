@@ -11,8 +11,10 @@
 //------------------------------------------------------------------------------
 //  Include Files
 //------------------------------------------------------------------------------
-
-#include "main.h"   //Open and modify to change the target system (WIN/UX)
+#include <conio.h>
+#include <stdio.h>
+#include <string.h>
+#include "target.h"   //Open and modify to change the target system (WIN/UX)
 #include "WiMOD_LoRaWAN_API.h"
 //------------------------------------------------------------------------------
 //  Declarations and Definitions
@@ -25,6 +27,8 @@ static void     GetDeviceInfo();
 static void     Join();
 static void     SendUData();
 static void     SendCData();
+
+#define defPORT "COM4"  //Default port, in case of empty input
 
 //------------------------------------------------------------------------------
 //  Section Code
