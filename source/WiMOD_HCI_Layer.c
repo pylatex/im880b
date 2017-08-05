@@ -134,7 +134,7 @@ int WiMOD_HCI_SendMessage(TWiMOD_HCI_Message* txMessage)
         }
     }
 
-    // error - SLIP layer couldn't encode message - buffer to small ?
+    // error - SLIP layer couldn't encode message - buffer too small ?
     return -1;
 }
 
