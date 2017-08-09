@@ -9,5 +9,5 @@
 
 bin/*
 obj/*
-im880b.depend
-im880b.layout
+/im880b.*
+!/im880b.cbp
