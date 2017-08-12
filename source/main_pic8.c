@@ -13,6 +13,7 @@
 //#include <string.h>
 #include "hci_stack.h"
 //#include "SerialDevice.h"
+#include "WiMOD_LoRaWAN_API.h"
 #include <xc.h>
 #define _XTAL_FREQ 8000000  //May be either Internal RC or external oscillator.
 //#define _XTAL_FREQ 7372800  //External Quartz Crystal to derivate common UART speeds
@@ -42,6 +43,9 @@ volatile unsigned char buffer[20]; //Buffer de salida
 //  Section Code
 //------------------------------------------------------------------------------
 
+
+
+
 /**
  * Main
  */
@@ -60,6 +64,12 @@ void main(void)
     InitHCI();  //Full Duplex UART and Rx interruptions enabled
     PEIE=true;  //Peripheral Interrupts Enable
     GIE=true;   //Global Interrupts Enable
+    
+    //LW STATUS AND CONNECTION
+    
+    //1. Check Connection between im880 and MCU
+    
+    //2. Check/Wait for LoRaWAN connection
     
     //MAIN LOOP
     while (true) {
