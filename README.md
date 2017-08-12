@@ -4,7 +4,7 @@ Multiplatform Implementation of the HCI stack to command the WiMOD iM880B-L LoRa
 
 # Compiling
 
-The following table shows the files to be included on your IDE's proyect, depending on the compilation target (preferently defined in `globaldefs.h`). In general, the whole `*.c` files should be included for compilation but if some of them ends in `_win` or `_pic8` means for a special implementation for the platform, so just only one of them should be compiled. Every `*.c` included will call their needed headers.
+The following table shows the files to be included on your IDE's project, depending on the compilation target (preferently defined in `globaldefs.h`). In general, the whole `*.c` files should be included for compilation but if some of them ends in `_win` or `_pic8` means for a special implementation for the platform, so just only one of them should be compiled. Every `*.c` included will call their needed headers.
 
 | File              | Description                     |  WIN  |  PIC  |
 | ---               |     ---                         | :---: | :---: |

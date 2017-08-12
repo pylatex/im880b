@@ -56,7 +56,7 @@ static UINT8                TxBuffer[sizeof( TWiMOD_HCI_Message ) * 2 + 2];
  * @brief: Init HCI Message layer
  */
 bool
-WiMOD_HCI_Init(const char*              comPort,        // comPort
+WiMOD_HCI_Init(const unsigned char*     comPort,        // comPort
                TWiMOD_HCI_CbRxMessage   cbRxMessage,    // HCI msg recv. callback
                TWiMOD_HCI_Message*      rxMessage)      // intial rxMessage
 {

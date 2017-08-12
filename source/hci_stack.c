@@ -1,8 +1,9 @@
 /*
- * File:    lorawan_hci.c
+ * File:    hci_stack.c
  * Author:  Alex F. Bustos
  * 
- * HCI+CRC16+SLIP implementation to be used with IMST Radio Modules.
+ * Compact implementation of the HCI+CRC16+SLIP layers, to be used with IMST
+ * WiMOD. If used, ONLY compile this hci_stack.c source (Exclude HCI and SLIP)
  */
 
 //------------------------------------------------------------------------------

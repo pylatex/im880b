@@ -36,9 +36,9 @@ extern "C" {
     #define LOBYTE(x)                       (x)
     #define HIBYTE(x)                       ((UINT16)(x) >> 8)
 
-    /**
-     * HCI Message Structure (internal software usage)
-     */
+    #define WMLWbaudrate    115200
+
+    //HCI Message Structure (internal software usage)
     typedef struct
     {
         // Payload Length Information,
@@ -63,28 +63,20 @@ extern "C" {
     //  Function Prototypes
     //------------------------------------------------------------------------------
 
-    /**
-     * Message receiver callback
-     */
+    //Message receiver callback
     typedef TWiMOD_HCI_Message* (*TWiMOD_HCI_CbRxMessage)(TWiMOD_HCI_Message* rxMessage);
 
-    /**
-     * Init HCI Layer
-     */
+    //Init HCI Layer
     bool
-    WiMOD_HCI_Init(const unsigned char*              comPort,
+    WiMOD_HCI_Init(const unsigned char*     comPort,
                    TWiMOD_HCI_CbRxMessage   cbRxMessage,
                    TWiMOD_HCI_Message*      rxMessage);
 
-    /**
-     * Send HCI Message
-     */
+    //Send HCI Message
     int
     WiMOD_HCI_SendMessage(TWiMOD_HCI_Message* txMessage);
 
-    /**
-     * Receiver Process
-     */
+    //Receiver Process
     void
     WiMOD_HCI_Process();
 #ifdef	__cplusplus

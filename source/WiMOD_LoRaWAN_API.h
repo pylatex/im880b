@@ -12,6 +12,10 @@
 #ifndef WIMOD_LORAWAN_API_H
 #define WIMOD_LORAWAN_API_H
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 //------------------------------------------------------------------------------
 //  Include Files
 //------------------------------------------------------------------------------
@@ -188,6 +192,10 @@ WiMOD_LoRaWAN_SendCRadioData(UINT8 port, UINT8* data, int length);
 // receiver process
 void
 WiMOD_LoRaWAN_Process();
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif // WIMOD_LORAWAN_API_H
 
