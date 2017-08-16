@@ -52,7 +52,7 @@ extern "C" {
     // Las siguientes tres son similares a las que tiene WiMOD_HCI_Layer.h
 
     //HCI Initialization
-    bool InitHCI (void);
+    bool InitHCI (const unsigned char* comPort);
 
     //Envio de un comando HCI
     bool SendHCI (unsigned char *buffer, unsigned int size);

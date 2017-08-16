@@ -13,7 +13,7 @@ extern "C" {
 
     // open serial device
     bool
-    SerialDevice_Open(UINT8         comNumber,
+    SerialDevice_Open(const unsigned char*         comNumber,
                       //UINT32        baudRate, //115200, siempre.
                       int           dataBits,   //8, siempre.
                       UINT8         parity);    //Ninguna, siempre.

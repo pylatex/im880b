@@ -29,6 +29,7 @@
 
 #define LED LATA0 //Para las pruebas de parpadeo y ping
 //#define PIN RC0 //Para prueba LED=PIN
+#define pato
 
 //------------------------------------------------------------------------------
 //  Declarations, Definitions and Variables
@@ -43,8 +44,16 @@ volatile unsigned char buffer[20]; //Buffer de salida
 //  Section Code
 //------------------------------------------------------------------------------
 
-
-
+//Demora con Timer 1 y CCP 1
+void StartTimerDelayMs(unsigned char cant)
+{
+    //CCPR1=cant*250;
+    CCPR1=(unsigned int)((cant<<8)-(cant<<2)-(cant<<1));
+    CCP1IF=false;   //Restablecer comparador
+    CCP1CON=0x0B;   //Modulo CCP en Comparacion a (representado) cant/ms
+    T1CON=0x30;     //Prescale 1:8
+    TMR1ON=true;
+}
 
 /**
  * Main
@@ -59,18 +68,40 @@ void main(void)
     ADCON1=0x0F;    //All pins as digital (applies to: 18F2550)
     PORTA=0;
     LATA=0;
-    TRISA=0xFE; //RC0 as output
+    TRISA=0xFE; //RA0 as output
     
-    InitHCI();  //Full Duplex UART and Rx interruptions enabled
+    //InitHCI();  //Full Duplex UART and Rx interruptions enabled
+    WiMOD_LoRaWAN_Init("");
     PEIE=true;  //Peripheral Interrupts Enable
     GIE=true;   //Global Interrupts Enable
     
     //LW STATUS AND CONNECTION
     
-    //1. Check Connection between im880 and MCU
-    
+    //1. Wait for connection between im880 and MCU
+    //*
+    do {
+        WiMOD_LoRaWAN_SendPing();
+        LED=true;
+        StartTimerDelayMs(30);
+        while ((!CCP1IF) && (BuffSizeHCI()<0)); //Esperar mientras no se haya dado comparacion o mientras no haya llegado respuesta
+        LED=false;
+        if (CCP1IF) {
+            //Se excedio el tiempo.
+        } else if (BuffSizeHCI()>=0) {
+            //Hay respuesta al ping
+            if (buffer[0]==DEVMGMT_SAP_ID && buffer[1]==DEVMGMT_MSG_PING_RSP) {
+                //The response corresponds to the request sent.
+                LED=true;
+                break;
+            }
+            ClearRxHCI();   //Release Receiver
+        } else ms100(10);
+        TMR1ON=false;   //En cualquier caso, Detener timer para evitar mas comparaciones.
+    } while (true);
+    //*/
+
     //2. Check/Wait for LoRaWAN connection
-    
+
     //MAIN LOOP
     while (true) {
 
@@ -93,11 +124,14 @@ void main(void)
         //------------------------------------------
         // HCI Send Test
 
-        //*// with the function
+        /*// with the function
         buffer[0]=DEVMGMT_SAP_ID;
         buffer[1]=DEVMGMT_MSG_PING_REQ;
         SendHCI(buffer,0);
         //*/
+        
+        //with the API
+        WiMOD_LoRaWAN_SendPing();
 
         /*// Emulate the function
         //Don't forget to include SerialDevice.h

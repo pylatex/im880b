@@ -34,7 +34,7 @@ bool SerialSentIsOpen(void);
  * Configura e Inicia el modulo/puerto serie.
  */
 bool
-SerialDevice_Open(UINT8         comNumber,
+SerialDevice_Open(const unsigned char*         comNumber,
                   int           dataBits,
                   UINT8         parity)
 {

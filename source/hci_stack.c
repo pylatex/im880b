@@ -54,9 +54,9 @@ void ClearRxHCI (void) {
  * Initializes the serial port / UART
  * @return True if success.
  */
-bool InitHCI (void) {
+bool InitHCI (const unsigned char* comPort) {
     ClearRxHCI();
-    return SerialDevice_Open(0,0,0);   //Enables UART, and from it: RX, TX and interrupts by RX
+    return SerialDevice_Open(comPort,8,0);   //Enables UART, and from it: RX, TX and interrupts by RX
 }
 
 /**
