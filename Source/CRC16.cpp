@@ -73,7 +73,7 @@ const UINT16 CRC16_Table[] = {
  */
 #ifdef    __CRC16_TABLE__
 UINT16
-CRC16_Calc  (UINT8*             data,
+CRC16_Calc  (UINT8             *data,
              UINT16             length,
              UINT16             initVal)
 {
@@ -92,7 +92,7 @@ CRC16_Calc  (UINT8*             data,
 }
 #else
 UINT16
-CRC16_Calc  (UINT8*             data,
+CRC16_Calc  (UINT8             *data,
              UINT16             length,
              UINT16             initVal)
 {
@@ -132,7 +132,7 @@ CRC16_Calc  (UINT8*             data,
  * This function checks a data block with attached CRC16
  */
 bool
-CRC16_Check     (UINT8*                    data,
+CRC16_Check     (UINT8                    *data,
                  UINT16                    length,
                  UINT16                    initVal)
 {

@@ -22,7 +22,7 @@ typedef uint32_t            UINT32;
 
 // open serial device
 bool
-SerialDevice_Open(const char*   comPort,
+SerialDevice_Open(const char   *comPort,
                   UINT32        baudRate,
                   int           dataBits,
                   UINT8         parity);
@@ -37,12 +37,12 @@ SerialDevice_SendByte(UINT8 txByte);
 
 // send data
 int
-SerialDevice_SendData(UINT8*    txBuffer,
+SerialDevice_SendData(UINT8    *txBuffer,
                       int       txLength);
 
 // read data
 int
-SerialDevice_ReadData(UINT8*    rxBuffer,
+SerialDevice_ReadData(UINT8    *rxBuffer,
                       int       rxBufferSize);
 
 

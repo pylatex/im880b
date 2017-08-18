@@ -26,32 +26,32 @@
 //------------------------------------------------------------------------------
 
 // HCI Message Receiver callback
-static TWiMOD_HCI_Message*
-WiMOD_LoRaWAN_Process_RxMessage(TWiMOD_HCI_Message*  rxMessage);
+static TWiMOD_HCI_Message
+*WiMOD_LoRaWAN_Process_RxMessage(TWiMOD_HCI_Message  *rxMessage);
 
 static void
-WiMOD_LoRaWAN_Process_DevMgmt_Message(TWiMOD_HCI_Message*  rxMessage);
+WiMOD_LoRaWAN_Process_DevMgmt_Message(TWiMOD_HCI_Message  *rxMessage);
 
 static void
-WiMOD_LoRaWAN_DevMgmt_FirmwareVersion_Rsp(TWiMOD_HCI_Message*  rxMessage);
+WiMOD_LoRaWAN_DevMgmt_FirmwareVersion_Rsp(TWiMOD_HCI_Message  *rxMessage);
 
 static void
-WiMOD_LoRaWAN_Process_LoRaWAN_Message(TWiMOD_HCI_Message*  rxMessage);
+WiMOD_LoRaWAN_Process_LoRaWAN_Message(TWiMOD_HCI_Message  *rxMessage);
 
 static void
-WiMOD_LoRaWAN_Process_JoinTxIndication(TWiMOD_HCI_Message* rxMessage);
+WiMOD_LoRaWAN_Process_JoinTxIndication(TWiMOD_HCI_Message *rxMessage);
 
 static void
-WiMOD_LoRaWAN_Process_JoinNetworkIndication(TWiMOD_HCI_Message* rxMessage);
+WiMOD_LoRaWAN_Process_JoinNetworkIndication(TWiMOD_HCI_Message *rxMessage);
 
 static void
-WiMOD_LoRaWAN_Process_U_DataRxIndication(TWiMOD_HCI_Message* rxMessage);
+WiMOD_LoRaWAN_Process_U_DataRxIndication(TWiMOD_HCI_Message *rxMessage);
 
 static void
-WiMOD_LoRaWAN_Process_C_DataRxIndication(TWiMOD_HCI_Message* rxMessage);
+WiMOD_LoRaWAN_Process_C_DataRxIndication(TWiMOD_HCI_Message *rxMessage);
 
 static void
-WiMOD_LoRaWAN_ShowResponse(const char* string, const TIDString* statusTable, UINT8 statusID);
+WiMOD_LoRaWAN_ShowResponse(const char *string, const TIDString *statusTable, UINT8 statusID);
 
 //------------------------------------------------------------------------------
 //
@@ -114,7 +114,7 @@ static const TIDString WiMOD_LoRaWAN_StatusStrings[] =
  * @brief: init complete interface
  */
 bool
-WiMOD_LoRaWAN_Init(const char* comPort)
+WiMOD_LoRaWAN_Init(const char *comPort)
 {
     // init HCI layer
     return WiMOD_HCI_Init(comPort,                  // comPort
@@ -176,7 +176,7 @@ WiMOD_LoRaWAN_JoinNetworkRequest()
  */
 int
 WiMOD_LoRaWAN_SendURadioData(UINT8  port,       // LoRaWAN Port
-                             UINT8* srcData,    // application payload
+                             UINT8 *srcData,    // application payload
                              int    srcLength)  // length of application payload
 {
     // 1. check length
@@ -208,7 +208,7 @@ WiMOD_LoRaWAN_SendURadioData(UINT8  port,       // LoRaWAN Port
  */
 int
 WiMOD_LoRaWAN_SendCRadioData(UINT8  port,       // LoRaWAN Port
-                             UINT8* srcData,    // application data
+                             UINT8 *srcData,    // application data
                              int    srcLength)  // length of application data
 {
     // 1. check length
@@ -250,7 +250,7 @@ WiMOD_LoRaWAN_Process()
  * @brief: handle receiver process
  */
 static TWiMOD_HCI_Message*
-WiMOD_LoRaWAN_Process_RxMessage(TWiMOD_HCI_Message*  rxMessage)
+WiMOD_LoRaWAN_Process_RxMessage(TWiMOD_HCI_Message  *rxMessage)
 {
     switch(rxMessage->SapID)
     {
@@ -271,7 +271,7 @@ WiMOD_LoRaWAN_Process_RxMessage(TWiMOD_HCI_Message*  rxMessage)
  * @brief: handle received Device Management SAP messages
  */
 static void
-WiMOD_LoRaWAN_Process_DevMgmt_Message(TWiMOD_HCI_Message*  rxMessage)
+WiMOD_LoRaWAN_Process_DevMgmt_Message(TWiMOD_HCI_Message *rxMessage)
 {
     switch(rxMessage->MsgID)
     {
@@ -294,7 +294,7 @@ WiMOD_LoRaWAN_Process_DevMgmt_Message(TWiMOD_HCI_Message*  rxMessage)
  * @brief: show firmware version
  */
 static void
-WiMOD_LoRaWAN_DevMgmt_FirmwareVersion_Rsp(TWiMOD_HCI_Message*  rxMessage)
+WiMOD_LoRaWAN_DevMgmt_FirmwareVersion_Rsp(TWiMOD_HCI_Message *rxMessage)
 {
     char help[80];
 
@@ -324,7 +324,7 @@ WiMOD_LoRaWAN_DevMgmt_FirmwareVersion_Rsp(TWiMOD_HCI_Message*  rxMessage)
  * @brief: handle received LoRaWAN SAP messages
  */
 static void
-WiMOD_LoRaWAN_Process_LoRaWAN_Message(TWiMOD_HCI_Message*  rxMessage)
+WiMOD_LoRaWAN_Process_LoRaWAN_Message(TWiMOD_HCI_Message *rxMessage)
 {
     switch(rxMessage->MsgID)
     {
@@ -371,7 +371,7 @@ WiMOD_LoRaWAN_Process_LoRaWAN_Message(TWiMOD_HCI_Message*  rxMessage)
  * @brief: show join transmit indicaton
  */
 static void
-WiMOD_LoRaWAN_Process_JoinTxIndication(TWiMOD_HCI_Message* rxMessage)
+WiMOD_LoRaWAN_Process_JoinTxIndication(TWiMOD_HCI_Message *rxMessage)
 {
     if (rxMessage->Payload[0] == 0)
     {
@@ -393,7 +393,7 @@ WiMOD_LoRaWAN_Process_JoinTxIndication(TWiMOD_HCI_Message* rxMessage)
  * @brief: show join network indicaton
  */
 void
-WiMOD_LoRaWAN_Process_JoinNetworkIndication(TWiMOD_HCI_Message* rxMessage)
+WiMOD_LoRaWAN_Process_JoinNetworkIndication(TWiMOD_HCI_Message *rxMessage)
 {
     if (rxMessage->Payload[0] == 0)
     {
@@ -422,7 +422,7 @@ WiMOD_LoRaWAN_Process_JoinNetworkIndication(TWiMOD_HCI_Message* rxMessage)
  * @brief: show received U-Data
  */
 void
-WiMOD_LoRaWAN_Process_U_DataRxIndication(TWiMOD_HCI_Message* rxMessage)
+WiMOD_LoRaWAN_Process_U_DataRxIndication(TWiMOD_HCI_Message *rxMessage)
 {
     int payloadSize = rxMessage->Length - 1;
 
@@ -451,7 +451,7 @@ WiMOD_LoRaWAN_Process_U_DataRxIndication(TWiMOD_HCI_Message* rxMessage)
     // rx channel info attached ?
     if (rxMessage->Payload[0] & 0x01)
     {
-        UINT8* rxInfo = &rxMessage->Payload[1 + payloadSize];
+        UINT8 *rxInfo = &rxMessage->Payload[1 + payloadSize];
         printf("ChnIdx:%d, DR:%d, RSSI:%d, SNR:%d, RxSlot:%d\n\r",
               (int)rxInfo[0], (int)rxInfo[1], (int)rxInfo[2],
               (int)rxInfo[3], (int)rxInfo[4]);
@@ -463,7 +463,7 @@ WiMOD_LoRaWAN_Process_U_DataRxIndication(TWiMOD_HCI_Message* rxMessage)
  * @brief: show received C-Data
  */
 void
-WiMOD_LoRaWAN_Process_C_DataRxIndication(TWiMOD_HCI_Message* rxMessage)
+WiMOD_LoRaWAN_Process_C_DataRxIndication(TWiMOD_HCI_Message *rxMessage)
 {
     int payloadSize = rxMessage->Length - 1;
 
@@ -492,7 +492,7 @@ WiMOD_LoRaWAN_Process_C_DataRxIndication(TWiMOD_HCI_Message* rxMessage)
     // rx channel info attached ?
     if (rxMessage->Payload[0] & 0x01)
     {
-        UINT8* rxInfo = &rxMessage->Payload[1 + payloadSize];
+        UINT8 *rxInfo = &rxMessage->Payload[1 + payloadSize];
         printf("ChnIdx:%d, DR:%d, RSSI:%d, SNR:%d, RxSlot:%d\n\r",
               (int)rxInfo[0], (int)rxInfo[1], (int)rxInfo[2],
               (int)rxInfo[3], (int)rxInfo[4]);
@@ -504,7 +504,7 @@ WiMOD_LoRaWAN_Process_C_DataRxIndication(TWiMOD_HCI_Message* rxMessage)
  * @brief: show response status as human readable string
  */
 static void
-WiMOD_LoRaWAN_ShowResponse(const char* string, const TIDString* statusTable, UINT8 statusID)
+WiMOD_LoRaWAN_ShowResponse(const char *string, const TIDString *statusTable, UINT8 statusID)
 {
     while(statusTable->String)
     {

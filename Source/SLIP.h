@@ -35,7 +35,7 @@ typedef uint8_t     UINT8;
 //------------------------------------------------------------------------------
 
 // SLIP message receiver callback
-typedef UINT8*  (*TSLIP_CbRxMessage)(UINT8* message, int length);
+typedef UINT8  *(*TSLIP_CbRxMessage)(UINT8 *message, int length);
 
 // Init SLIP layer
 void
@@ -43,15 +43,15 @@ SLIP_Init(TSLIP_CbRxMessage cbRxMessage);
 
 // Init first receiver buffer
 bool
-SLIP_SetRxBuffer(UINT8* rxBuffer, int rxBufferSize);
+SLIP_SetRxBuffer(UINT8 *rxBuffer, int rxBufferSize);
 
 // Encode outgoing Data
 int
-SLIP_EncodeData(UINT8* dstBuffer, int txBufferSize, UINT8* srcData,int srcLength);
+SLIP_EncodeData(UINT8 *dstBuffer, int txBufferSize, UINT8 *srcData,int srcLength);
 
 // Decode incoming Data
 void
-SLIP_DecodeData(UINT8*  srcData, int srcLength);
+SLIP_DecodeData(UINT8  *srcData, int srcLength);
 
 
 #endif // SLIP_H

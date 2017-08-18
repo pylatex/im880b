@@ -45,13 +45,13 @@ typedef uint16_t    UINT16;
 
 // Calc CRC16
 UINT16
-CRC16_Calc  (UINT8*     data,
+CRC16_Calc  (UINT8     *data,
              UINT16     length,
              UINT16     initVal);
 
 // Calc & Check CRC16
 bool
-CRC16_Check (UINT8*     data,
+CRC16_Check (UINT8     *data,
              UINT16     length,
              UINT16     initVal);
 

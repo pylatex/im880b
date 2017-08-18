@@ -36,7 +36,7 @@ static HANDLE   ComHandle = INVALID_HANDLE_VALUE;
  * @brief: open serial device
  */
 bool
-SerialDevice_Open(const char*   comPort,
+SerialDevice_Open(const char   *comPort,
                   UINT32        baudRate,
                   int           dataBits,
                   UINT8         parity)
@@ -145,7 +145,7 @@ SerialDevice_Close()
  * @brief: send data
  */
 int
-SerialDevice_SendData(UINT8* txBuffer, int txLength)
+SerialDevice_SendData(UINT8 *txBuffer, int txLength)
 {
 #ifdef Q_OS_WIN
     // handle valid ?
@@ -211,7 +211,7 @@ SerialDevice_SendByte(UINT8 txByte)
  * @brief: read data
  */
 int
-SerialDevice_ReadData(UINT8* rxBuffer, int rxBufferSize)
+SerialDevice_ReadData(UINT8 *rxBuffer, int rxBufferSize)
 {
 #ifdef  Q_OS_WIN
     // handle ok ?
