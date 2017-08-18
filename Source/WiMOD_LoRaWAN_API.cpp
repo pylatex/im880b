@@ -8,7 +8,7 @@
 //				without any warranties.
 //
 //------------------------------------------------------------------------------
-
+#define DEBUG
 //------------------------------------------------------------------------------
 // Include Files
 //------------------------------------------------------------------------------
@@ -17,6 +17,9 @@
 #include "WiMOD_HCI_Layer.h"
 #include <string.h>
 #include <stdio.h>
+#ifdef DEBUG
+#include <time.h>
+#endif // DEBUG
 
 #define MAKEWORD(lo,hi) ((lo)|((hi) << 8))
 #define MAKELONG(lo,hi) ((lo)|((hi) << 16))
@@ -252,6 +255,9 @@ WiMOD_LoRaWAN_Process()
 static TWiMOD_HCI_Message*
 WiMOD_LoRaWAN_Process_RxMessage(TWiMOD_HCI_Message  *rxMessage)
 {
+    #ifdef DEBUG
+    printf("%d\n\r",(int)clock()); //DEPURACION. Se puede comentar
+    #endif // DEBUG
     switch(rxMessage->SapID)
     {
         case DEVMGMT_SAP_ID:

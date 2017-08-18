@@ -7,7 +7,7 @@
               basis without any warranties.
 
 ------------------------------------------------------------------------------*/
-
+#define DEBUG
 //------------------------------------------------------------------------------
 //  Include Files
 //------------------------------------------------------------------------------
@@ -16,6 +16,9 @@
 #include <string.h>
 #include "target.h"   //Open and modify to change the target system (WIN/UX)
 #include "WiMOD_LoRaWAN_API.h"
+#ifdef DEBUG
+#include <time.h>
+#endif // DEBUG
 //------------------------------------------------------------------------------
 //  Declarations and Definitions
 //------------------------------------------------------------------------------
@@ -78,6 +81,9 @@ int main(int argc, char *argv[])
             char cmd = getch();
 
             printf("%c\n\r",cmd);
+            #ifdef DEBUG
+            printf("%d\n\r",(int)clock()); //DEPURACION. Se puede comentar
+            #endif // DEBUG
             // handle commands
             switch(cmd)
             {
@@ -115,6 +121,10 @@ int main(int argc, char *argv[])
                 case    ' ':
                         ShowMenu(comPort);
                         break;
+                #ifdef DEBUG
+                case 't':
+                    printf("%d\n\r",(int)CLOCKS_PER_SEC);
+                #endif // DEBUG
             }
         }
     }
@@ -137,7 +147,9 @@ void ShowMenu(const char* comPort) {
     printf("[u]\t: send unconfirmed radio message\n\r");
     printf("[c]\t: send confirmed radio message\n\r");
     printf("[e|x]\t: exit program\n\r");
-
+    #ifdef DEBUG
+    printf("[t]\t: DEBUG - Get CLOCKS_PER_SEC value\n\r");
+    #endif // DEBUG
 }
 
 /**
