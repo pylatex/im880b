@@ -40,8 +40,8 @@ typedef struct
 }TIDString;
 
 ////Endpoint (SAP) Identifier
-#define DEVMGMT_SAP_ID                          0x01
-#define LORAWAN_SAP_ID                          0x10
+#define DEVMGMT_SAP_ID  0x01
+#define LORAWAN_SAP_ID  0x10
 
 ////Device Management SAP Message Identifier:
 

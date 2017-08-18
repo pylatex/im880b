@@ -20,7 +20,8 @@
 // init
 bool
 WiMOD_LoRaWAN_Init(const char* comPort) {
-    InitHCI(comPort);  //Full Duplex UART and Rx interruptions enabled
+    //InitHCI(comPort);  //Full Duplex UART and Rx interruptions enabled
+    return true;
 }
 
 // ping device
