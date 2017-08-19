@@ -18,45 +18,29 @@
 // Variables
 //------------------------------------------------------------------------------
 
-volatile signed char rxStatus;   //Reflejo del ultimo estado HCI del receptor
+typedef struct {
+    WMHCIuserProc   RxHandler;
+} HCIparams_t;
 
+HCIparams_t             WMHCIsetup;
+HCIMessage_t            HCIrxMessage;
 //------------------------------------------------------------------------------
 // Section Source
 //------------------------------------------------------------------------------
 
 /**
- * State of the HCI receiver or payload size of a complete incoming HCI message.
- * 
- * @return -1 when no message, -2 when receiving and >=0 as the size of a valid HCI.
- */
-signed char BuffSizeHCI(void) {
-    return rxStatus;
-}
-
-/**
- * Indicates if there is an available message to read
- * 
- * @deprecated Please use a comparison of the value returned by Buffsize()
- * @return true or false, depending if there is a valid message available to be read
- */
-bool PendingRxHCI(void) {
-    return (bool)(rxStatus >= 0);
-}
-
-/**
- * Use after reading the buffer.
- */
-void ClearRxHCI (void) {
-    rxStatus=HCI_RX_RESETSTAT;
-}
-
-/**
  * Initializes the serial port / UART
- * @return True if success.
+ * @param UserHandlerRx Call to user function that process a formed HCI message
+ * @return true on success
  */
-bool InitHCI (const unsigned char* comPort) {
-    ClearRxHCI();
-    return SerialDevice_Open(comPort,8,0);   //Enables UART, and from it: RX, TX and interrupts by RX
+bool InitHCI (
+    WMHCIuserProc UserHandlerRx    //a function that returns a bool, and receives a HCIMessage_t
+)
+{
+    WMHCIsetup.RxHandler=UserHandlerRx;  //Saves the User Function for Processing of HCI messages
+    HCIrxMessage.size=0;
+    HCIrxMessage.check=false;
+    return SerialDevice_Open("",8,0);   //Enables UART, and from it: RX, TX and interrupts by RX
 }
 
 /**
@@ -68,17 +52,17 @@ bool InitHCI (const unsigned char* comPort) {
  * @param size: Size of the payload of the HCI message
  */
 bool SendHCI (unsigned char *buffer, unsigned int size)
-{   
-    unsigned char aux=HCI_WKUPCHARS;
+{
+    unsigned short aux=HCI_WKUPCHARS;
     unsigned int crc;
     size+=2;
     //SERIAL WRAPPING LAYER
     //CRC Generation and a bitwise negation of the result.
     crc= ~(CRC16_Calc(buffer,size,CRC16_INIT_VALUE));
-
+    size+=2;
     //Attach CRC16 and correct length, LSB first
-    buffer[size++]=(unsigned char)(crc&0x00FF);
-    buffer[size++]=(unsigned char)(crc>>8);
+    //buffer[size++]=(unsigned char)(crc&0x00FF);
+    //buffer[size++]=(unsigned char)(crc>>8);
 
     while(aux--)
         SerialDevice_SendByte(SLIP_END);
@@ -86,7 +70,16 @@ bool SendHCI (unsigned char *buffer, unsigned int size)
     //UART LAYER + SLIP ENCODING
     SerialDevice_SendByte(SLIP_END);
     for (unsigned char i=0;i<size;i++) {
-        aux=buffer[i];   //Recycling of unused variable
+        if (i<size-2) {
+            aux=buffer[i];   //Recycling of unused variable
+        } else if (i==size-2) {
+            //aux=(unsigned char)(crc&0x00FF);
+            aux=LOBYTE(crc);
+        } else {    //i==size-1
+            //aux=(unsigned char)(crc>>8);
+            aux=HIBYTE(crc);
+        }
+        //SLIP coding
         switch (aux) {
             case SLIP_END:
                 SerialDevice_SendByte(SLIP_ESC);
@@ -105,25 +98,24 @@ bool SendHCI (unsigned char *buffer, unsigned int size)
 }
 
 /**
- * Evaluates every incoming octect from UART, in order to create an HCI message.
+ * Groups every incoming UART octect in an HCI message. At the end calls the
+ * function given by user at initialization, to process the formed HCI message.
  * 
- * @param buffer: Buffer for the bytes of the incoming HCI message.
  * @param rxByte: The byte received by the UART
  */
-void ProcessHCI (unsigned char *buffer, unsigned int rxByte)
+void IncomingHCIpacker (unsigned char rxByte)
 {
-    //Variables
-    static bool escape = false;
-    static unsigned char size = 0;
-    
+    static bool escape=false;
+
     if (rxByte==SLIP_END) {
-        if ((size >= 4) && CRC16_Check(buffer, size, CRC16_INIT_VALUE)) {
-            rxStatus=size - 4;  //Valid HCI message with (size-4) payload bytes
-        } else {
-            rxStatus=HCI_RX_RESETSTAT;    // Aborted/non valid HCI message
+        if (HCIrxMessage.size >=  2+WIMOD_HCI_MSG_FCS_SIZE) {
+            HCIrxMessage.check=CRC16_Check(HCIrxMessage.HCI, HCIrxMessage.size, CRC16_INIT_VALUE);
+            HCIrxMessage.size -= (2+WIMOD_HCI_MSG_FCS_SIZE);   //Net payload size
+            WMHCIsetup.RxHandler(&HCIrxMessage);
         }
-        size=0;
         escape=false;
+        HCIrxMessage.size=0;
+        HCIrxMessage.check=false;
     } else {
         if (rxByte==SLIP_ESC) {
             escape=true;
@@ -136,8 +128,7 @@ void ProcessHCI (unsigned char *buffer, unsigned int rxByte)
                 }
                 escape=false;
             }
-            buffer[size++]=rxByte;
+            HCIrxMessage.HCI[HCIrxMessage.size++]=rxByte;
         }
-        rxStatus=HCI_RX_PENDING;
     }
 }

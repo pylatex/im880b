@@ -29,16 +29,17 @@
 
 #define LED LATA0 //Para las pruebas de parpadeo y ping
 //#define PIN RC0 //Para prueba LED=PIN
-#define pato
 
 //------------------------------------------------------------------------------
-//  Declarations, Definitions and Variables
+//  Declarations, Function Prototypes and Variables
 //------------------------------------------------------------------------------
 
 void ms100 (unsigned char q);    //A (100*q) ms delay
+void ProcesaHCI(HCIMessage_t *);   //Procesamiento de HCI entrante
 
 volatile unsigned char rx_err; //Relacionados con el receptor
 volatile unsigned char buffer[20]; //Buffer de salida
+volatile unsigned bool prender;
 
 //------------------------------------------------------------------------------
 //  Section Code
@@ -63,22 +64,23 @@ void main(void)
     //INITIALIZATION
     OSCCON=0x73;    //Internal at 8 MHz (applies to: 18F2550)
     while(!IOFS);   //Waits for stabilization
-    
+
     //LED in RC0, based on datasheet sugestion.
     ADCON1=0x0F;    //All pins as digital (applies to: 18F2550)
     PORTA=0;
     LATA=0;
     TRISA=0xFE; //RA0 as output
-    
-    //InitHCI();  //Full Duplex UART and Rx interruptions enabled
-    WiMOD_LoRaWAN_Init("");
+
+    InitHCI(ProcesaHCI);  //Full Duplex UART and Rx interruptions enabled
+    //WiMOD_LoRaWAN_Init("");
     PEIE=true;  //Peripheral Interrupts Enable
     GIE=true;   //Global Interrupts Enable
-    
+    prender=false;
+
     //LW STATUS AND CONNECTION
     
     //1. Wait for connection between im880 and MCU
-    //*
+    /*
     do {
         WiMOD_LoRaWAN_SendPing();
         LED=true;
@@ -162,18 +164,15 @@ void main(void)
         //*/
         
         __delay_ms(10); //small delay to allow the processing of the HCI message
-        //The LED should blink on every complete HCI message.
-        if (BuffSizeHCI()>=0) {
-            //A successfully decoded HCI message are ready to be read
-            if (buffer[0]==DEVMGMT_SAP_ID && buffer[1]==DEVMGMT_MSG_PING_RSP) {
-                //The response corresponds to the request sent.
-                LED=true;
-                ms100(1);
-                LED=false;
-                ms100(5);
-            }
-            ClearRxHCI();   //Call when the HCI message can be overwrited
-        } else ms100(10);
+        
+        LED=true;
+        ms100(1);
+        LED=false;
+        
+        if (prender) {
+            prender=false;
+            ms100(5);
+        } else ms100(20);
         //*/
     }
 }
@@ -183,7 +182,7 @@ void __interrupt ISR (void) {
         //Error reading
         rx_err=RCSTA;
         //As RCREG is argument, their reading implies the RCIF erasing
-        ProcessHCI(buffer,RCREG);
+        IncomingHCIpacker(RCREG);
     }
 }
 
@@ -194,4 +193,12 @@ void __interrupt ISR (void) {
 void ms100 (unsigned char q) {
     while (q--)
         __delay_ms(100);    //XC8 compiler
+}
+
+//Handler for (pre)processing of an incoming HCI message
+void ProcesaHCI(HCIMessage_t *rxMessage) {
+    if (rxMessage->SapID==DEVMGMT_SAP_ID && rxMessage->MsgID==DEVMGMT_MSG_PING_RSP && rxMessage->check)
+    {
+        prender=true;
+    }
 }
