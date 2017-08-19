@@ -39,6 +39,8 @@ void ProcesaHCI(HCIMessage_t *);   //Procesamiento de HCI entrante
 
 volatile unsigned char rx_err; //Relacionados con el receptor
 volatile unsigned char buffer[20]; //Buffer de salida
+volatile static HCIMessage_t    TxMessage;
+volatile static HCIMessage_t    RxMessage;
 volatile unsigned bool prender;
 
 //------------------------------------------------------------------------------
@@ -56,6 +58,15 @@ void StartTimerDelayMs(unsigned char cant)
     TMR1ON=true;
 }
 
+void blinks (unsigned char cant) {
+    while (cant--) {
+        LED=true;
+        ms100(1);
+        LED=false;
+        ms100(2);
+    }
+}
+
 /**
  * Main
  */
@@ -71,7 +82,7 @@ void main(void)
     LATA=0;
     TRISA=0xFE; //RA0 as output
 
-    InitHCI(ProcesaHCI);  //Full Duplex UART and Rx interruptions enabled
+    InitHCI(ProcesaHCI,&RxMessage);  //Full Duplex UART and Rx interruptions enabled
     //WiMOD_LoRaWAN_Init("");
     PEIE=true;  //Peripheral Interrupts Enable
     GIE=true;   //Global Interrupts Enable
@@ -80,41 +91,30 @@ void main(void)
     //LW STATUS AND CONNECTION
     
     //1. Wait for connection between im880 and MCU
-    /*
     do {
         WiMOD_LoRaWAN_SendPing();
-        LED=true;
-        StartTimerDelayMs(30);
-        while ((!CCP1IF) && (BuffSizeHCI()<0)); //Esperar mientras no se haya dado comparacion o mientras no haya llegado respuesta
-        LED=false;
-        if (CCP1IF) {
-            //Se excedio el tiempo.
-        } else if (BuffSizeHCI()>=0) {
-            //Hay respuesta al ping
-            if (buffer[0]==DEVMGMT_SAP_ID && buffer[1]==DEVMGMT_MSG_PING_RSP) {
-                //The response corresponds to the request sent.
-                LED=true;
-                break;
-            }
-            ClearRxHCI();   //Release Receiver
-        } else ms100(10);
-        TMR1ON=false;   //En cualquier caso, Detener timer para evitar mas comparaciones.
-    } while (true);
-    //*/
+        __delay_ms(20); //small delay to allow the processing of the HCI message
+    } while (!prender);
+    prender=false;
+    
+    blinks(3);
 
     //2. Check/Wait for LoRaWAN connection
-
+    
+    //  1. Desactivar el dispositivo
+    //  2. Solicitar conexion (join req)
+    
     //MAIN LOOP
     while (true) {
 
         //------------------------------------------
         // Serial Device Test
         
-        //Using the function
+        //--Through the function
         //Don't forget to include SerialDevice.h
         //SerialDevice_SendData("Hello",5);
 
-        /*//Sending by appart
+        /*//--Each byte by appart
         //Don't forget to include SerialDevice.h
         SerialDevice_SendByte('H');
         SerialDevice_SendByte('e');

@@ -20,10 +20,11 @@
 
 typedef struct {
     WMHCIuserProc   RxHandler;
-} HCIparams_t;
+    HCIMessage_t   *rxmsg;
+} HCIsetup_t;
 
-HCIparams_t             WMHCIsetup;
-HCIMessage_t            HCIrxMessage;
+volatile static HCIsetup_t              WMHCIsetup;
+volatile static HCIMessage_t            HCIrxMessage;
 //------------------------------------------------------------------------------
 // Section Source
 //------------------------------------------------------------------------------
@@ -34,12 +35,14 @@ HCIMessage_t            HCIrxMessage;
  * @return true on success
  */
 bool InitHCI (
-    WMHCIuserProc UserHandlerRx    //a function that returns a bool, and receives a HCIMessage_t
+    WMHCIuserProc UserHandlerRx,    //a function that returns a bool, and receives a HCIMessage_t
+    HCIMessage_t   *RxMessage       //HCI message for reception.
 )
 {
     WMHCIsetup.RxHandler=UserHandlerRx;  //Saves the User Function for Processing of HCI messages
-    HCIrxMessage.size=0;
-    HCIrxMessage.check=false;
+    WMHCIsetup.rxmsg=RxMessage;
+    WMHCIsetup.rxmsg->size=0;
+    WMHCIsetup.rxmsg->check=false;
     return SerialDevice_Open("",8,0);   //Enables UART, and from it: RX, TX and interrupts by RX
 }
 
@@ -60,9 +63,6 @@ bool SendHCI (unsigned char *buffer, unsigned int size)
     //CRC Generation and a bitwise negation of the result.
     crc= ~(CRC16_Calc(buffer,size,CRC16_INIT_VALUE));
     size+=2;
-    //Attach CRC16 and correct length, LSB first
-    //buffer[size++]=(unsigned char)(crc&0x00FF);
-    //buffer[size++]=(unsigned char)(crc>>8);
 
     while(aux--)
         SerialDevice_SendByte(SLIP_END);
@@ -73,10 +73,8 @@ bool SendHCI (unsigned char *buffer, unsigned int size)
         if (i<size-2) {
             aux=buffer[i];   //Recycling of unused variable
         } else if (i==size-2) {
-            //aux=(unsigned char)(crc&0x00FF);
             aux=LOBYTE(crc);
         } else {    //i==size-1
-            //aux=(unsigned char)(crc>>8);
             aux=HIBYTE(crc);
         }
         //SLIP coding
@@ -108,14 +106,14 @@ void IncomingHCIpacker (unsigned char rxByte)
     static bool escape=false;
 
     if (rxByte==SLIP_END) {
-        if (HCIrxMessage.size >=  2+WIMOD_HCI_MSG_FCS_SIZE) {
-            HCIrxMessage.check=CRC16_Check(HCIrxMessage.HCI, HCIrxMessage.size, CRC16_INIT_VALUE);
-            HCIrxMessage.size -= (2+WIMOD_HCI_MSG_FCS_SIZE);   //Net payload size
+        if (WMHCIsetup.rxmsg->size >=  2+WIMOD_HCI_MSG_FCS_SIZE) {
+            WMHCIsetup.rxmsg->check=CRC16_Check(WMHCIsetup.rxmsg->HCI, WMHCIsetup.rxmsg->size, CRC16_INIT_VALUE);
+            WMHCIsetup.rxmsg->size -= (2+WIMOD_HCI_MSG_FCS_SIZE);   //Net payload size
             WMHCIsetup.RxHandler(&HCIrxMessage);
         }
         escape=false;
-        HCIrxMessage.size=0;
-        HCIrxMessage.check=false;
+        WMHCIsetup.rxmsg->size=0;
+        WMHCIsetup.rxmsg->check=false;
     } else {
         if (rxByte==SLIP_ESC) {
             escape=true;
@@ -128,7 +126,9 @@ void IncomingHCIpacker (unsigned char rxByte)
                 }
                 escape=false;
             }
-            HCIrxMessage.HCI[HCIrxMessage.size++]=rxByte;
+            WMHCIsetup.rxmsg->HCI[WMHCIsetup.rxmsg->size++]=rxByte;
+            //HCIrxMessage.HCI[HCIrxMessage.size++]=rxByte;
+            
         }
     }
 }

@@ -70,7 +70,8 @@ extern "C" {
 
     //HCI Initialization
     bool InitHCI (
-        WMHCIuserProc   RxHandler  //Handler for processing of Rx HCI messages
+        WMHCIuserProc   RxHandler,  //Handler for processing of Rx HCI messages
+        HCIMessage_t   *RxMessage   //HCI message for reception.
     );
 
     //Envio de un comando HCI
