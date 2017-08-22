@@ -35,7 +35,7 @@
 //------------------------------------------------------------------------------
 
 void ms100 (unsigned char q);    //A (100*q) ms delay
-void ProcesaHCI(HCIMessage_t *);   //Procesamiento de HCI entrante
+void ProcesaHCI();   //Procesamiento de HCI entrante
 
 volatile unsigned char rx_err; //Relacionados con el receptor
 volatile unsigned char buffer[20]; //Buffer de salida
@@ -58,12 +58,12 @@ void StartTimerDelayMs(unsigned char cant)
     TMR1ON=true;
 }
 
-void blinks (unsigned char cant) {
+void blink (unsigned char cant) {
     while (cant--) {
         LED=true;
         ms100(1);
         LED=false;
-        ms100(2);
+        ms100(1);
     }
 }
 
@@ -81,7 +81,8 @@ void main(void)
     PORTA=0;
     LATA=0;
     TRISA=0xFE; //RA0 as output
-
+    ms100(1);   //Delay for stabilization of power supply
+    
     InitHCI(ProcesaHCI,&RxMessage);  //Full Duplex UART and Rx interruptions enabled
     //WiMOD_LoRaWAN_Init("");
     PEIE=true;  //Peripheral Interrupts Enable
@@ -96,9 +97,9 @@ void main(void)
         __delay_ms(20); //small delay to allow the processing of the HCI message
     } while (!prender);
     prender=false;
-    
-    blinks(3);
 
+    while (true) blink(10); //Uncomment to see if comm OK between MCU and WiMOD LW module
+    
     //2. Check/Wait for LoRaWAN connection
     
     //  1. Desactivar el dispositivo
@@ -196,8 +197,8 @@ void ms100 (unsigned char q) {
 }
 
 //Handler for (pre)processing of an incoming HCI message
-void ProcesaHCI(HCIMessage_t *rxMessage) {
-    if (rxMessage->SapID==DEVMGMT_SAP_ID && rxMessage->MsgID==DEVMGMT_MSG_PING_RSP && rxMessage->check)
+void ProcesaHCI() {
+    if (RxMessage.SapID==DEVMGMT_SAP_ID && RxMessage.MsgID==DEVMGMT_MSG_PING_RSP && RxMessage.check)
     {
         prender=true;
     }
