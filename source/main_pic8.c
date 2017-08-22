@@ -114,74 +114,7 @@ void main(void)
     
     //MAIN LOOP
     while (true) {
-
-        //------------------------------------------
-        // Serial Device Test
-        
-        //--Through the function
-        //Don't forget to include SerialDevice.h
-        //SerialDevice_SendData("Hello",5);
-
-        /*//--Each byte by appart
-        //Don't forget to include SerialDevice.h
-        SerialDevice_SendByte('H');
-        SerialDevice_SendByte('e');
-        SerialDevice_SendByte('l');
-        SerialDevice_SendByte('l');
-        SerialDevice_SendByte('o');
-        //*/
-
-        //------------------------------------------
-        // HCI Send Test
-
-        /*// with the function
-        buffer[0]=DEVMGMT_SAP_ID;
-        buffer[1]=DEVMGMT_MSG_PING_REQ;
-        SendHCI(buffer,0);
-        //*/
-        
-        //with the API
-        WiMOD_LoRaWAN_SendPing();
-
-        /*// Emulate the function
-        //Don't forget to include SerialDevice.h
-        SerialDevice_SendByte(SLIP_END);
-        SerialDevice_SendByte(DEVMGMT_SAP_ID);
-        SerialDevice_SendByte(DEVMGMT_MSG_PING_REQ);
-        SerialDevice_SendByte(0xA0);    //CRC
-        SerialDevice_SendByte(0xAF);    //CRC
-        SerialDevice_SendByte(SLIP_END);
-        //*/
-        
-        //------------------------------------------
-        // HCI Message Reception and Validation Test
-        
-        /*//Comment this line to uncomment:
-        //Emulation of the UART succesive reception function
-        ProcessHCI(buffer1,SLIP_END);
-        ProcessHCI(buffer1,SLIP_END);
-        ProcessHCI(buffer1,SLIP_END);
-        ProcessHCI(buffer1,DEVMGMT_SAP_ID);
-        ProcessHCI(buffer1,DEVMGMT_MSG_PING_RSP);
-        ProcessHCI(buffer1,DEVMGMT_STATUS_OK);
-        ProcessHCI(buffer1,0xA0);   //CRC
-        ProcessHCI(buffer1,0xAF);   //CRC
-        if (ProcessHCI(buffer1,SLIP_END)>=0) {
-            ping=true;  //This asignation should be done on interrupt time.
-        }
-        //*/
-        
-        __delay_ms(10); //small delay to allow the processing of the HCI message
-        
-        LED=true;
-        ms100(1);
-        LED=false;
-        
-        if (prender) {
-            prender=false;
-            ms100(5);
-        } else ms100(20);
-        //*/
+        ;
     }
 }
 
