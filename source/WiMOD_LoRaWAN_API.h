@@ -42,6 +42,8 @@ typedef struct
 ////Endpoint (SAP) Identifier
 #define DEVMGMT_SAP_ID  0x01
 #define LORAWAN_SAP_ID  0x10
+#define DEVMGMT_ID  DEVMGMT_SAP_ID  //WiMOD LoraWAN HCI PDF ver 1.13
+#define LORAWAN_ID  LORAWAN_SAP_ID  //WiMOD LoraWAN HCI PDF ver 1.13
 
 ////Device Management SAP Message Identifier:
 

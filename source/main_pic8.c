@@ -33,6 +33,7 @@
 //------------------------------------------------------------------------------
 //  Declarations, Function Prototypes and Variables
 //------------------------------------------------------------------------------
+typedef enum {IDLE,PING_RSP,DEACT_RSP} RxStatus;
 
 void ms100 (unsigned char q);    //A (100*q) ms delay
 void ProcesaHCI();   //Procesamiento de HCI entrante
@@ -42,6 +43,7 @@ volatile unsigned char buffer[20]; //Buffer de salida
 volatile static HCIMessage_t    TxMessage;
 volatile static HCIMessage_t    RxMessage;
 volatile unsigned bool prender;
+volatile RxStatus statusrx;
 
 //------------------------------------------------------------------------------
 //  Section Code
@@ -87,7 +89,9 @@ void main(void)
     //WiMOD_LoRaWAN_Init("");
     PEIE=true;  //Peripheral Interrupts Enable
     GIE=true;   //Global Interrupts Enable
+    
     prender=false;
+    statusrx=IDLE;
 
     //LW STATUS AND CONNECTION
     
@@ -95,14 +99,17 @@ void main(void)
     do {
         WiMOD_LoRaWAN_SendPing();
         __delay_ms(20); //small delay to allow the processing of the HCI message
-    } while (!prender);
-    prender=false;
+    } while (statusrx != PING_RSP);
+    statusrx=IDLE;
 
     while (true) blink(10); //Uncomment to see if comm OK between MCU and WiMOD LW module
     
     //2. Check/Wait for LoRaWAN connection
     
     //  1. Desactivar el dispositivo
+    TxMessage.SapID=LORAWAN_ID;
+    TxMessage.MsgID=LORAWAN_MSG_DEACTIVATE_DEVICE_REQ;
+    TxMessage.size=0;
     //  2. Solicitar conexion (join req)
     
     //MAIN LOOP
@@ -198,8 +205,19 @@ void ms100 (unsigned char q) {
 
 //Handler for (pre)processing of an incoming HCI message
 void ProcesaHCI() {
-    if (RxMessage.SapID==DEVMGMT_SAP_ID && RxMessage.MsgID==DEVMGMT_MSG_PING_RSP && RxMessage.check)
-    {
-        prender=true;
+    if (RxMessage.check) {
+        if (RxMessage.SapID==DEVMGMT_ID) {
+            switch (RxMessage.MsgID) {
+                case DEVMGMT_MSG_PING_RSP:
+                    statusrx=PING_RSP;
+                    break;
+            }
+        } else if (RxMessage.SapID==LORAWAN_ID) {
+            switch (RxMessage.MsgID) {
+                case LORAWAN_MSG_DEACTIVATE_DEVICE_RSP:
+                    statusrx=DEACT_RSP;
+                    break;
+            }
+        }
     }
 }
