@@ -56,7 +56,7 @@ extern "C" {
         unsigned char       CRC[WIMOD_HCI_MSG_FCS_SIZE];  // Frame Check Sequence Field
     }HCIMessage_t;
 
-    typedef void (*WMHCIuserProc)(HCIMessage_t *);
+    typedef void (*WMHCIuserProc)();
     typedef bool (*WMHCIboolfcchar)(const unsigned char msdelay);   //A bool function receiving a const char
     
     //--------------------------------------------------------------------------

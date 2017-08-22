@@ -77,13 +77,13 @@ void main(void)
     //INITIALIZATION
     OSCCON=0x73;    //Internal at 8 MHz (applies to: 18F2550)
     while(!IOFS);   //Waits for stabilization
-
-    //LED in RC0, based on datasheet sugestion.
+    ms100(1);   //Delay for stabilization of power supply
+    
+    //LED in RC0, initialization based on datasheet sugestion.
     ADCON1=0x0F;    //All pins as digital (applies to: 18F2550)
     PORTA=0;
     LATA=0;
     TRISA=0xFE; //RA0 as output
-    ms100(1);   //Delay for stabilization of power supply
     
     InitHCI(ProcesaHCI,&RxMessage);  //Full Duplex UART and Rx interruptions enabled
     //WiMOD_LoRaWAN_Init("");
@@ -96,12 +96,17 @@ void main(void)
     //LW STATUS AND CONNECTION
     
     //1. Wait for connection between im880 and MCU
-    do {
+    while (true) {
         WiMOD_LoRaWAN_SendPing();
-        __delay_ms(20); //small delay to allow the processing of the HCI message
-    } while (statusrx != PING_RSP);
-    statusrx=IDLE;
-
+        StartTimerDelayMs(20);
+        while ((!CCP1IF) && (statusrx != PING_RSP));//Wait for timer comparison or HCI response
+        if (statusrx == PING_RSP) {
+            TMR1ON=false;
+            statusrx=IDLE;
+            break;
+        }
+    }
+    
     while (true) blink(10); //Uncomment to see if comm OK between MCU and WiMOD LW module
     
     //2. Check/Wait for LoRaWAN connection
@@ -136,7 +141,10 @@ void ms100 (unsigned char q) {
         __delay_ms(100);    //XC8 compiler
 }
 
-//Handler for (pre)processing of an incoming HCI message
+/**
+ * Handler for (pre)processing of an incoming HCI message. Once the user exits
+ * from this handler funcion, the RxMessage.size variable gets cleared!
+ */
 void ProcesaHCI() {
     if (RxMessage.check) {
         if (RxMessage.SapID==DEVMGMT_ID) {
