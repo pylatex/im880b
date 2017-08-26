@@ -17,18 +17,9 @@
 // FUNCTION IMPLEMENTATIONS
 //------------------------------------------------------------------------------
 
-// init
-bool
-WiMOD_LoRaWAN_Init(const char* comPort) {
-    //InitHCI(comPort);  //Full Duplex UART and Rx interruptions enabled
-    return true;
-}
-
 // ping device
 int
 WiMOD_LoRaWAN_SendPing(){
-    const char ping_req[]={DEVMGMT_SAP_ID,DEVMGMT_MSG_PING_REQ};
-    SendHCI(ping_req,0);
 }
 
 // get firmware Version

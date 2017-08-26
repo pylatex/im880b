@@ -35,11 +35,11 @@ volatile static HCIMessage_t            HCIrxMessage;
  * @return true on success
  */
 bool InitHCI (
-    WMHCIuserProc UserHandlerRx,    //a function that returns a bool, and receives a HCIMessage_t
+    WMHCIuserProc   HCI_RxHandler,    //a function that returns a bool, and receives a HCIMessage_t
     HCIMessage_t   *RxMessage       //HCI message for reception.
 )
 {
-    WMHCIsetup.RxHandler=UserHandlerRx;  //Saves the User Function for Processing of HCI messages
+    WMHCIsetup.RxHandler=HCI_RxHandler;  //Saves the User Function for Processing of HCI messages
     WMHCIsetup.rxmsg=RxMessage;
     WMHCIsetup.rxmsg->size=0;
     WMHCIsetup.rxmsg->check=false;
@@ -54,25 +54,25 @@ bool InitHCI (
  * @param buffer: HCI message. In 0 the DstID, in 1 the MsgID. Else the payload
  * @param size: Size of the payload of the HCI message
  */
-bool SendHCI (unsigned char *buffer, unsigned int size)
+bool SendHCI (HCIMessage_t *TxMessage)
 {
     unsigned short aux=HCI_WKUPCHARS;
-    unsigned int crc;
-    size+=2;
+    unsigned short crc,size=TxMessage->size;
+    size+=2;    //Including the header
     //SERIAL WRAPPING LAYER
     //CRC Generation and a bitwise negation of the result.
-    crc= ~(CRC16_Calc(buffer,size,CRC16_INIT_VALUE));
-    size+=2;
+    crc= ~(CRC16_Calc(TxMessage->HCI,size,CRC16_INIT_VALUE));
+    size+=2;    //Including the final 16 bit CRC
 
     while(aux--)
         SerialDevice_SendByte(SLIP_END);
 
     //UART LAYER + SLIP ENCODING
     SerialDevice_SendByte(SLIP_END);
-    for (unsigned char i=0;i<size;i++) {
-        if (i<size-2) {
-            aux=buffer[i];   //Recycling of unused variable
-        } else if (i==size-2) {
+    for (unsigned char i=0;i < size ;i++) {
+        if (i < size-2) {
+            aux=TxMessage->HCI[i];   //Recycling of unused variable
+        } else if (i == size-2) {
             aux=LOBYTE(crc);
         } else {    //i==size-1
             aux=HIBYTE(crc);
@@ -127,8 +127,6 @@ void IncomingHCIpacker (unsigned char rxByte)
                 escape=false;
             }
             WMHCIsetup.rxmsg->HCI[WMHCIsetup.rxmsg->size++]=rxByte;
-            //HCIrxMessage.HCI[HCIrxMessage.size++]=rxByte;
-            
         }
     }
 }

@@ -13,11 +13,10 @@ extern "C" {
 #endif
 
 ////Endpoint (SAP) Identifier
-#define DEVMGMT_SAP_ID  0x01
-#define LORAWAN_SAP_ID  0x10
 #define DEVMGMT_ID  DEVMGMT_SAP_ID  //WiMOD LoraWAN HCI PDF ver 1.13
+#define DEVMGMT_SAP_ID  0x01
 #define LORAWAN_ID  LORAWAN_SAP_ID  //WiMOD LoraWAN HCI PDF ver 1.13
-
+#define LORAWAN_SAP_ID  0x10
 ////Device Management SAP Message Identifier:
 
 // Status Identifier
@@ -37,10 +36,10 @@ extern "C" {
 #define DEVMGMT_MSG_GET_DEVICE_INFO_REQ         0x03    //0
 #define DEVMGMT_MSG_GET_DEVICE_INFO_RSP         0x04    //10
 
-#define DEVMGMT_MSG_GET_FW_VERSION_REQ          0x05    //0
-#define DEVMGMT_MSG_GET_FW_VERSION_RSP          0x06    //1+n
 #define DEVMGMT_MSG_GET_FW_INFO_REQ             DEVMGMT_MSG_GET_FW_VERSION_REQ  //WiMOD LoraWAN HCI PDF ver 1.13
+#define DEVMGMT_MSG_GET_FW_VERSION_REQ          0x05    //0
 #define DEVMGMT_MSG_GET_FW_INFO_RSP             DEVMGMT_MSG_GET_FW_VERSION_RSP  //WiMOD LoraWAN HCI PDF ver 1.13
+#define DEVMGMT_MSG_GET_FW_VERSION_RSP          0x06    //1+n
 
 #define DEVMGMT_MSG_GET_DEVICE_STATUS_REQ       0x17    //0
 #define DEVMGMT_MSG_GET_DEVICE_STATUS_RSP       0x18    //60
@@ -90,25 +89,25 @@ extern "C" {
 #define LORAWAN_MSG_SET_JOIN_PARAM_RSP          0x06    //1
 #define LORAWAN_MSG_JOIN_NETWORK_REQ            0x09    //0
 #define LORAWAN_MSG_JOIN_NETWORK_RSP            0x0A    //1
-#define LORAWAN_MSG_JOIN_TRANSMIT_IND           0x0B    //1 (+3)
 #define LORAWAN_MSG_JOIN_NETWORK_TX_IND         LORAWAN_MSG_JOIN_TRANSMIT_IND   //WiMOD LoraWAN HCI PDF ver 1.13
+#define LORAWAN_MSG_JOIN_TRANSMIT_IND           0x0B    //1 (+3)
 #define LORAWAN_MSG_JOIN_NETWORK_IND            0x0C    //1 (+4 or +9)
 
 #define LORAWAN_MSG_SEND_UDATA_REQ              0x0D    //1+n
 #define LORAWAN_MSG_SEND_UDATA_RSP              0x0E    //1 (+4)
-#define LORAWAN_MSG_SEND_UDATA_IND              0x0F    //1 (+2)
 #define LORAWAN_MSG_SEND_UDATA_TX_IND           LORAWAN_MSG_SEND_UDATA_IND      //WiMOD LoraWAN HCI PDF ver 1.13
+#define LORAWAN_MSG_SEND_UDATA_IND              0x0F    //1 (+2)
 #define LORAWAN_MSG_RECV_UDATA_IND              0x10    //1+n (+5)
 
 #define LORAWAN_MSG_SEND_CDATA_REQ              0x11    //1+n
 #define LORAWAN_MSG_SEND_CDATA_RSP              0x12    //1 (+4)
-#define LORAWAN_MSG_SEND_CDATA_IND              0x13    //1 (+3)
 #define LORAWAN_MSG_SEND_CDATA_TX_IND           LORAWAN_MSG_SEND_CDATA_IND      //WiMOD LoraWAN HCI PDF ver 1.13
+#define LORAWAN_MSG_SEND_CDATA_IND              0x13    //1 (+3)
 #define LORAWAN_MSG_RECV_CDATA_IND              0x14    //1+n (+5)
 
 #define LORAWAN_MSG_RECV_ACK_IND                0x15    //1(+5) (OBSOLETE - search in PDF for details)
-#define LORAWAN_MSG_RECV_NODATA_IND             0x16    //1
 #define LORAWAN_MSG_RECV_NO_DATA_IND            LORAWAN_MSG_RECV_NODATA_IND     //WiMOD LoraWAN HCI PDF ver 1.13
+#define LORAWAN_MSG_RECV_NODATA_IND             0x16    //1
 
 #define LORAWAN_MSG_SET_RSTACK_CONFIG_REQ       0x19    //6
 #define LORAWAN_MSG_SET_RSTACK_CONFIG_RSP       0x1A    //1

@@ -12,7 +12,7 @@
 //------------------------------------------------------------------------------
 // Include Files
 //------------------------------------------------------------------------------
-
+#include "WMLW_APIconsts.h"
 #include "WiMOD_LoRaWAN_API.h"
 #include "WiMOD_HCI_Layer.h"
 #include <string.h>

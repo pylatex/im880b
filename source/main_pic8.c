@@ -11,9 +11,10 @@
 //  Definitions and Setup
 //------------------------------------------------------------------------------
 //#include <string.h>
+#include "WMLW_APIconsts.h"
 #include "hci_stack.h"
 //#include "SerialDevice.h"
-#include "WiMOD_LoRaWAN_API.h"
+//#include "WiMOD_LoRaWAN_API.h"
 #include <xc.h>
 #define _XTAL_FREQ 8000000  //May be either Internal RC or external oscillator.
 //#define _XTAL_FREQ 7372800  //External Quartz Crystal to derivate common UART speeds
@@ -33,17 +34,17 @@
 //------------------------------------------------------------------------------
 //  Declarations, Function Prototypes and Variables
 //------------------------------------------------------------------------------
-typedef enum {IDLE,PING_RSP,DEACT_RSP} RxStatus;
 
-void ms100 (unsigned char q);    //A (100*q) ms delay
-void ProcesaHCI();   //Procesamiento de HCI entrante
+void ms100(unsigned char q); //A (100*q) ms delay
+void ProcesaHCI(); //Procesamiento de HCI entrante
 
 volatile unsigned char rx_err; //Relacionados con el receptor
 volatile unsigned char buffer[20]; //Buffer de salida
-volatile static HCIMessage_t    TxMessage;
-volatile static HCIMessage_t    RxMessage;
-volatile unsigned bool prender;
-volatile RxStatus statusrx;
+volatile static HCIMessage_t TxMessage;
+volatile static HCIMessage_t RxMessage;
+volatile unsigned bool pendingmsg;
+volatile unsigned int lengthrx;
+volatile unsigned char timeouts;
 
 //------------------------------------------------------------------------------
 //  Section Code
@@ -72,54 +73,151 @@ void blink (unsigned char cant) {
 /**
  * Main
  */
-void main(void) 
+void main(void)
 {
+    enum {
+        RESET, TestUART, GetNwkStatus, NWKinactive, NWKjoining, NWKactive, 
+        NWKaccept
+    } status;
+
     //INITIALIZATION
     OSCCON=0x73;    //Internal at 8 MHz (applies to: 18F2550)
     while(!IOFS);   //Waits for stabilization
     ms100(1);   //Delay for stabilization of power supply
-    
+
     //LED in RC0, initialization based on datasheet sugestion.
     ADCON1=0x0F;    //All pins as digital (applies to: 18F2550)
     PORTA=0;
     LATA=0;
     TRISA=0xFE; //RA0 as output
-    
-    InitHCI(ProcesaHCI,&RxMessage);  //Full Duplex UART and Rx interruptions enabled
-    //WiMOD_LoRaWAN_Init("");
-    PEIE=true;  //Peripheral Interrupts Enable
-    GIE=true;   //Global Interrupts Enable
-    
-    prender=false;
-    statusrx=IDLE;
 
-    //LW STATUS AND CONNECTION
-    
-    //1. Wait for connection between im880 and MCU
+    pendingmsg = false;
+    status = RESET; //Initial State for the machine of Main.
+    timeouts=0;
+
+    CCP1IE = true; //Comparison, for timeouts.
+    PEIE = true; //Peripheral Interrupts Enable
+    GIE = true; //Global Interrupts Enable
+
+    //STATE MACHINE
     while (true) {
-        WiMOD_LoRaWAN_SendPing();
-        StartTimerDelayMs(20);
-        while ((!CCP1IF) && (statusrx != PING_RSP));//Wait for timer comparison or HCI response
-        if (statusrx == PING_RSP) {
-            TMR1ON=false;
-            statusrx=IDLE;
-            break;
+        switch (status) {
+            case RESET:
+                if (InitHCI(ProcesaHCI, &RxMessage))
+                    status = TestUART; //Full Duplex UART and Rx interruptions enabled
+                break;
+            case TestUART:
+                //Message Setup
+                TxMessage.SapID = DEVMGMT_ID;
+                TxMessage.MsgID = DEVMGMT_MSG_PING_REQ;
+                TxMessage.size = 0;
+                //Send Message
+                SendHCI(&TxMessage);
+                //Wait for TimeOut or HCI message and identify the situation:
+                StartTimerDelayMs(20);
+                while (TMR1ON && !pendingmsg); //Escapes at timeout or HCI received.
+                if (pendingmsg) {
+                    timeouts=0;
+                    if ((RxMessage.SapID == DEVMGMT_ID) && (RxMessage.MsgID == DEVMGMT_MSG_PING_RSP)) {
+                        //The incoming HCI message is a response of PING
+                        status = GetNwkStatus;
+                        pendingmsg = false;
+                    }
+                }
+                break;
+            case GetNwkStatus:
+                //Message Setup
+                TxMessage.SapID = LORAWAN_ID;
+                TxMessage.MsgID = LORAWAN_MSG_GET_NWK_STATUS_REQ;
+                TxMessage.size = 0;
+                //Send Message
+                SendHCI(&TxMessage);
+                //Wait for TimeOut or HCI message and identify the situation:
+                StartTimerDelayMs(20);
+                while (TMR1ON && !pendingmsg); //Escapes at timeout or HCI received.
+                if (pendingmsg) {
+                    timeouts=0;
+                    if ((RxMessage.SapID == LORAWAN_ID) && (RxMessage.MsgID == LORAWAN_MSG_GET_NWK_STATUS_RSP)) {
+                        pendingmsg = false;
+                        //The incoming HCI message is a response of NWK STATUS
+                        switch (RxMessage.Payload[1]) {
+                            case 0: //Inactive
+                            case 1: //Active (ABP)
+                                status = NWKinactive;
+                                break;
+                            case 2: //Active (OTAA)
+                                status = NWKactive;
+                                break;
+                            case 3: //Accediendo (OTAA)
+                                status = NWKjoining;
+                                break;
+                            default:
+                                break;
+                        }
+                        
+                    }
+                }
+                break;
+            case NWKinactive:
+                //Message Setup
+                TxMessage.SapID = LORAWAN_ID;
+                TxMessage.MsgID = LORAWAN_MSG_JOIN_NETWORK_REQ;
+                TxMessage.size = 0;
+                //Send Message
+                SendHCI(&TxMessage);
+                //Wait for TimeOut or HCI message and identify the situation:
+                StartTimerDelayMs(20);
+                while (TMR1ON && !pendingmsg); //Escapes at timeout or HCI received.
+                if (pendingmsg) {
+                    timeouts=0;
+                    if ((RxMessage.SapID == LORAWAN_ID) && (RxMessage.MsgID == LORAWAN_MSG_JOIN_NETWORK_RSP)) {
+                        //The incoming HCI message is a response of NWK STATUS
+                        if (RxMessage.Payload[0] == LORAWAN_STATUS_OK) {
+                            pendingmsg = false;
+                            status = NWKjoining;
+                        }
+                    }
+                }
+                break;
+            case NWKjoining:
+                //Wait for TimeOut or HCI message and identify the situation:
+                StartTimerDelayMs(20);
+                while (TMR1ON && !pendingmsg); //Escapes at timeout or HCI received.
+                if (pendingmsg) {
+                    timeouts=0;
+                    if ((RxMessage.SapID == LORAWAN_ID) && (RxMessage.MsgID == LORAWAN_MSG_JOIN_NETWORK_IND)) {
+                        //The incoming HCI message is a join event
+                        switch (RxMessage.Payload[0]) {
+                            case 0x00:  //device successfully activated
+                            case 0x01:  //device successfully activated, Rx Channel Info attached
+                                status = NWKaccept;
+                            default:
+                                break;
+                        }
+                    }
+                }
+                break;
+            case NWKaccept:
+                //Wait for TimeOut or HCI message and identify the situation:
+                StartTimerDelayMs(20);
+                while (TMR1ON && !pendingmsg); //Escapes at timeout or HCI received.
+                if (pendingmsg) {
+                    timeouts=0;
+                    if ((RxMessage.SapID == LORAWAN_ID) && (RxMessage.MsgID == LORAWAN_MSG_RECV_NO_DATA_IND)) {
+                        //The incoming HCI message is an indication of reception with no data
+                        if (RxMessage.Payload[0] == LORAWAN_STATUS_OK) {
+                            pendingmsg = false;
+                            status = NWKactive;
+                        }
+                    }
+                }
+                break;
+            case NWKactive:
+                while (true) blink(10);
+                break;
+            default:
+                break;
         }
-    }
-    
-    while (true) blink(10); //Uncomment to see if comm OK between MCU and WiMOD LW module
-    
-    //2. Check/Wait for LoRaWAN connection
-    
-    //  1. Desactivar el dispositivo
-    TxMessage.SapID=LORAWAN_ID;
-    TxMessage.MsgID=LORAWAN_MSG_DEACTIVATE_DEVICE_REQ;
-    TxMessage.size=0;
-    //  2. Solicitar conexion (join req)
-    
-    //MAIN LOOP
-    while (true) {
-        ;
     }
 }
 
@@ -129,6 +227,11 @@ void __interrupt ISR (void) {
         rx_err=RCSTA;
         //As RCREG is argument, their reading implies the RCIF erasing
         IncomingHCIpacker(RCREG);
+    } else if (CCP1IE && CCP1IF) {
+        //TimeOut
+        CCP1IF = false;
+        TMR1ON = false;
+        timeouts++;
     }
 }
 
@@ -147,18 +250,7 @@ void ms100 (unsigned char q) {
  */
 void ProcesaHCI() {
     if (RxMessage.check) {
-        if (RxMessage.SapID==DEVMGMT_ID) {
-            switch (RxMessage.MsgID) {
-                case DEVMGMT_MSG_PING_RSP:
-                    statusrx=PING_RSP;
-                    break;
-            }
-        } else if (RxMessage.SapID==LORAWAN_ID) {
-            switch (RxMessage.MsgID) {
-                case LORAWAN_MSG_DEACTIVATE_DEVICE_RSP:
-                    statusrx=DEACT_RSP;
-                    break;
-            }
-        }
+        pendingmsg = true;
+        lengthrx = RxMessage.size;
     }
 }
