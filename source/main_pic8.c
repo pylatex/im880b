@@ -213,6 +213,7 @@ void main(void)
                 }
                 break;
             case NWKactive:
+                //Create more states to attend other HCI messages or modify this state
                 while (true) blink(10);
                 break;
             default:

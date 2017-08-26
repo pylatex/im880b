@@ -4,29 +4,28 @@ Multiplatform Implementation of the HCI stack to command the WiMOD iM880B-L LoRa
 
 # Compiling
 
-The following table shows the files to be included on your IDE's project, depending on the compilation target (preferently defined in `globaldefs.h`). In general, the whole `*.c` files should be included for compilation but if some of them ends in `_win` or `_pic8` means for a special implementation for the platform, so just only one of them should be compiled. Every `*.c` included will call their needed headers.
+The following table shows the files to be included on your IDE's project, depending on the compilation target (preferently defined in `globaldefs.h`). In general, the whole `*.c` files should be included for compilation unless they ends with a platform indicator like `_win` or `_pic8`. all headers, but every `*.c` you compile will include their needed headers.
 
 | File              | Description                     |  WIN  |  PIC  |
 | ---               |     ---                         | :---: | :---: |
-| CRC16.c           |CRC16 Creation and Checking      |   X   |   X   |
+|CRC16.c            |CRC16 Creation and Checking      |   X   |   X   |
 |hci_stack.c        |Small WiMOD HCI Stack implementation |    |   X  |
 |main___.c          |                                 | _win  | _pic8 |
 |SerialDevice___.c  |UART Interface                   | _win  | _pic8 |
 |SLIP.c             |SLIP Encoding and Decoding Layer |   X   |       |
 |WiMOD_HCI_Layer.c  |Only the HCI Layer               |   X   |       |
 |WiMOD_LoRaWAN_API.cpp|LoRaWAN API Functions          |   X   |       |
-
-We're working on a Makefile to avoid the most possible this mishaps...
+|WMLW_API.c         |LoRaWAN API Functions for MCU    |       |   X   |
 
 ## Target Platforms
 
 The source code can be compiled from the following platforms:
 
-### Microchip PIC 8 bit family - Working Correctly.
+### Microchip PIC 8 bit family - Working Fine.
 
 The PIC used was the [PIC18F2550](http://www.microchip.com/PIC18F2550), but the code can be easily ported to another PIC that has at least a UART module. From this reference a EUSART module and interruptions by the Rx module from the UART were required. Includes the basic setup through the whole code (oscillator and EUSART module register values and steps) to use the internal 8 MHz oscillator.
 
-For the working version in this repo, a `ping req` are sent out, and a LED conected to RA0 turns ON during half second if there are a successful HCI message as response of that request (specifically, but not limited to, a `ping rsp`).
+For the working version in this repo, a LED connected to RA0 gets permanently on blink if the device were activated successfully.
 
 The compiler used was [XC8](http://www.microchip.com/mplab/compilers), but you can choose any IDE that supports this ANSI C compliant compiler, like [MPLAB X IDE](http://www.microchip.com/mplab/mplab-x-ide) or [Labcenter's Proteus](https://www.labcenter.com/).
 
@@ -36,23 +35,21 @@ Compiled on Windows 7 with the mingw compiler (a [GCC](https://gcc.gnu.org/) por
 
 # Main Functions and Usage
 
-Please refer to `main.c` file.
+Please refer to the `main___.c` file you use.
 
-## For microcontrollers, use `hci_stack.h`.
+## (PIC) microcontrollers, use `hci_stack.h`.
 
- - `bool SendHCI (unsigned char *buffer, unsigned char size)`
+ - `bool InitHCI (WMHCIuserProc HCIRxHandler, HCIMessage_t *RxMessage)`
 
-   The function iterates over the `buffer`, that starts with the Destination Endpoint ID (DstID), followed by the Message ID (MsgID) and finally the Payload with their specified `size`.
+   This function initializes the serial port. Also indicates to the next functions, the procedure `HCIRxHandler` that will handle a decoded HCI message saved in the external `&RxMessage`.
 
-   Then it calculates the CRC and adds it at the end of the HCI message and finally encodes in SLIP format as it sends the octets through the UART.
+ - `void IncomingHCIpacker (unsigned char rxByte)`
 
- - `signed char ProcessHCI (unsigned char *buffer, unsigned char rxByte)`
+   Call on every incoming octect from your serial port implementation. It decodes every octect from the SLIP layer using the UART and when detects the end of the message, calls the `HCIRxHandler` function from the user, specified at initialization.
 
-   This function will write in the `buffer` array, depending on the value of the received `rxByte` from the UART. This function should be called every time there are an incoming byte complete and ready to be read from the UART, possibly inside the UART interruption function.
+ - `bool SendHCI (HCIMessage_t *TxMessage)`
 
- - `signed char BuffSizeHCI(void)`
-
-   When a successful HCI message (SLIP decoded + valid CRC16) are ready to be read from the `buffer` indicated to `ProcessHCI()`, this function returns the size of the payload (a number >= 0), otherwise returns -1 when the receiver are idle or -2 if are currently receiving an HCI message.
+   Once the user compiled an `HCIMessage_t` struct (only with Destination ID, Message ID and payload with their respective size), the function generates the CRC, codifies to SLIP and send it through the UART.
 
 ## In Windows, use `WiMOD_LoRaWAN_API.h`
 
