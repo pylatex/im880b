@@ -31,7 +31,7 @@ static void     Join();
 static void     SendUData();
 static void     SendCData();
 
-#define DEF_PORT "COM4"  //Default port, in case of empty input
+#define DEF_PORT "COM5"  //Default port, in case of empty input
 
 //------------------------------------------------------------------------------
 //  Section Code
@@ -87,40 +87,40 @@ int main(int argc, char *argv[])
             // handle commands
             switch(cmd)
             {
-                case    'e':
-                case    'x':
-                        run = false;
-                        break;
+                case 'e':
+                case 'x':
+                    run = false;
+                    break;
 
-                case    'i':
-                        // get device info
-                        GetDeviceInfo();
-                        break;
+                case 'i':
+                    // get device info
+                    GetDeviceInfo();
+                    break;
 
+                case 'p':
+                    // ping device
+                    Ping();
+                    break;
 
-                case    'p':
-                        // ping device
-                        Ping();
-                        break;
+                case 'j':
+                    // join network
+                    Join();
+                    break;
 
-                case    'j':
-                        // join network
-                        Join();
-                        break;
+                case 'u':
+                    // send u-data
+                    SendUData();
+                    break;
 
-                case    'u':
-                        // send u-data
-                        SendUData();
-                        break;
+                case 'c':
+                    // send c-data
+                    SendCData();
+                    break;
 
-                case    'c':
-                        // send c-data
-                        SendCData();
-                        break;
+                case ' ':
+                    ShowMenu(comPort);
+                    break;
 
-                case    ' ':
-                        ShowMenu(comPort);
-                        break;
                 #ifdef DEBUG
                 case 't':
                     printf("%d\n\r",(int)CLOCKS_PER_SEC);
