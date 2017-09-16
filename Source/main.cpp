@@ -30,6 +30,8 @@ static void     GetDeviceInfo();
 static void     Join();
 static void     SendUData();
 static void     SendCData();
+static void     GetTime();
+static void     GetLWstatus();
 
 #define DEF_PORT "COM5"  //Default port, in case of empty input
 
@@ -82,13 +84,12 @@ int main(int argc, char *argv[])
 
             printf("%c\n\r",cmd);
             #ifdef DEBUG
-            printf("%d\n\r",(int)clock()); //DEPURACION. Se puede comentar
+            printf("%d\n\r",(int)clock());
             #endif // DEBUG
             // handle commands
             switch(cmd)
             {
-                case 'e':
-                case 'x':
+                case 'q':
                     run = false;
                     break;
 
@@ -117,13 +118,23 @@ int main(int argc, char *argv[])
                     SendCData();
                     break;
 
+                case 't':
+                    // get time from module
+                    GetTime();
+                    break;
+
+                case 'n':
+                    // get network status
+                    GetLWstatus();
+                    break;
+
                 case ' ':
                     ShowMenu(comPort);
                     break;
 
                 #ifdef DEBUG
-                case 't':
-                    printf("%d\n\r",(int)CLOCKS_PER_SEC);
+                case 'f':
+                    printf("CLOCKS_PER_SEC=%d\n\r",(int)CLOCKS_PER_SEC);
                 #endif // DEBUG
             }
         }
@@ -146,9 +157,11 @@ void ShowMenu(const char* comPort) {
     printf("[j]\t: join network request\n\r");
     printf("[u]\t: send unconfirmed radio message\n\r");
     printf("[c]\t: send confirmed radio message\n\r");
-    printf("[e|x]\t: exit program\n\r");
+    printf("[t]\t: get time from module\n\r");
+    printf("[n]\t: get network status\n\r");
+    printf("[q]\t: exit program\n\r");
     #ifdef DEBUG
-    printf("[t]\t: DEBUG - Get CLOCKS_PER_SEC value\n\r");
+    printf("[f]\t: DEBUG - Get CLOCKS_PER_SEC value\n\r");
     #endif // DEBUG
 }
 
@@ -227,6 +240,18 @@ void SendCData() {
 
     // send unconfirmed radio message
     WiMOD_LoRaWAN_SendCRadioData(port, data, 6);
+}
+
+static void     GetTime() {
+    printf("get Time\n\r");
+
+    WiMOD_LoRaWAN_GetTime();
+}
+
+static void     GetLWstatus() {
+    printf("get LoRaWAN Network Status\n\r");
+
+    WiMOD_LoRaWAN_GetNetworkStatus();
 }
 //------------------------------------------------------------------------------
 // end of file

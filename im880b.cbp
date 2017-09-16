@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="COM4" />
+				<Option parameters="COM5" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -38,6 +38,7 @@
 		<Unit filename="Source/SLIP.h" />
 		<Unit filename="Source/SerialDevice.cpp" />
 		<Unit filename="Source/SerialDevice.h" />
+		<Unit filename="Source/WMLW_APIconsts.h" />
 		<Unit filename="Source/WiMOD_HCI_Layer.cpp" />
 		<Unit filename="Source/WiMOD_HCI_Layer.h" />
 		<Unit filename="Source/WiMOD_LoRaWAN_API.cpp" />

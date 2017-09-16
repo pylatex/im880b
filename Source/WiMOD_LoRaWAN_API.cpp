@@ -56,6 +56,9 @@ WiMOD_LoRaWAN_Process_C_DataRxIndication(TWiMOD_HCI_Message *rxMessage);
 static void
 WiMOD_LoRaWAN_ShowResponse(const char *string, const TIDString *statusTable, UINT8 statusID);
 
+void WiMOD_LoRaWAN_Process_TimeRsp(TWiMOD_HCI_Message *rxMessage);
+void WiMOD_LoRaWAN_Process_GetNwkStatRsp(TWiMOD_HCI_Message *rxMessage);
+
 //------------------------------------------------------------------------------
 //
 //  Section RAM
@@ -238,6 +241,38 @@ WiMOD_LoRaWAN_SendCRadioData(UINT8  port,       // LoRaWAN Port
 }
 
 /**
+ * Request the time from RTC on module
+ */
+int
+WiMOD_LoRaWAN_GetTime() {
+    // 1. init header
+    TxMessage.SapID     = DEVMGMT_SAP_ID;
+    TxMessage.MsgID     = DEVMGMT_MSG_GET_RTC_REQ;
+    TxMessage.Length    = 0;
+
+    // 2. send HCI message without payload
+    return WiMOD_HCI_SendMessage(&TxMessage);
+
+    return 0;
+}
+
+/**
+ * Request the status of the device on the LoRaWAN Network
+ */
+int
+WiMOD_LoRaWAN_GetNetworkStatus() {
+    // 1. init header
+    TxMessage.SapID     = LORAWAN_SAP_ID;
+    TxMessage.MsgID     = LORAWAN_MSG_GET_NWK_STATUS_REQ;
+    TxMessage.Length    = 0;
+
+    // 2. send HCI message without payload
+    return WiMOD_HCI_SendMessage(&TxMessage);
+
+    return 0;
+}
+
+/**
  * Process
  * @brief: handle receiver process
  */
@@ -287,6 +322,10 @@ WiMOD_LoRaWAN_Process_DevMgmt_Message(TWiMOD_HCI_Message *rxMessage)
 
         case    DEVMGMT_MSG_GET_FW_VERSION_RSP:
                 WiMOD_LoRaWAN_DevMgmt_FirmwareVersion_Rsp(rxMessage);
+                break;
+
+        case    DEVMGMT_MSG_GET_RTC_RSP:
+                WiMOD_LoRaWAN_Process_TimeRsp(rxMessage);
                 break;
 
         default:
@@ -503,6 +542,31 @@ WiMOD_LoRaWAN_Process_C_DataRxIndication(TWiMOD_HCI_Message *rxMessage)
               (int)rxInfo[0], (int)rxInfo[1], (int)rxInfo[2],
               (int)rxInfo[3], (int)rxInfo[4]);
     }
+}
+
+void
+WiMOD_LoRaWAN_Process_TimeRsp(TWiMOD_HCI_Message *rxMessage) {
+    unsigned long rtcresp=0;
+    unsigned char hour,minute,second,day,month,year;
+
+    rtcresp |= rxMessage->Payload[1];
+    rtcresp |= (rxMessage->Payload[2])<<8;
+    rtcresp |= (rxMessage->Payload[3])<<16;
+    rtcresp |= (rxMessage->Payload[4])<<24;
+    printf("RAW: %#lX \n\r",rtcresp);
+
+    hour=(unsigned char)((rtcresp>>16)&((1<<5)-1));
+    minute=(unsigned char)((rtcresp>>6) & ((1<<6)-1));
+    second=(unsigned char)(rtcresp & ((1<<6)-1));
+    year=(unsigned char)((rtcresp>>26) & ((1<<6)-1));
+    month=(unsigned char)((rtcresp>>12) & ((1<<4)-1));
+    day=(unsigned char)((rtcresp>>21) & ((1<<5)-1));
+    printf("Decoded: %02u/%02u/%02u %02u:%02u:%02u\n\r",year,month,day,hour,minute,second);
+}
+
+void
+WiMOD_LoRaWAN_Process_GetNwkStatRsp(TWiMOD_HCI_Message *rxMessage) {
+
 }
 
 /**
