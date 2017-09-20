@@ -14,7 +14,7 @@
     This header file provides APIs for driver for I2C.
     Generation Information :
         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs  - 1.45
-        Device            :  PIC12F1840
+        Device            :  Generated for PIC12F1840, but ported to PIC18F2550
         Driver Version    :  2.00
     The generated drivers are tested against the following:
         Compiler          :  XC8 1.35
@@ -152,22 +152,22 @@ typedef enum
         #define I2C_CONFIG_TR_QUEUE_LENGTH 1
 #endif
 
-#define I2C_TRANSMIT_REG                       SSP1BUF                 // Defines the transmit register used to send data.
-#define I2C_RECEIVE_REG                        SSP1BUF                 // Defines the receive register used to receive data.
+#define I2C_TRANSMIT_REG                       SSPBUF                 // Defines the transmit register used to send data.
+#define I2C_RECEIVE_REG                        SSPBUF                 // Defines the receive register used to receive data.
 
 // The following control bits are used in the I2C state machine to manage
 // the I2C module and determine next states.
-#define I2C_WRITE_COLLISION_STATUS_BIT         SSP1CON1bits.WCOL     // Defines the write collision status bit.
-#define I2C_MODE_SELECT_BITS                   SSP1CON1bits.SSPM     // I2C Master Mode control bit.
-#define I2C_MASTER_ENABLE_CONTROL_BITS         SSP1CON1bits.SSPEN    // I2C port enable control bit.
+#define I2C_WRITE_COLLISION_STATUS_BIT         SSPCON1bits.WCOL     // Defines the write collision status bit.
+#define I2C_MODE_SELECT_BITS                   SSPCON1bits.SSPM     // I2C Master Mode control bit.
+#define I2C_MASTER_ENABLE_CONTROL_BITS         SSPCON1bits.SSPEN    // I2C port enable control bit.
 
-#define I2C_START_CONDITION_ENABLE_BIT         SSP1CON2bits.SEN      // I2C START control bit.
-#define I2C_REPEAT_START_CONDITION_ENABLE_BIT  SSP1CON2bits.RSEN     // I2C Repeated START control bit.
-#define I2C_RECEIVE_ENABLE_BIT                 SSP1CON2bits.RCEN     // I2C Receive enable control bit.
-#define I2C_STOP_CONDITION_ENABLE_BIT          SSP1CON2bits.PEN      // I2C STOP control bit.
-#define I2C_ACKNOWLEDGE_ENABLE_BIT             SSP1CON2bits.ACKEN    // I2C ACK start control bit.
-#define I2C_ACKNOWLEDGE_DATA_BIT               SSP1CON2bits.ACKDT    // I2C ACK data control bit.
-#define I2C_ACKNOWLEDGE_STATUS_BIT             SSP1CON2bits.ACKSTAT  // I2C ACK status bit.
+#define I2C_START_CONDITION_ENABLE_BIT         SSPCON2bits.SEN      // I2C START control bit.
+#define I2C_REPEAT_START_CONDITION_ENABLE_BIT  SSPCON2bits.RSEN     // I2C Repeated START control bit.
+#define I2C_RECEIVE_ENABLE_BIT                 SSPCON2bits.RCEN     // I2C Receive enable control bit.
+#define I2C_STOP_CONDITION_ENABLE_BIT          SSPCON2bits.PEN      // I2C STOP control bit.
+#define I2C_ACKNOWLEDGE_ENABLE_BIT             SSPCON2bits.ACKEN    // I2C ACK start control bit.
+#define I2C_ACKNOWLEDGE_DATA_BIT               SSPCON2bits.ACKDT    // I2C ACK data control bit.
+#define I2C_ACKNOWLEDGE_STATUS_BIT             SSPCON2bits.ACKSTAT  // I2C ACK status bit.
 
 #define I2C_7bit    true
 /**
@@ -205,19 +205,19 @@ void I2C_Initialize(void)
     i2c_object.i2cErrors = 0;
 
     // R_nW write_noTX; P stopbit_notdetected; S startbit_notdetected; BF RCinprocess_TXcomplete; SMP Standard Speed; UA dontupdate; CKE disabled; D_nA lastbyte_address; 
-    SSP1STAT = 0x80;
+    SSPSTAT = 0x80;
     // SSPEN enabled; WCOL no_collision; CKP Idle:Low, Active:High; SSPM FOSC/4_SSPxADD_I2C; SSPOV no_overflow; 
-    SSP1CON1 = 0x28;
+    SSPCON1 = 0x28;
     // ACKTIM ackseq; SBCDE disabled; BOEN disabled; SCIE disabled; PCIE disabled; DHEN disabled; SDAHT 100ns; AHEN disabled; 
-    SSP1CON3 = 0x00;
+    //SSPCON3 = 0x00; //Only available on newer PIC references
     // Baud Rate Generator Value: SSPADD 3;   
-    SSP1ADD = 0x03;
+    SSPADD = 0x03;
 
    
     // clear the master interrupt flag
-    PIR1bits.SSP1IF = 0;
+    PIR1bits.SSPIF = 0;
     // enable the master interrupt
-    PIE1bits.SSP1IE = 1;
+    PIE1bits.SSPIE = 1;
     
 }
 
@@ -238,7 +238,7 @@ void I2C_ISR ( void )
     static uint8_t  i2c_bytes_left      = 0;
     static uint8_t  i2c_10bit_address_restart = 0;
 
-    PIR1bits.SSP1IF = 0;
+    PIR1bits.SSPIF = 0;
 
     // Check first if there was a collision.
     // If we have a Write Collision, reset and go to idle state */
@@ -685,7 +685,7 @@ void I2C_MasterTRBInsert(
         {
             // force the task to run since we know that the queue has
             // something that needs to be sent
-            PIR1bits.SSP1IF = true;
+            PIR1bits.SSPIF = true;
         }
     }   // block until request is complete
 

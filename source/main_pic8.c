@@ -16,6 +16,7 @@
 //#include "SerialDevice.h"
 //#include "WiMOD_LoRaWAN_API.h"
 #include <xc.h>
+#include "i2c.h"
 #define _XTAL_FREQ 8000000  //May be either Internal RC or external oscillator.
 //#define _XTAL_FREQ 7372800  //External Quartz Crystal to derivate common UART speeds
 
@@ -236,6 +237,12 @@ void __interrupt ISR (void) {
         CCP1IF = false;
         TMR1ON = false;
         timeouts++;
+    } else if (INTCONbits.PEIE == 1 && PIE2bits.BCLIE == 1 && PIR2bits.BCLIF == 1) {
+        I2C_BusCollisionISR();
+    } else if (INTCONbits.PEIE == 1 && PIE1bits.SSPIE == 1 && PIR1bits.SSPIF == 1) {
+        I2C_ISR();
+    } else {
+        //Unhandled Interrupt
     }
 }
 
