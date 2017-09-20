@@ -41,9 +41,9 @@ static HANDLE   ComHandle = INVALID_HANDLE_VALUE;
  * Configura e Inicia el modulo/puerto serie.
  */
 bool
-SerialDevice_Open(UINT8         comNumber,
-                  int           dataBits,
-                  UINT8         parity)
+SerialDevice_Open(const unsigned char  *comPort,
+                  int                   dataBits,
+                  UINT8                 parity)
 {
     //POR HACER: el primer argumento ya no es un string, hay que armarlo aca
     //si se requiere.
@@ -112,14 +112,6 @@ SerialDevice_Open(UINT8         comNumber,
 }
 
 /**
- * Simple check for the status of Tx module
- */
-bool SerialSentIsOpen(void)
-{
-    return true;
-}
-
-/**
  * Close
  * @brief: close serial device
  */
@@ -151,7 +143,7 @@ SerialDevice_Close()
  * @brief: send data
  */
 int
-SerialDevice_SendData(UINT8* txBuffer, UINT8 txLength)
+SerialDevice_SendData(UINT8 *txBuffer, UINT8 txLength)
 {
     // handle valid ?
     if (ComHandle == INVALID_HANDLE_VALUE)
@@ -207,7 +199,7 @@ SerialDevice_SendByte(UINT8 txByte)
  * @brief: read data
  */
 int
-SerialDevice_ReadData(UINT8* rxBuffer, int rxBufferSize)
+SerialDevice_ReadData(UINT8 *rxBuffer, int rxBufferSize)
 {
     // handle ok ?
     if (ComHandle == INVALID_HANDLE_VALUE)

@@ -1,8 +1,9 @@
 /* 
  * File:   WMLW_APIconsts.h
- * Author: GITUD
+ * Author: Alex Bustos
  *
  * Created on 22 de agosto de 2017, 07:03 PM
+ * Based on IMST Document: WiMOD LoraWAN HCI PDF ver 1.13
  */
 
 #ifndef WMLW_APICONSTS_H
@@ -142,4 +143,3 @@ extern "C" {
 #endif
 
 #endif	/* WMLW_APICONSTS_H */
-

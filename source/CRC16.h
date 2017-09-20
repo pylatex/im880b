@@ -29,7 +29,7 @@ extern "C" {
     typedef uint8_t     UINT8;
     typedef uint16_t    UINT16;
 
-    #define CRC16_INIT_VALUE    0xFFFF    // initial value for CRC algorithem
+    #define CRC16_INIT_VALUE    0xFFFF    // initial value for CRC algorithm
     #define CRC16_GOOD_VALUE    0x0F47    // constant compare value for check
     #define CRC16_POLYNOM       0x8408    // 16-BIT CRC CCITT POLYNOM
 
@@ -39,13 +39,13 @@ extern "C" {
 
     // Calc CRC16
     UINT16
-    CRC16_Calc  (UINT8*     data,
+    CRC16_Calc  (UINT8     *data,
                  UINT16     length,
                  UINT16     initVal);
 
     // Calc & Check CRC16
     bool
-    CRC16_Check (UINT8*     data,
+    CRC16_Check (UINT8     *data,
                  UINT16     length,
                  UINT16     initVal);
 #ifdef	__cplusplus

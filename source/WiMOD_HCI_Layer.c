@@ -24,7 +24,7 @@
 //------------------------------------------------------------------------------
 
 // SLIP Message Receiver Callback
-static UINT8*   WiMOD_HCI_ProcessRxMessage(UINT8* rxData, int rxLength);
+static UINT8   *WiMOD_HCI_ProcessRxMessage(UINT8 *rxData, int rxLength);
 
 /**
  * Layer Instance
@@ -34,7 +34,7 @@ typedef struct {
     UINT32                  CRCErrors;
 
     // RxMessage
-    TWiMOD_HCI_Message*     RxMessage;
+    TWiMOD_HCI_Message     *RxMessage;
 
     // Receiver callback
     TWiMOD_HCI_CbRxMessage  CbRxMessage;
@@ -56,9 +56,9 @@ static UINT8                TxBuffer[sizeof( TWiMOD_HCI_Message ) * 2 + 2];
  * @brief: Init HCI Message layer
  */
 bool
-WiMOD_HCI_Init(const unsigned char*     comPort,        // comPort
+WiMOD_HCI_Init(const unsigned char     *comPort,        // comPort
                TWiMOD_HCI_CbRxMessage   cbRxMessage,    // HCI msg recv. callback
-               TWiMOD_HCI_Message*      rxMessage)      // intial rxMessage
+               TWiMOD_HCI_Message      *rxMessage)      // intial rxMessage
 {
     // init error counter
     HCI.CRCErrors   =   0;
@@ -77,14 +77,14 @@ WiMOD_HCI_Init(const unsigned char*     comPort,        // comPort
 
     // init serial device
     return SerialDevice_Open(comPort, Baudrate_115200, DataBits_8, Parity_None);
-    //return SerialDevice_Open(0,0,0);
+
 }
 
 /**
  * SendMessage
  * @brief: Send a HCI message (with or without payload)
  */
-int WiMOD_HCI_SendMessage(TWiMOD_HCI_Message* txMessage)
+int WiMOD_HCI_SendMessage(TWiMOD_HCI_Message *txMessage)
 {
     // 1. check parameter
     //
@@ -162,7 +162,7 @@ void WiMOD_HCI_Process()
  * WiMOD_HCI_ProcessRxMessage
  * @brief: process received SLIP message and return new rxBuffer
  */
-static UINT8* WiMOD_HCI_ProcessRxMessage(UINT8* rxData, int rxLength)
+static UINT8 *WiMOD_HCI_ProcessRxMessage(UINT8 *rxData, int rxLength)
 {
     // check min length
     if (rxLength >= (WIMOD_HCI_MSG_HEADER_SIZE + WIMOD_HCI_MSG_FCS_SIZE))
@@ -199,4 +199,3 @@ static UINT8* WiMOD_HCI_ProcessRxMessage(UINT8* rxData, int rxLength)
 //------------------------------------------------------------------------------
 // end of file
 //------------------------------------------------------------------------------
-

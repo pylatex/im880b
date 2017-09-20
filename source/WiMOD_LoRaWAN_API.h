@@ -16,61 +16,60 @@
 extern "C" {
 #endif
 
-//------------------------------------------------------------------------------
-//  Include Files
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    //  Include Files
+    //------------------------------------------------------------------------------
 
-#include <stdint.h>
-#include <stdbool.h>
-#include "WMLW_APIconsts.h"
+    #include <stdint.h>
+    #include <stdbool.h>
+    #include "WMLW_APIconsts.h"
 
-//------------------------------------------------------------------------------
-//  General Declarations
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    //  General Declarations
+    //------------------------------------------------------------------------------
 
-typedef uint8_t     UINT8;
-typedef uint16_t    UINT16;
-typedef uint32_t    UINT32;
+    typedef uint8_t     UINT8;
+    typedef uint16_t    UINT16;
+    typedef uint32_t    UINT32;
 
+    // helper struct for ID -> string conversion
+    typedef struct
+    {
+        int         ID;
+        const char *String;
+    }TIDString;
 
-// helper struct for ID -> string conversion
-typedef struct
-{
-    int         ID;
-    const char* String;
-}TIDString;
+    //------------------------------------------------------------------------------
+    //  Function Prototypes
+    //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-//  Function Prototypes
-//------------------------------------------------------------------------------
+    // init
+    bool
+    WiMOD_LoRaWAN_Init(const unsigned char *comPort);
 
-// init
-bool
-WiMOD_LoRaWAN_Init(const char* comPort);
+    // ping device
+    int
+    WiMOD_LoRaWAN_SendPing();
 
-// ping device
-int
-WiMOD_LoRaWAN_SendPing();
+    // get firmware Version
+    int
+    WiMOD_LoRaWAN_GetFirmwareVersion();
 
-// get firmware Version
-int
-WiMOD_LoRaWAN_GetFirmwareVersion();
+    // join network
+    int
+    WiMOD_LoRaWAN_JoinNetworkRequest();
 
-// join network
-int
-WiMOD_LoRaWAN_JoinNetworkRequest();
+    // send unconfirmed radio data
+    int
+    WiMOD_LoRaWAN_SendURadioData(UINT8 port, UINT8 *data, int length);
 
-// send unconfirmed radio data
-int
-WiMOD_LoRaWAN_SendURadioData(UINT8 port, UINT8* data, int length);
+    // send confirmed radio data
+    int
+    WiMOD_LoRaWAN_SendCRadioData(UINT8 port, UINT8 *data, int length);
 
-// send confirmed radio data
-int
-WiMOD_LoRaWAN_SendCRadioData(UINT8 port, UINT8* data, int length);
-
-// receiver process
-void
-WiMOD_LoRaWAN_Process();
+    // receiver process
+    void
+    WiMOD_LoRaWAN_Process();
 
 #ifdef	__cplusplus
 }

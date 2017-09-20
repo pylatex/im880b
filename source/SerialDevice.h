@@ -13,11 +13,11 @@ extern "C" {
 
     // open serial device
     bool
-    SerialDevice_Open(const unsigned char*         comNumber,
-                      //UINT32        baudRate, //115200, siempre.
-                      int           dataBits,   //8, siempre.
-                      UINT8         parity);    //Ninguna, siempre.
-    
+    SerialDevice_Open(const unsigned char  *comPort,
+                      //UINT32                baudRate, //115200, siempre.
+                      int                   dataBits,   //8, siempre.
+                      UINT8                 parity);    //Ninguna, siempre.
+
     // close serial device
     bool
     SerialDevice_Close();
@@ -28,14 +28,14 @@ extern "C" {
 
     // send data
     int
-    SerialDevice_SendData(UINT8*    txBuffer,
-                          UINT8       txLength);
+    SerialDevice_SendData(UINT8    *txBuffer,
+                          UINT8     txLength);
 
     // read data
     int
-    SerialDevice_ReadData(UINT8*    rxBuffer,
+    SerialDevice_ReadData(UINT8    *rxBuffer,
                           int       rxBufferSize);
-    
+
 #ifdef	__cplusplus
 }
 #endif

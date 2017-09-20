@@ -12,9 +12,8 @@
 //------------------------------------------------------------------------------
 //  Include Files
 //------------------------------------------------------------------------------
-#include "SerialDevice.h"
-
 #include <xc.h>
+#include "SerialDevice.h"
 
 //------------------------------------------------------------------------------
 //  Section RAM and Function Prototypes
@@ -34,9 +33,9 @@ bool SerialSentIsOpen(void);
  * Configura e Inicia el modulo/puerto serie.
  */
 bool
-SerialDevice_Open(const unsigned char*         comNumber,
-                  int           dataBits,
-                  UINT8         parity)
+SerialDevice_Open(const unsigned char  *comPort,
+                  int                   dataBits,
+                  UINT8                 parity)
 {
     //UART, Ajustes comunes a Rx y Tx. Inicializado de acuerdo a datasheet 16F2550
     //Se prueba con 8(interno) y 7.3728(externo) MHz
@@ -61,7 +60,7 @@ SerialDevice_Open(const unsigned char*         comNumber,
 bool SerialSentIsOpen(void)
 {
     return (bool)(SPEN && TXEN);
-}
+            }
 
 /**
  * Close
@@ -73,21 +72,21 @@ SerialDevice_Close()
     SPEN=false; //2. Habilita Puerto Serie
     TXEN=false; //6,Tx. Habilita transmisor
     CREN=false;  //6,Rx. Habilita receptor
-    return true;
-}
+        return true;
+    }
 
 /**
  * SendData
  * @brief: send data
  */
 int
-SerialDevice_SendData(UINT8* txBuffer, UINT8 txLength)
+SerialDevice_SendData(UINT8 *txBuffer, UINT8 txLength)
 {
     for (UINT8 i=0;i<txLength;i++) {
         if (!SerialDevice_SendByte(txBuffer[i])) {
             //Escapes the error
             return false;
-        }
+    }
     }
     return true;
 }
@@ -106,14 +105,14 @@ SerialDevice_SendByte(UINT8 txByte)
         return true;
     }
     return false;
-}
+    }
 
 /**
  * ReadData
  * @brief: read data
  */
 int
-SerialDevice_ReadData(UINT8* rxBuffer, int rxBufferSize)
+SerialDevice_ReadData(UINT8 *rxBuffer, int rxBufferSize)
 {
     // Todo : add your own platform specific code here
     return -1;

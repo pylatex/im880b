@@ -34,13 +34,13 @@ typedef struct {
     int                 RxState;
     int                 RxIndex;
     int                 RxBufferSize;
-    UINT8*              RxBuffer;
+    UINT8              *RxBuffer;
     TSLIP_CbRxMessage   CbRxMessage;
 
     // Encoder
     int                 TxIndex;
     int                 TxBufferSize;
-    UINT8*              TxBuffer;
+    UINT8              *TxBuffer;
 }TSLIP;
 
 //------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ static void SLIP_StoreTxByte(UINT8 txByte)
  * EncodeData
  * @brief: encode a messages into dstBuffer
  */
-int SLIP_EncodeData(UINT8* dstBuffer, int dstBufferSize, UINT8* srcData, int srcLength)
+int SLIP_EncodeData(UINT8 *dstBuffer, int dstBufferSize, UINT8 *srcData, int srcLength)
 {
     // save start pointer
     //int txLength = 0; //No se usa... dice el compilador
@@ -144,7 +144,7 @@ int SLIP_EncodeData(UINT8* dstBuffer, int dstBufferSize, UINT8* srcData, int src
  * SetRxBuffer
  * @brief: configure a rx-buffer and enable receiver/decoder
  */
-bool SLIP_SetRxBuffer(UINT8* rxBuffer, int rxBufferSize)
+bool SLIP_SetRxBuffer(UINT8 *rxBuffer, int rxBufferSize)
 {
     // receiver in IDLE state and client already registered ?
     if ((SLIP.RxState == SLIPDEC_IDLE_STATE) && SLIP.CbRxMessage)
@@ -176,7 +176,7 @@ SLIP_StoreRxByte(UINT8 rxByte)
  * DecodeData
  * @brief: process received byte stream
  */
-void SLIP_DecodeData(UINT8* srcData, int srcLength)
+void SLIP_DecodeData(UINT8 *srcData, int srcLength)
 {
     // init result
     //int result = 0;   //No se usa (dice el compilador)

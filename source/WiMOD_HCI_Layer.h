@@ -64,21 +64,22 @@ extern "C" {
     //------------------------------------------------------------------------------
 
     //Message receiver callback
-    typedef TWiMOD_HCI_Message* (*TWiMOD_HCI_CbRxMessage)(TWiMOD_HCI_Message* rxMessage);
+    typedef TWiMOD_HCI_Message *(*TWiMOD_HCI_CbRxMessage)(TWiMOD_HCI_Message *rxMessage);
 
     //Init HCI Layer
     bool
-    WiMOD_HCI_Init(const unsigned char*     comPort,
+    WiMOD_HCI_Init(const unsigned char     *comPort,
                    TWiMOD_HCI_CbRxMessage   cbRxMessage,
-                   TWiMOD_HCI_Message*      rxMessage);
+                   TWiMOD_HCI_Message      *rxMessage);
 
     //Send HCI Message
     int
-    WiMOD_HCI_SendMessage(TWiMOD_HCI_Message* txMessage);
+    WiMOD_HCI_SendMessage(TWiMOD_HCI_Message *txMessage);
 
     //Receiver Process
     void
     WiMOD_HCI_Process();
+
 #ifdef	__cplusplus
 }
 #endif
