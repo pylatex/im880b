@@ -10,17 +10,17 @@
 //------------------------------------------------------------------------------
 //  Definitions and Setup
 //------------------------------------------------------------------------------
-//#include <string.h>
+#include <string.h>
+#include <xc.h>
 #include "WMLW_APIconsts.h"
 #include "hci_stack.h"
-//#include "SerialDevice.h"
-//#include "WiMOD_LoRaWAN_API.h"
-#include <xc.h>
+#include "SerialDevice.h"
 #include "i2c.h"
+
 #define _XTAL_FREQ 8000000  //May be either Internal RC or external oscillator.
 //#define _XTAL_FREQ 7372800  //External Quartz Crystal to derivate common UART speeds
 
-//* Remove a '/' to comment the setup for PIC18F2550 wiht INTOSC@8MHz
+//* Remove a '/' to comment the setup for PIC18F2550 with INTOSC@8MHz
 #pragma config PLLDIV = 1, CPUDIV = OSC1_PLL2, USBDIV = 1
 #pragma config FOSC = INTOSCIO_EC,  FCMEN = ON, IESO = OFF
 #pragma config PWRT = ON, BOR = OFF, BORV = 3, VREGEN = OFF
@@ -28,6 +28,12 @@
 #pragma config CCP2MX = ON, PBADEN = OFF, LPT1OSC = ON, MCLRE =	ON
 #pragma config STVREN = OFF, LVP = OFF, DEBUG=OFF, XINST = OFF
 //*/
+
+#ifdef SERIAL_DEVICE_H
+#define EUSART_Write(x) SerialDevice_SendByte(x)
+#endif
+#define MEM_ADDR        0x50    //Testing with I2C Memory 24AA00
+#define MEM_MAX_TRIES   30
 
 #define LED LATA0 //Para las pruebas de parpadeo y ping
 //#define PIN RC0 //Para prueba LED=PIN
@@ -38,6 +44,7 @@
 
 void ms100(unsigned char q); //A (100*q) ms delay
 void ProcesaHCI(); //Procesamiento de HCI entrante
+void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo);
 
 volatile unsigned char rx_err; //Relacionados con el receptor
 volatile unsigned char buffer[20]; //Buffer de salida
@@ -76,6 +83,9 @@ void blink (unsigned char cant) {
  */
 void main(void)
 {
+    unsigned char buffsal[20],tries;
+    I2C_MESSAGE_STATUS estadoi2c;
+    
     enum {
         RESET, TestUART, GetNwkStatus, NWKinactive, NWKjoining, NWKactive, 
         NWKaccept
@@ -95,11 +105,15 @@ void main(void)
     pendingmsg = false;
     status = RESET; //Initial State for the machine of Main.
     timeouts=0;
+    
+    I2C_Initialize();
+    SerialDevice_Open("",8,0);
 
     CCP1IE = true; //Comparison, for timeouts.
     PEIE = true; //Peripheral Interrupts Enable
     GIE = true; //Global Interrupts Enable
 
+    /*
     //STATE MACHINE
     while (true) {
         switch (status) {
@@ -224,6 +238,67 @@ void main(void)
                 break;
         }
     }
+
+    //*/ //State Machine Description
+    
+    buffsal[0]=0x00;    //Registro
+    while (true)
+    {
+        //*
+        buffsal[1]=0xCA;    //Valor a escribir
+        estadoi2c=I2C_MESSAGE_PENDING;
+        tries=0;
+        while(estadoi2c != I2C_MESSAGE_FAIL)
+        {
+            // write one byte to EEPROM (3 is the number of bytes to write)
+            I2C_MasterWrite(buffsal,2,MEM_ADDR,&estadoi2c);
+
+            // wait for the message to be sent or status has changed.
+            while(estadoi2c == I2C_MESSAGE_PENDING);
+
+            if (estadoi2c == I2C_MESSAGE_COMPLETE)
+                break;
+
+            // if status is  I2C_MESSAGE_ADDRESS_NO_ACK,
+            //               or I2C_DATA_NO_ACK,
+            // The device may be busy and needs more time for the last
+            // write so we can retry writing the data, this is why we
+            // use a while loop here
+
+            // check for max retry and skip this byte
+            if (tries == MEM_MAX_TRIES)
+                break;
+            else
+                tries++;
+        }
+
+        if (tries == MEM_MAX_TRIES) {
+            enviaMsgSerie("Se excedieron los intentos\n\r",0);
+        } else
+        switch (estadoi2c) {
+            case I2C_MESSAGE_COMPLETE:
+                enviaMsgSerie("Mensaje I2C Completo\n\r",0);
+                break;
+            case I2C_MESSAGE_FAIL:
+                break;
+        }
+        if (estadoi2c == I2C_MESSAGE_FAIL)
+        {
+            enviaMsgSerie("Fallo al enviar I2C\n\r",0);
+        }
+        //*/
+
+        /*
+        for (unsigned char aux=0;aux<12;aux++)
+            EUSART_Write(frase[aux]);
+        //*/
+        //enviaMsgSerie("Estoy vivo\n\r",0);
+        
+        LED=true;
+        ms100(5);
+        LED=false;
+        ms100(5);
+    }
 }
 
 void __interrupt ISR (void) {
@@ -257,11 +332,20 @@ void ms100 (unsigned char q) {
 
 /**
  * Handler for (pre)processing of an incoming HCI message. Once the user exits
- * from this handler funcion, the RxMessage.size variable gets cleared!
+ * from this handler function, the RxMessage.size variable gets cleared!
  */
 void ProcesaHCI() {
     if (RxMessage.check) {
         pendingmsg = true;
         lengthrx = RxMessage.size;
     }
+}
+
+void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo) {
+    unsigned char aux=0;
+    if (!largo)
+        largo=strlen(arreglo);
+    
+    while (aux<largo)
+        EUSART_Write(*(arreglo+(aux++)));
 }
