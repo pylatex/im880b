@@ -272,54 +272,10 @@ void main(void)
     buffsal[4]=1;
     //*/
 
+    //*
     while (true)
     {
         respuesta=T67XX_Read(T67XX_FC_GASPPM,T67XX_GASPPM,4);
-        /*
-        buffsal[1]=0xCA;    //Valor a escribir
-        estadoi2c=I2C_MESSAGE_PENDING;
-        tries=0;
-        while(estadoi2c != I2C_MESSAGE_FAIL)
-        {
-            // write one byte to EEPROM (3 is the number of bytes to write)
-            //I2C_MasterWrite(buffsal,2,MEM_ADDR,&estadoi2c);
-            I2C_MasterWrite(buffsal,2,T67XX_DEFADDR,&estadoi2c);
-
-            // wait for the message to be sent or status has changed.
-            while(estadoi2c == I2C_MESSAGE_PENDING);
-
-            if (estadoi2c == I2C_MESSAGE_COMPLETE)
-                break;
-
-            // if status is  I2C_MESSAGE_ADDRESS_NO_ACK,
-            //               or I2C_DATA_NO_ACK,
-            // The device may be busy and needs more time for the last
-            // write so we can retry writing the data, this is why we
-            // use a while loop here
-
-            // check for max retry and skip this byte
-            if (tries == I2C_MAX_TRIES)
-                break;
-            else
-                tries++;
-        }
-
-        if (tries == I2C_MAX_TRIES) {
-            enviaMsgSerie("Se excedieron los intentos\n\r",0);
-        } else
-        switch (estadoi2c) {
-            case I2C_MESSAGE_COMPLETE:
-                enviaMsgSerie("Mensaje I2C Completo\n\r",0);
-                break;
-            case I2C_MESSAGE_FAIL:
-                break;
-        }
-        if (estadoi2c == I2C_MESSAGE_FAIL)
-        {
-            enviaMsgSerie("Fallo al enviar I2C\n\r",0);
-        }
-        //*/ //Codigo largo metido a funcion anterior...
-
         //*
         if (respuesta) {
             valor=(unsigned short)((respuesta[2]<<8)|(respuesta[3]));
@@ -329,12 +285,6 @@ void main(void)
             enviaMsgSerie("No hubo lectura\n\r",0);
         }
         //*/
-
-        //enviaMsgSerie("Estoy vivo\n\r",0);
-        /*
-        for (unsigned char aux=0;aux<12;aux++)
-            EUSART_Write(frase[aux]);
-        //*/ //Funcion anterior equivalente a este codigo.
 
         LED=true;
         ms100(5);
