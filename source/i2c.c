@@ -211,8 +211,8 @@ void I2C_Initialize(void)
     // ACKTIM ackseq; SBCDE disabled; BOEN disabled; SCIE disabled; PCIE disabled; DHEN disabled; SDAHT 100ns; AHEN disabled; 
     //SSPCON3 = 0x00; //Only available on newer PIC references
     // Baud Rate Generator Value: SSPADD 3;
-    //SSPADD = 0x03;  //32 MHz
-    SSPADD = 0x13;  //8 MHz
+    //SSPADD = 0x4F;  //100 Kbps I2C std @ 32 MHz
+    SSPADD = 0x13;  //100 Kbps I2C std @ 8 MHz
 
     // clear the master interrupt flag
     PIR1bits.SSPIF = 0;
