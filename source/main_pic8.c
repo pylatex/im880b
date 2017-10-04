@@ -10,12 +10,12 @@
 //------------------------------------------------------------------------------
 //  Definitions and Setup
 //------------------------------------------------------------------------------
-#include <string.h>
-#include <stdio.h>
+//#include <string.h>
+//#include <stdio.h>
 #include <xc.h>
 #include "WMLW_APIconsts.h"
 #include "hci_stack.h"
-#include "SerialDevice.h"
+//#include "SerialDevice.h"
 #include "i2c.h"
 
 #define _XTAL_FREQ 8000000  //May be either Internal RC or external oscillator.
@@ -62,7 +62,7 @@
 
 void ms100(unsigned char q); //A (100*q) ms delay
 void ProcesaHCI(); //Procesamiento de HCI entrante
-void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo);
+//void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo);
 unsigned char * T67XX_Read(unsigned char fc,unsigned short address,unsigned char RespLength);
 
 volatile unsigned char rx_err; //Relacionados con el receptor
@@ -108,8 +108,8 @@ void main(void)
     //I2C_MESSAGE_STATUS estadoi2c;
 
     enum {
-        RESET, TestUART, GetNwkStatus, NWKinactive, NWKjoining, NWKactive, 
-        NWKaccept
+        RESET, TestUART, GetNwkStatus, NWKinactive, NWKjoining, NODEidleActive, 
+        NWKaccept, SENSprocess
     } status;
 
     //INITIALIZATION
@@ -129,13 +129,13 @@ void main(void)
 
     valor=0;
     I2C_Initialize();
-    SerialDevice_Open("",8,0);
+    //SerialDevice_Open("",8,0);
 
     CCP1IE = true; //Comparison, for timeouts.
     PEIE = true; //Peripheral Interrupts Enable
     GIE = true; //Global Interrupts Enable
 
-    /*
+    //*
     //STATE MACHINE
     while (true) {
         switch (status) {
@@ -183,7 +183,7 @@ void main(void)
                                 status = NWKinactive;
                                 break;
                             case 2: //Active (OTAA)
-                                status = NWKactive;
+                                status = NODEidleActive;
                                 break;
                             case 3: //Accediendo (OTAA)
                                 status = NWKjoining;
@@ -244,17 +244,37 @@ void main(void)
                         //The incoming HCI message is an indication of reception with no data
                         if (RxMessage.Payload[0] == LORAWAN_STATUS_OK) {
                             pendingmsg = false;
-                            status = NWKactive;
+                            status = NODEidleActive;
                         }
                     }
                 }
                 break;
-            case NWKactive:
+            case NODEidleActive:
                 //Create more states to attend other HCI messages or modify this state
+                ms100(49);//Espera ~5 segundos
+                status = SENSprocess;
+                break;
+            case SENSprocess:
                 LED=true;
-                while (true) {
-                    SLEEP();
+                //Starts an I2C reading and decides upon the response.
+                respuesta=T67XX_Read(T67XX_FC_GASPPM,T67XX_GASPPM,4);
+                TxMessage.SapID=LORAWAN_ID;
+                TxMessage.MsgID=LORAWAN_MSG_SEND_UDATA_REQ;
+                TxMessage.Payload[0]=5; //Puerto LoRaWAN
+                if (respuesta) {
+                    TxMessage.Payload[1]=1; //Lectura: CO2
+                    TxMessage.Payload[2]=respuesta[2];  //MSB
+                    TxMessage.Payload[3]=respuesta[3];  //LSB
+                    TxMessage.size=4;
+                } else {
+                    TxMessage.Payload[1]=0; //Lectura: Ninguna (Error de conexion con sensor)
+                    TxMessage.size=2;
                 }
+                SendHCI(&TxMessage);
+                status = NODEidleActive;
+                
+                ms100(1);   //Completa los 5 segundos...
+                LED=false;
                 break;
             default:
                 break;
@@ -272,11 +292,11 @@ void main(void)
     buffsal[4]=1;
     //*/
 
-    //*
+    /*
     while (true)
     {
         respuesta=T67XX_Read(T67XX_FC_GASPPM,T67XX_GASPPM,4);
-        //*
+
         if (respuesta) {
             valor=(unsigned short)((respuesta[2]<<8)|(respuesta[3]));
             phlen=sprintf(phrase,"CO2: %u PPM\n\r",valor);
@@ -284,13 +304,13 @@ void main(void)
         } else {
             enviaMsgSerie("No hubo lectura\n\r",0);
         }
-        //*/
 
         LED=true;
         ms100(5);
         LED=false;
         ms100(5);
     }
+    //*/ //Bucle de Lectura y envio por UART
 }
 
 void __interrupt ISR (void) {
@@ -333,6 +353,7 @@ void ProcesaHCI() {
     }
 }
 
+/*
 void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo) {
     unsigned char aux=0;
     if (!largo)
@@ -341,6 +362,7 @@ void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo) {
     while (aux<largo)
         EUSART_Write(*(arreglo+(aux++)));
 }
+//*/
 
 #define T67XX_ADDR    T67XX_DEFADDR
 
