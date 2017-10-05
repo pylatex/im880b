@@ -253,8 +253,6 @@ void main(void)
                 //Create more states to attend other HCI messages or modify this state
                 ms100(49);//Espera ~5 segundos
                 status = SENSprocess;
-                LED=true;
-                SLEEP();
                 break;
             case SENSprocess:
                 LED=true;
