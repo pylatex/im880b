@@ -102,7 +102,7 @@ void blink (unsigned char cant) {
  */
 void main(void)
 {
-    unsigned char phrase[20],phlen;//,tries;
+    //unsigned char phrase[20],phlen;//,tries;
     unsigned char *respuesta;
     unsigned short valor;
     //I2C_MESSAGE_STATUS estadoi2c;
