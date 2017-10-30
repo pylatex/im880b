@@ -31,7 +31,7 @@ The compiler used was [XC8](http://www.microchip.com/mplab/compilers), but you c
 
 ### Windows - Not tested, Migrating.
 
-Compiled on Windows 7 with the mingw compiler (a [GCC](https://gcc.gnu.org/) port for Windows) included within [Code::Blocks](http://www.codeblocks.org). Currently the version on this repo was not tested, but a working version (the compiled one that we are talking about) can be found in [our initial repo](https://github.com/pylatesUD/im880b). Honestly at time it has minimal modifications to the original IMST code.
+Compiled on Windows 7 with the mingw compiler (a [GCC](https://gcc.gnu.org/) port for Windows) included within [Code::Blocks](http://www.codeblocks.org). Currently the version on this repo was not tested, but a working version (the compiled one that we are talking about) can be found in [the PC repo version](https://github.com/pylatesUD/im880b), that has minimal modifications compared to the original IMST code.
 
 # Main Functions and Usage
 
