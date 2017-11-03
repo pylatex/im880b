@@ -1,7 +1,7 @@
 /build/*
 /debug/*
 /dist/*
-/nbproject/*
+/nbproject/private*/*
 
 # Compiled source #
 ###################
