@@ -17,6 +17,7 @@
 #include "hci_stack.h"
 //#include "SerialDevice.h"
 #include "i2c.h"
+#include "T6700.h"
 
 #define _XTAL_FREQ 8000000  //May be either Internal RC or external oscillator.
 //#define _XTAL_FREQ 7372800  //External Quartz Crystal to derivate common UART speeds
@@ -33,25 +34,6 @@
 #ifdef SERIAL_DEVICE_H
 #define EUSART_Write(x) SerialDevice_SendByte(x)
 #endif
-
-#define MEM_ADDR        0x50    //Testing with I2C Memory 24AA00
-#define I2C_MAX_ATTEMPTS   30
-
-//Telaire T67xx CO2 Sensors
-#define T67XX_DEFADDR       0x15    //Default Slave Address
-#define T67XX_FWREV         5001    //Addressess
-#define T67XX_GASPPM        5003
-#define T67XX_RESETDVC      1000
-#define T67XX_SPCAL         1004
-#define T67XX_SLVADDR       4005
-#define T67XX_ABCLOGIC      1006
-#define T67XX_FC_FWREV      4       //Function Codes
-#define T67XX_FC_STATUS     4
-#define T67XX_FC_GASPPM     4
-#define T67XX_FC_RESETDVC   5
-#define T67XX_FC_SPCAL      5
-#define T67XX_FC_SLVADDR    6
-#define T67XX_FC_ABCLOGIC   5
 
 #define LED LATA0 //Para las pruebas de parpadeo y ping
 //#define PIN RC0 //Para prueba LED=PIN
@@ -363,68 +345,3 @@ void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo) {
         EUSART_Write(*(arreglo+(aux++)));
 }
 //*/
-
-#define T67XX_ADDR    T67XX_DEFADDR
-
-unsigned char * T67XX_Read(unsigned char fc,unsigned short address,unsigned char RespLength)
-{
-    I2C_MESSAGE_STATUS status;
-    static uint8_t  Buffer[7];
-    uint16_t        attempts;
-
-    // build the write buffer first (MODBUS Request w/o CRC)
-    // starting address of the EEPROM memory
-    Buffer[0] = fc;                    //Function Code
-    Buffer[1] = (address >> 8);        //high byte
-    Buffer[2] = (uint8_t)(address);    //low byte
-    Buffer[3] = 0;     //Quantity of registers
-    Buffer[4] = 1;     //to be read
-
-    // Now it is possible that the slave device will be slow.
-    // As a work around on these slaves, the application can
-    // retry sending the transaction
-    for (attempts = 0;(status != I2C_MESSAGE_FAIL) && (attempts<I2C_MAX_ATTEMPTS);attempts++)
-    {
-        // Define the register to be read from sensor
-        I2C_MasterWrite(Buffer, 5, T67XX_ADDR, &status);
-
-        // wait for the message to be sent or status has changed.
-        while(status == I2C_MESSAGE_PENDING);
-
-        if (status == I2C_MESSAGE_COMPLETE)
-            break;
-
-        // if status is  I2C_MESSAGE_ADDRESS_NO_ACK,
-        //               or I2C_DATA_NO_ACK,
-        // The device may be busy and needs more time for the last
-        // write so we can retry writing the data, this is why we
-        // use a while loop here
-    }
-
-    if (status == I2C_MESSAGE_COMPLETE)
-    {
-
-        // this portion will read the byte from the memory location.
-        for (attempts = 0;(status != I2C_MESSAGE_FAIL) && (attempts<I2C_MAX_ATTEMPTS);attempts++) {
-            // write one byte to EEPROM (2 is the count of bytes to write)
-            I2C_MasterRead(Buffer, RespLength, T67XX_ADDR, &status);
-
-            // wait for the message to be sent or status has changed.
-            while(status == I2C_MESSAGE_PENDING);
-
-            if (status == I2C_MESSAGE_COMPLETE)
-                break;
-
-            // if status is  I2C_MESSAGE_ADDRESS_NO_ACK,
-            //               or I2C_DATA_NO_ACK,
-            // The device may be busy and needs more time for the last
-            // write so we can retry writing the data, this is why we
-            // use a while loop here
-
-        }
-    }
-    if (status == I2C_MESSAGE_COMPLETE)
-        return Buffer;
-    else
-        return 0;   //null pointer
-}

@@ -13,6 +13,7 @@
       <itemPath>source/crc16modbus.h</itemPath>
       <itemPath>source/hci_stack.h</itemPath>
       <itemPath>source/i2c.h</itemPath>
+      <itemPath>source/T6700.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -33,6 +34,7 @@
       <itemPath>source/WiMOD_LoRaWAN_API.cpp</itemPath>
       <itemPath>source/crc16modbus.c</itemPath>
       <itemPath>source/i2c.c</itemPath>
+      <itemPath>source/T6700.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -556,6 +558,8 @@
         </HI-TECH-LINK>
         <XC8-config-global>
         </XC8-config-global>
+      </item>
+      <item path="source/crc16modbus.c" ex="true" overriding="false">
       </item>
       <item path="source/main_win.cpp" ex="true" overriding="false">
         <HI-TECH-COMP>
