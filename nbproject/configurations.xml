@@ -560,6 +560,12 @@
         </XC8-config-global>
       </item>
       <item path="source/crc16modbus.c" ex="true" overriding="false">
+        <HI-TECH-COMP>
+        </HI-TECH-COMP>
+        <HI-TECH-LINK>
+        </HI-TECH-LINK>
+        <XC8-config-global>
+        </XC8-config-global>
       </item>
       <item path="source/main_win.cpp" ex="true" overriding="false">
         <HI-TECH-COMP>

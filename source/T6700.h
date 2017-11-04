@@ -28,6 +28,7 @@ extern "C" {
 #define T67XX_FC_SLVADDR    6
 #define T67XX_FC_ABCLOGIC   5
 
+unsigned char * T67XX_Read(unsigned char fc,unsigned short address,unsigned char RespLength);
 
 #ifdef	__cplusplus
 }

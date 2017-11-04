@@ -45,7 +45,6 @@
 void ms100(unsigned char q); //A (100*q) ms delay
 void ProcesaHCI(); //Procesamiento de HCI entrante
 //void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo);
-unsigned char * T67XX_Read(unsigned char fc,unsigned short address,unsigned char RespLength);
 
 volatile unsigned char rx_err; //Relacionados con el receptor
 volatile unsigned char buffer[20]; //Buffer de salida
