@@ -47,7 +47,7 @@ void ProcesaHCI(); //Procesamiento de HCI entrante
 //void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo);
 
 volatile unsigned char rx_err; //Relacionados con el receptor
-volatile unsigned char buffer[20]; //Buffer de salida
+//volatile unsigned char buffer[20]; //Buffer de salida
 volatile static HCIMessage_t TxMessage;
 volatile static HCIMessage_t RxMessage;
 volatile unsigned bool pendingmsg;
@@ -238,7 +238,7 @@ void main(void)
             case SENSprocess:
                 LED=true;
                 //Starts an I2C reading and decides upon the response.
-                respuesta=T67XX_Read(T67XX_FC_GASPPM,T67XX_GASPPM,4);
+                respuesta=T67XX_Read(T67XX_GASPPM_FC,T67XX_GASPPM,4);
                 TxMessage.SapID=LORAWAN_ID;
                 TxMessage.MsgID=LORAWAN_MSG_SEND_UDATA_REQ;
                 TxMessage.Payload[0]=5; //Puerto LoRaWAN
@@ -253,7 +253,7 @@ void main(void)
                 }
                 SendHCI(&TxMessage);
                 status = NODEidleActive;
-                
+
                 ms100(1);   //Completa los 5 segundos...
                 LED=false;
                 break;

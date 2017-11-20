@@ -3,14 +3,26 @@
  * ejemplos disponibles en "i2c.h"
  */
 
+#define T67XX_I2CMODE
+#ifdef T67XX_I2CMODE
 #include "i2c.h"
+#endif
 #include "T6700.h"
 
 #define T67XX_ADDR          T67XX_DEFADDR
 #define I2C_MAX_ATTEMPTS    30
 
-unsigned char * T67XX_Read(unsigned char fc,unsigned short address,unsigned char RespLength)
+/**
+ * Reads a register on the T67xx sensor.
+ * from T67xx sensor.
+ * @param fc:           Function Code
+ * @param address:      Address of the register
+ * @param RespLength:   Expected length of the response (in bytes)
+ * @return A pointer to the array result of reading the sensor register specified
+ */
+unsigned char *T67XX_Read(unsigned char fc,unsigned short address,unsigned char RespLength)
 {
+#ifdef T67XX_I2CMODE
     I2C_MESSAGE_STATUS status;
     static uint8_t  Buffer[7];
     uint16_t        attempts;
@@ -70,4 +82,5 @@ unsigned char * T67XX_Read(unsigned char fc,unsigned short address,unsigned char
         return Buffer;
     else
         return 0;   //null pointer
+#endif
 }
