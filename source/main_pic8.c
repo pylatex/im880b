@@ -17,7 +17,7 @@
 #include "hci_stack.h"
 //#include "SerialDevice.h"
 #include "i2c.h"
-#include "T6700.h"
+#include "T67xx.h"
 
 #define _XTAL_FREQ 8000000  //May be either Internal RC or external oscillator.
 //#define _XTAL_FREQ 7372800  //External Quartz Crystal to derivate common UART speeds

@@ -7,7 +7,7 @@
 #ifdef T67XX_I2CMODE
 #include "i2c.h"
 #endif
-#include "T6700.h"
+#include "T67xx.h"
 
 #define T67XX_ADDR          T67XX_DEFADDR
 #define I2C_MAX_ATTEMPTS    30
