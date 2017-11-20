@@ -1,7 +1,10 @@
 /build/*
 /debug/*
 /dist/*
-/nbproject/private*/*
+/nbproject/*
+!/nbproject/configurations.xml
+!/nbproject/project.xml
+
 
 # Compiled source #
 ###################
