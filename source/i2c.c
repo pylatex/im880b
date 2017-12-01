@@ -63,9 +63,9 @@ typedef union
 {
     struct
     {
-            uint8_t full:1;
-            uint8_t empty:1;
-            uint8_t reserved:6;
+        uint8_t full:1;
+        uint8_t empty:1;
+        uint8_t reserved:6;
     }s;
     uint8_t status;
 }I2C_TR_QUEUE_STATUS;
@@ -83,11 +83,11 @@ typedef union
  */
 typedef struct
 {
-    uint8_t                             count;          // a count of trb's in the trb list
-    I2C_TRANSACTION_REQUEST_BLOCK *ptrb_list;     // pointer to the trb list
-    I2C_MESSAGE_STATUS            *pTrFlag;       // set with the error of the last trb sent.
-                                                        // if all trb's are sent successfully,
-                                                        // then this is I2C_MESSAGE_COMPLETE
+    uint8_t                        count;       // a count of trb's in the trb list
+    I2C_TRANSACTION_REQUEST_BLOCK *ptrb_list;   // pointer to the trb list
+    I2C_MESSAGE_STATUS            *pTrFlag;     // set with the error of the last trb sent.
+                                                    // if all trb's are sent successfully,
+                                                    // then this is I2C_MESSAGE_COMPLETE
 } I2C_TR_QUEUE_ENTRY;
 
 /**
@@ -104,12 +104,12 @@ typedef struct
 typedef struct
 {
     /* Read/Write Queue */
-    I2C_TR_QUEUE_ENTRY          *pTrTail;       // tail of the queue
-    I2C_TR_QUEUE_ENTRY          *pTrHead;       // head of the queue
-    I2C_TR_QUEUE_STATUS         trStatus;       // status of the last transaction
-    uint8_t                         i2cDoneFlag;    // flag to indicate the current
-                                                    // transaction is done
-    uint8_t                         i2cErrors;      // keeps track of errors
+    I2C_TR_QUEUE_ENTRY     *pTrTail;        // tail of the queue
+    I2C_TR_QUEUE_ENTRY     *pTrHead;        // head of the queue
+    I2C_TR_QUEUE_STATUS     trStatus;       // status of the last transaction
+    uint8_t                 i2cDoneFlag;    // flag to indicate the current
+                                                // transaction is done
+    uint8_t                 i2cErrors;      // keeps track of errors
 
 
 } I2C_OBJECT ;
@@ -204,11 +204,12 @@ void I2C_Initialize(void)
 
     i2c_object.i2cErrors = 0;
 
-    // R_nW write_noTX; P stopbit_notdetected; S startbit_notdetected; BF RCinprocess_TXcomplete; SMP Standard Speed; UA dontupdate; CKE disabled; D_nA lastbyte_address; 
+#ifdef _18F2550
+    // R_nW write_noTX; P stopbit_notdetected; S startbit_notdetected; BF RCinprocess_TXcomplete; SMP Standard Speed; UA dontupdate; CKE disabled; D_nA lastbyte_address;
     SSPSTAT = 0x80;
-    // SSPEN enabled; WCOL no_collision; CKP Idle:Low, Active:High; SSPM FOSC/4_SSPxADD_I2C; SSPOV no_overflow; 
+    // SSPEN enabled; WCOL no_collision; CKP Idle:Low, Active:High; SSPM FOSC/4_SSPxADD_I2C; SSPOV no_overflow;
     SSPCON1 = 0x28;
-    // ACKTIM ackseq; SBCDE disabled; BOEN disabled; SCIE disabled; PCIE disabled; DHEN disabled; SDAHT 100ns; AHEN disabled; 
+    // ACKTIM ackseq; SBCDE disabled; BOEN disabled; SCIE disabled; PCIE disabled; DHEN disabled; SDAHT 100ns; AHEN disabled;
     //SSPCON3 = 0x00; //Only available on newer PIC references
     // Baud Rate Generator Value: SSPADD 3;
     //SSPADD = 0x4F;  //100 Kbps I2C std @ 32 MHz
@@ -218,10 +219,24 @@ void I2C_Initialize(void)
     PIR1bits.SSPIF = 0;
     // enable the master interrupt
     PIE1bits.SSPIE = 1;
-    
+#endif
+#ifdef _16F1769
+    // R_nW write_noTX; P stopbit_notdetected; S startbit_notdetected; BF RCinprocess_TXcomplete; SMP Standard Speed; UA dontupdate; CKE disabled; D_nA lastbyte_address;
+    SSP1STAT = 0x80;
+    // SSPEN enabled; WCOL no_collision; CKP Idle:Low, Active:High; SSPM FOSC/4_SSPxADD_I2C; SSPOV no_overflow;
+    SSP1CON1 = 0x28;
+    // ACKTIM ackseq; SBCDE disabled; BOEN disabled; SCIE disabled; PCIE disabled; DHEN disabled; SDAHT 100ns; AHEN disabled;
+    SSP1CON3 = 0x00;
+    // Baud Rate Generator Value: SSPADD 79;
+    SSP1ADD = 0x4F;
+
+    // clear the master interrupt flag
+    PIR1bits.SSP1IF = 0;
+    // enable the master interrupt
+    PIE1bits.SSP1IE = 1;
+#endif
 }
 
-        
 uint8_t I2C_ErrorCountGet(void)
 {
     uint8_t ret;
@@ -238,7 +253,7 @@ void I2C_ISR ( void )
     static uint8_t  i2c_bytes_left      = 0;
     static uint8_t  i2c_10bit_address_restart = 0;
 
-    PIR1bits.SSPIF = 0;
+    I2C_SSPIF_FLAG = 0;
 
     // Check first if there was a collision.
     // If we have a Write Collision, reset and go to idle state */
@@ -685,7 +700,7 @@ void I2C_MasterTRBInsert(
         {
             // force the task to run since we know that the queue has
             // something that needs to be sent
-            PIR1bits.SSPIF = true;
+            I2C_SSPIF_FLAG = true;
         }
     }   // block until request is complete
 

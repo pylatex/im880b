@@ -15,28 +15,37 @@
 #include <xc.h>
 #include "WMLW_APIconsts.h"
 #include "hci_stack.h"
-//#include "SerialDevice.h"
+#include "SerialDevice.h"
 #include "i2c.h"
 #include "T67xx.h"
 
 #define _XTAL_FREQ 8000000  //May be either Internal RC or external oscillator.
 //#define _XTAL_FREQ 7372800  //External Quartz Crystal to derivate common UART speeds
 
-//* Remove a '/' to comment the setup for PIC18F2550 with INTOSC@8MHz
+#ifdef _18F2550
+//PIC18F2550 with INTOSC@8MHz
 #pragma config PLLDIV = 1, CPUDIV = OSC1_PLL2, USBDIV = 1
 #pragma config FOSC = INTOSCIO_EC,  FCMEN = ON, IESO = OFF
 #pragma config PWRT = ON, BOR = OFF, BORV = 3, VREGEN = OFF
 #pragma config WDT = OFF, WDTPS = 32768
 #pragma config CCP2MX = ON, PBADEN = OFF, LPT1OSC = ON, MCLRE =	ON
 #pragma config STVREN = OFF, LVP = OFF, DEBUG=OFF, XINST = OFF
-//*/
+
+#define LED LATA0 //Para las pruebas de parpadeo y ping
+//#define PIN RC0   //Para probar en un loop con LED=PIN
+#endif
+
+#ifdef _16F1769
+#pragma config FOSC = INTOSC, WDTE = OFF, PWRTE = ON, MCLRE = OFF, CP = OFF, BOREN = OFF, CLKOUTEN = OFF, IESO = ON, FCMEN = ON
+#pragma config WRT = OFF, PPS1WAY =	OFF, ZCD = OFF, PLLEN =	OFF, STVREN = ON, BORV = HI, LPBOR =	OFF, LVP = OFF
+
+#define LED LATA0   //Para las pruebas de parpadeo y ping
+//#define PIN RB5     //Para probar en un loop con LED=PIN
+#endif
 
 #ifdef SERIAL_DEVICE_H
 #define EUSART_Write(x) SerialDevice_SendByte(x)
 #endif
-
-#define LED LATA0 //Para las pruebas de parpadeo y ping
-//#define PIN RC0 //Para prueba LED=PIN
 
 //------------------------------------------------------------------------------
 //  Declarations, Function Prototypes and Variables
@@ -78,49 +87,68 @@ void blink (unsigned char cant) {
     }
 }
 
+void setup (void) {
+
+    #ifdef _18F2550
+    OSCCON=0x73;    //Internal at 8 MHz
+    while(!IOFS);   //Waits for stabilization
+    ADCON1=0x0F;    //All pins as digital
+    PORTA=0;
+    LATA=0;
+    TRISA=0xFE; //RA0 as output
+    #endif
+
+    #ifdef _16F1769
+    OSCCON=0x70;    //Internal at 8 MHz
+    while(!HFIOFS); //May be either PLLR or HFIOFS. See OSCSTAT register for specific case
+    PORTA=0;
+    LATA=0;
+    ANSELA=0;       //All pins as digital
+    TRISA=0xFA;     //Pines 2 y 0 son salidas digitales
+    
+    //Entradas y salidas UART
+    RXPPS=0x05;     //RX viene de RA5
+    RA2PPS=0x16;    //Tx va hacia RA2
+    
+    //Entradas y salidas I2C se dejan en los pines por defecto: SCK:RB6, SDA:RB4
+    //(unicos totalmente compatibles con I2C/SMBus, segun seccion 12.3 del datasheet)
+    RB6PPS=0x12;
+    RB4PPS=0x13;
+    #endif
+
+    ms100(1);   //Delay for stabilization of power supply
+}
+
+void enableInterrupts (void) {
+    CCP1IE = true; //Comparison, for timeouts.
+    PEIE = true; //Peripheral Interrupts Enable
+    GIE = true; //Global Interrupts Enable
+}
+
 /**
  * Main
  */
 void main(void)
 {
-    //unsigned char phrase[20],phlen;//,tries;
-    unsigned char *respuesta;
-    unsigned short valor;
-    //I2C_MESSAGE_STATUS estadoi2c;
+    setup();
 
+    unsigned char *respuesta;
     enum {
         RESET, TestUART, GetNwkStatus, NWKinactive, NWKjoining, NODEidleActive, 
         NWKaccept, SENSprocess
-    } status;
+    } status = RESET; //Initial State for the machine of Main.
 
-    //INITIALIZATION
-    OSCCON=0x73;    //Internal at 8 MHz (applies to: 18F2550)
-    while(!IOFS);   //Waits for stabilization
-    ms100(1);   //Delay for stabilization of power supply
-
-    //LED in RC0, initialization based on datasheet sugestion.
-    ADCON1=0x0F;    //All pins as digital (applies to: 18F2550)
-    PORTA=0;
-    LATA=0;
-    TRISA=0xFE; //RA0 as output
-
-    pendingmsg = false;
-    status = RESET; //Initial State for the machine of Main.
-    timeouts=0;
-
-    valor=0;
     I2C_Initialize();
-    //SerialDevice_Open("",8,0);
+    SerialDevice_Open("",8,0);
 
-    CCP1IE = true; //Comparison, for timeouts.
-    PEIE = true; //Peripheral Interrupts Enable
-    GIE = true; //Global Interrupts Enable
+    enableInterrupts();
 
-    //*
-    //STATE MACHINE
+    /*
     while (true) {
         switch (status) {
             case RESET:
+                pendingmsg = false;
+                timeouts = 0;
                 if (InitHCI(ProcesaHCI, &RxMessage))
                     status = TestUART; //Full Duplex UART and Rx interruptions enabled
                 break;
@@ -264,6 +292,15 @@ void main(void)
 
     //*/ //State Machine Description
 
+    while (true) {
+        if (pendingmsg) {
+            pendingmsg=false;
+            LED=true;
+            ms100(1);
+            LED=false;
+        }
+    }
+
     //buffsal[0]=0x00;    //Registro
     /*
     buffsal[0]=T67XX_FC_GASPPM;
@@ -305,9 +342,9 @@ void __interrupt ISR (void) {
         CCP1IF = false;
         TMR1ON = false;
         timeouts++;
-    } else if (INTCONbits.PEIE == 1 && PIE2bits.BCLIE == 1 && PIR2bits.BCLIF == 1) {
+    } else if (I2C_ISR_COLLISION_CONDITION()) {
         I2C_BusCollisionISR();
-    } else if (INTCONbits.PEIE == 1 && PIE1bits.SSPIE == 1 && PIR1bits.SSPIF == 1) {
+    } else if (I2C_ISR_EVENT_CONDITION()) {
         I2C_ISR();
     } else {
         //Unhandled Interrupt

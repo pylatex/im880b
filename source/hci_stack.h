@@ -34,7 +34,7 @@ extern "C" {
 
     //Not so sure about the following defs:
     #define WIMOD_HCI_MSG_HEADER_SIZE       2
-    #define WIMOD_HCI_MSG_PAYLOAD_SIZE      300
+    #define WIMOD_HCI_MSG_PAYLOAD_SIZE      200
     #define WIMOD_HCI_MSG_FCS_SIZE          2
 
     #define LOBYTE(x)                       (x)// & 0x00FF
