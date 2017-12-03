@@ -209,8 +209,6 @@ void I2C_Initialize(void)
     SSPSTAT = 0x80;
     // SSPEN enabled; WCOL no_collision; CKP Idle:Low, Active:High; SSPM FOSC/4_SSPxADD_I2C; SSPOV no_overflow;
     SSPCON1 = 0x28;
-    // ACKTIM ackseq; SBCDE disabled; BOEN disabled; SCIE disabled; PCIE disabled; DHEN disabled; SDAHT 100ns; AHEN disabled;
-    //SSPCON3 = 0x00; //Only available on newer PIC references
     // Baud Rate Generator Value: SSPADD 3;
     //SSPADD = 0x4F;  //100 Kbps I2C std @ 32 MHz
     SSPADD = 0x13;  //100 Kbps I2C std @ 8 MHz
@@ -221,14 +219,14 @@ void I2C_Initialize(void)
     PIE1bits.SSPIE = 1;
 #endif
 #ifdef _16F1769
-    // R_nW write_noTX; P stopbit_notdetected; S startbit_notdetected; BF RCinprocess_TXcomplete; SMP Standard Speed; UA dontupdate; CKE disabled; D_nA lastbyte_address;
-    SSP1STAT = 0x80;
+    // R_nW write_noTX; P stopbit_notdetected; S startbit_notdetected; BF RCinprocess_TXcomplete; SMP High Speed; UA dontupdate; CKE disabled; D_nA lastbyte_address;
+    SSP1STAT = 0x00;
     // SSPEN enabled; WCOL no_collision; CKP Idle:Low, Active:High; SSPM FOSC/4_SSPxADD_I2C; SSPOV no_overflow;
     SSP1CON1 = 0x28;
     // ACKTIM ackseq; SBCDE disabled; BOEN disabled; SCIE disabled; PCIE disabled; DHEN disabled; SDAHT 100ns; AHEN disabled;
     SSP1CON3 = 0x00;
-    // Baud Rate Generator Value: SSPADD 79;
-    SSP1ADD = 0x4F;
+    // Baud Rate Generator Value: SSP1ADD 19;
+    SSP1ADD = 0x13;
 
     // clear the master interrupt flag
     PIR1bits.SSP1IF = 0;

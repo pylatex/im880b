@@ -7,17 +7,32 @@
  * y han sido ligeramente modificados para soportar tipos estandar.
  */
 
+//MODOS DE COMPILACION. Descomentar el que se quiera probar:
+//#define SMACH       //Maquina de estados (principal)
+//#define TEST_1      //Verificacion UART/Reloj
+//#define TEST_2      //Verificacion comunicacion PIC-WiMOD
+#define TEST_3      //Verificacion I2C(con sensor CO2 de Telaire)/UART
 //------------------------------------------------------------------------------
 //  Definitions and Setup
 //------------------------------------------------------------------------------
-//#include <string.h>
-//#include <stdio.h>
+#if defined TEST_1 || defined TEST_3
+#include <string.h>
+#include <stdio.h>
+#endif
 #include <xc.h>
+#if defined SMACH || defined TEST_1 || defined TEST_2 || defined TEST_3
 #include "WMLW_APIconsts.h"
 #include "hci_stack.h"
+#endif
+#if defined TEST_1 || defined TEST_3
 #include "SerialDevice.h"
+#endif
+#if defined SMACH || defined TEST_2 || defined TEST_3
 #include "i2c.h"
+extern uint8_t I2C_ErrorCountGet(void);
 #include "T67xx.h"
+#endif
+
 
 #define _XTAL_FREQ 8000000  //May be either Internal RC or external oscillator.
 //#define _XTAL_FREQ 7372800  //External Quartz Crystal to derivate common UART speeds
@@ -53,7 +68,9 @@
 
 void ms100(unsigned char q); //A (100*q) ms delay
 void ProcesaHCI(); //Procesamiento de HCI entrante
-//void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo);
+#ifdef SERIAL_DEVICE_H
+void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo);
+#endif
 
 volatile unsigned char rx_err; //Relacionados con el receptor
 //volatile unsigned char buffer[20]; //Buffer de salida
@@ -71,19 +88,20 @@ volatile unsigned char timeouts;
 void StartTimerDelayMs(unsigned char cant)
 {
     //CCPR1=cant*250;
-    CCPR1=(unsigned int)((cant<<8)-(cant<<2)-(cant<<1));
+    CCPR1=(unsigned short)((cant<<8)-(cant<<2)-(cant<<1));
     CCP1IF=false;   //Restablecer comparador
-    CCP1CON=0x0B;   //Modulo CCP en Comparacion a (representado) cant/ms
+    CCP1CON=0x8B;   //Modulo CCP en Comparacion a (representado) cant/ms
     T1CON=0x30;     //Prescale 1:8
+    TMR1=0;
     TMR1ON=true;
 }
 
-void blink (unsigned char cant) {
+void blink (unsigned char cant,unsigned char high,unsigned char low) {
     while (cant--) {
         LED=true;
-        ms100(1);
+        ms100(high);
         LED=false;
-        ms100(1);
+        ms100(low);
     }
 }
 
@@ -105,18 +123,34 @@ void setup (void) {
     LATA=0;
     ANSELA=0;       //All pins as digital
     TRISA=0xFA;     //Pines 2 y 0 son salidas digitales
-    
+
     //Entradas y salidas UART
-    RXPPS=0x05;     //RX viene de RA5
+    RXPPS=0x05;     //Rx viene de RA5
     RA2PPS=0x16;    //Tx va hacia RA2
-    
+
     //Entradas y salidas I2C se dejan en los pines por defecto: SCK:RB6, SDA:RB4
     //(unicos totalmente compatibles con I2C/SMBus, segun seccion 12.3 del datasheet)
     RB6PPS=0x12;
     RB4PPS=0x13;
+    SSPDATPPS = 0x0C;   //RB4->MSSP:SDA;
+    SSPCLKPPS = 0x0E;   //RB6->MSSP:SCL;
+
+    PPSLOCK = 0x55;
+    PPSLOCK = 0xAA;
+    PPSLOCKbits.PPSLOCKED = 0x01; // lock PPS
     #endif
 
-    ms100(1);   //Delay for stabilization of power supply
+    ms100(2);   //Delay for stabilization of power supply
+
+    #ifdef _I2C_H
+    I2C_Initialize();
+    #endif
+    #ifdef SERIAL_DEVICE_H
+    SerialDevice_Open("",8,0);
+    #endif
+    #ifdef LORAWAN_HCI_H
+    InitHCI(ProcesaHCI, &RxMessage);
+    #endif
 }
 
 void enableInterrupts (void) {
@@ -138,13 +172,11 @@ void main(void)
         NWKaccept, SENSprocess
     } status = RESET; //Initial State for the machine of Main.
 
-    I2C_Initialize();
-    SerialDevice_Open("",8,0);
-
     enableInterrupts();
 
-    /*
     while (true) {
+        //State Machine Description
+        #ifdef SMACH
         switch (status) {
             case RESET:
                 pendingmsg = false;
@@ -261,6 +293,7 @@ void main(void)
             case NODEidleActive:
                 //Create more states to attend other HCI messages or modify this state
                 ms100(49);//Espera ~5 segundos
+                //LED=true;SLEEP();
                 status = SENSprocess;
                 break;
             case SENSprocess:
@@ -288,35 +321,42 @@ void main(void)
             default:
                 break;
         }
-    }
+        #endif
 
-    //*/ //State Machine Description
+        //Prueba 1: Verificacion UART y Reloj ~ 1 Hz
+        #ifdef TEST_1
+        LED = true;
+        enviaMsgSerie("estoy vivo\n\r",0);
+        ms100(5);
+        LED = false;
+        ms100(5);
+        #endif
 
-    while (true) {
-        if (pendingmsg) {
-            pendingmsg=false;
-            LED=true;
-            ms100(1);
-            LED=false;
-        }
-    }
+        //Prueba 2: Envio de Ping hacia iM880B (puede verse con WiMOD LoRaWAN DevTool)
+        #ifdef TEST_2
+        TxMessage.SapID = DEVMGMT_ID;           //Message Setup
+        TxMessage.MsgID = DEVMGMT_MSG_PING_REQ;
+        TxMessage.size = 0;
+        SendHCI(&TxMessage);                    //Send Message
+        ms100(10);
+        #endif
 
-    //buffsal[0]=0x00;    //Registro
-    /*
-    buffsal[0]=T67XX_FC_GASPPM;
-    buffsal[1]=T67XX_GASPPM >> 8;
-    buffsal[2]=T67XX_GASPPM & 0x00FF;
-    buffsal[3]=0;
-    buffsal[4]=1;
-    //*/
+        //buffsal[0]=0x00;    //Registro
+        /*
+        buffsal[0]=T67XX_FC_GASPPM;
+        buffsal[1]=T67XX_GASPPM >> 8;
+        buffsal[2]=T67XX_GASPPM & 0x00FF;
+        buffsal[3]=0;
+        buffsal[4]=1;
+        //*/
 
-    /*
-    while (true)
-    {
-        respuesta=T67XX_Read(T67XX_FC_GASPPM,T67XX_GASPPM,4);
+        //Prueba 3: I2C hacia sensor CO2 Telaire T6713.
+        #ifdef TEST_3
+        respuesta=T67XX_Read(T67XX_GASPPM_FC,T67XX_GASPPM,4);
+        unsigned char phrase[30],phlen;
 
         if (respuesta) {
-            valor=(unsigned short)((respuesta[2]<<8)|(respuesta[3]));
+            unsigned short valor=(unsigned short)((respuesta[2]<<8)|(respuesta[3]));
             phlen=sprintf(phrase,"CO2: %u PPM\n\r",valor);
             enviaMsgSerie((unsigned const char *)phrase,phlen);
         } else {
@@ -327,8 +367,8 @@ void main(void)
         ms100(5);
         LED=false;
         ms100(5);
+        #endif
     }
-    //*/ //Bucle de Lectura y envio por UART
 }
 
 void __interrupt ISR (void) {
@@ -342,10 +382,15 @@ void __interrupt ISR (void) {
         CCP1IF = false;
         TMR1ON = false;
         timeouts++;
+        #ifdef TEST_2
+        LED=false;
+        #endif
+    #ifdef _I2C_H
     } else if (I2C_ISR_COLLISION_CONDITION()) {
         I2C_BusCollisionISR();
     } else if (I2C_ISR_EVENT_CONDITION()) {
         I2C_ISR();
+    #endif
     } else {
         //Unhandled Interrupt
     }
@@ -368,10 +413,14 @@ void ProcesaHCI() {
     if (RxMessage.check) {
         pendingmsg = true;
         lengthrx = RxMessage.size;
+        #ifdef TEST_2
+        LED=true;
+        StartTimerDelayMs(100);
+        #endif
     }
 }
 
-/*
+#ifdef SERIAL_DEVICE_H
 void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo) {
     unsigned char aux=0;
     if (!largo)
@@ -380,4 +429,4 @@ void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo) {
     while (aux<largo)
         EUSART_Write(*(arreglo+(aux++)));
 }
-//*/
+#endif
