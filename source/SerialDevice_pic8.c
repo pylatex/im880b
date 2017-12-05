@@ -42,6 +42,7 @@ SerialDevice_Open(const unsigned char  *comPort,
     ////1: (En reset,SPBRG=0). Usar BRG16=1 y BRGH=1. Velocidades despues de PLL (si lo hay)
     SPBRG=16;   //Fosc=8 MHz (ejm,interno)
     //SPBRG=15;   //Fosc=7.3728 MHz (externo)
+    //SPBRG=207;   //Fosc=8 MHz (ejm,interno), 9600 Baud
     #ifdef _18F2550
     SYNC=false; //2. Modo Asincrono
     #endif

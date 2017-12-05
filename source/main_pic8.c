@@ -134,6 +134,7 @@ void setup (void) {
     RB4PPS=0x13;
     SSPDATPPS = 0x0C;   //RB4->MSSP:SDA;
     SSPCLKPPS = 0x0E;   //RB6->MSSP:SCL;
+    ANSELB=0;       //Todos los pines son digitales.
 
     PPSLOCK = 0x55;
     PPSLOCK = 0xAA;
