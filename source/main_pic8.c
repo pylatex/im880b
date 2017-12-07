@@ -166,12 +166,15 @@ void enableInterrupts (void) {
 void main(void)
 {
     setup();
-
+    #ifdef T6700_H
     unsigned char *respuesta;
+    #endif
+    #ifdef SMACH
     enum {
         RESET, TestUART, GetNwkStatus, NWKinactive, NWKjoining, NODEidleActive, 
         NWKaccept, SENSprocess
     } status = RESET; //Initial State for the machine of Main.
+    #endif
 
     enableInterrupts();
 
