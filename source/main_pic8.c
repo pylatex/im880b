@@ -20,16 +20,15 @@
 #include <stdio.h>
 #endif
 #include <xc.h>
-#if defined SMACH || defined TEST_1 || defined TEST_2 || defined TEST_3
+#if defined SMACH || defined TEST_2
 #include "WMLW_APIconsts.h"
 #include "hci_stack.h"
 #endif
 #if defined TEST_1 || defined TEST_3
 #include "SerialDevice.h"
 #endif
-#if defined SMACH || defined TEST_2 || defined TEST_3
+#if defined SMACH || defined TEST_3
 #include "i2c.h"
-extern uint8_t I2C_ErrorCountGet(void);
 #include "T67xx.h"
 #endif
 
@@ -73,9 +72,10 @@ void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo);
 #endif
 
 volatile unsigned char rx_err; //Relacionados con el receptor
-//volatile unsigned char buffer[20]; //Buffer de salida
+#ifdef LORAWAN_HCI_H
 volatile static HCIMessage_t TxMessage;
 volatile static HCIMessage_t RxMessage;
+#endif
 volatile unsigned bool pendingmsg;
 volatile unsigned int lengthrx;
 volatile unsigned char timeouts;
@@ -150,7 +150,7 @@ void setup (void) {
     SerialDevice_Open("",8,0);
     #endif
     #ifdef LORAWAN_HCI_H
-    InitHCI(ProcesaHCI, &RxMessage);
+    InitHCI(ProcesaHCI,(HCIMessage_t *) &RxMessage);
     #endif
 }
 
@@ -182,7 +182,7 @@ void main(void)
             case RESET:
                 pendingmsg = false;
                 timeouts = 0;
-                if (InitHCI(ProcesaHCI, &RxMessage))
+                if (InitHCI(ProcesaHCI,(HCIMessage_t *) &RxMessage))
                     status = TestUART; //Full Duplex UART and Rx interruptions enabled
                 break;
             case TestUART:
@@ -191,7 +191,7 @@ void main(void)
                 TxMessage.MsgID = DEVMGMT_MSG_PING_REQ;
                 TxMessage.size = 0;
                 //Send Message
-                SendHCI(&TxMessage);
+                SendHCI((HCIMessage_t *)&TxMessage);
                 //Wait for TimeOut or HCI message and identify the situation:
                 StartTimerDelayMs(20);
                 while (TMR1ON && !pendingmsg); //Escapes at timeout or HCI received.
@@ -210,7 +210,7 @@ void main(void)
                 TxMessage.MsgID = LORAWAN_MSG_GET_NWK_STATUS_REQ;
                 TxMessage.size = 0;
                 //Send Message
-                SendHCI(&TxMessage);
+                SendHCI((HCIMessage_t *)&TxMessage);
                 //Wait for TimeOut or HCI message and identify the situation:
                 StartTimerDelayMs(20);
                 while (TMR1ON && !pendingmsg); //Escapes at timeout or HCI received.
@@ -243,7 +243,7 @@ void main(void)
                 TxMessage.MsgID = LORAWAN_MSG_JOIN_NETWORK_REQ;
                 TxMessage.size = 0;
                 //Send Message
-                SendHCI(&TxMessage);
+                SendHCI((HCIMessage_t *)&TxMessage);
                 //Wait for TimeOut or HCI message and identify the situation:
                 StartTimerDelayMs(20);
                 while (TMR1ON && !pendingmsg); //Escapes at timeout or HCI received.
@@ -294,7 +294,6 @@ void main(void)
             case NODEidleActive:
                 //Create more states to attend other HCI messages or modify this state
                 ms100(49);//Espera ~5 segundos
-                //LED=true;SLEEP();
                 status = SENSprocess;
                 break;
             case SENSprocess:
@@ -313,9 +312,8 @@ void main(void)
                     TxMessage.Payload[1]=0; //Lectura: Ninguna (Error de conexion con sensor)
                     TxMessage.size=2;
                 }
-                SendHCI(&TxMessage);
+                SendHCI((HCIMessage_t *)&TxMessage);
                 status = NODEidleActive;
-
                 ms100(1);   //Completa los 5 segundos...
                 LED=false;
                 break;
@@ -342,15 +340,6 @@ void main(void)
         ms100(10);
         #endif
 
-        //buffsal[0]=0x00;    //Registro
-        /*
-        buffsal[0]=T67XX_FC_GASPPM;
-        buffsal[1]=T67XX_GASPPM >> 8;
-        buffsal[2]=T67XX_GASPPM & 0x00FF;
-        buffsal[3]=0;
-        buffsal[4]=1;
-        //*/
-
         //Prueba 3: I2C hacia sensor CO2 Telaire T6713.
         #ifdef TEST_3
         respuesta=T67XX_Read(T67XX_GASPPM_FC,T67XX_GASPPM,4);
@@ -373,12 +362,15 @@ void main(void)
 }
 
 void __interrupt ISR (void) {
+    #ifdef LORAWAN_HCI_H
     if (RCIE && RCIF) {
         //Error reading
         rx_err=RCSTA;
         //As RCREG is argument, their reading implies the RCIF erasing
         IncomingHCIpacker(RCREG);
-    } else if (CCP1IE && CCP1IF) {
+    } else
+    #endif
+    if (CCP1IE && CCP1IF) {
         //TimeOut
         CCP1IF = false;
         TMR1ON = false;
@@ -406,6 +398,7 @@ void ms100 (unsigned char q) {
         __delay_ms(100);    //XC8 compiler
 }
 
+#ifdef LORAWAN_HCI_H
 /**
  * Handler for (pre)processing of an incoming HCI message. Once the user exits
  * from this handler function, the RxMessage.size variable gets cleared!
@@ -420,6 +413,7 @@ void ProcesaHCI() {
         #endif
     }
 }
+#endif
 
 #ifdef SERIAL_DEVICE_H
 void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo) {
