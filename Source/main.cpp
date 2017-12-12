@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "target.h"   //Open and modify to change the target system (WIN/UX)
-#include "WiMOD_LoRaWAN_API.h"
+#include "SerialDevice.h"
 #ifdef DEBUG
 #include <time.h>
 #endif // DEBUG
@@ -40,6 +40,34 @@ static void     GetLWstatus();
 //------------------------------------------------------------------------------
 
 /**
+ * Envio de mensaje por UART
+ */
+void SolicitaSensor() {
+    unsigned char orden[] = {0x68,0x01,0x04,0x93};
+    SerialDevice_SendData(orden,4);
+}
+
+#define MAXIMO_SENSOR 32
+/**
+ * Procesamiento de mensaje UART entrante
+ */
+void RespuestaSensor() {
+    UINT8   rxBuf[MAXIMO_SENSOR];
+
+    // read small chunk of data
+    int rxLength = SerialDevice_ReadData(rxBuf, MAXIMO_SENSOR);
+
+    // data available ?
+    //void SLIP_DecodeData(UINT8 *srcData, int srcLength)
+    // iterate over all received bytes
+    printf("Respuesta:");
+    for (unsigned char i=0;i<rxLength;i++) {
+        printf(" %2X",rxBuf[i]);
+    }
+    printf("\n\r");
+}
+
+/**
  * Main
  */
 int main(int argc, char *argv[])
@@ -60,7 +88,7 @@ int main(int argc, char *argv[])
     }
 
     // init interface:
-    if(!WiMOD_LoRaWAN_Init(comPort))
+    if(!SerialDevice_Open(comPort,9600,8,0))
     {
         printf("error - couldn't open interface on comport %s\r\n",comPort);
         printf("try: WiMOD_LoRaWAN_HCI_C_ExampleCode COMxy to select another comport\n\r");
@@ -74,7 +102,7 @@ int main(int argc, char *argv[])
     // main loop
     while(run) {
         // handle receiver process
-        WiMOD_LoRaWAN_Process();
+        RespuestaSensor();
 
         // keyboard pressed ?
         if(kbhit())
@@ -93,39 +121,9 @@ int main(int argc, char *argv[])
                     run = false;
                     break;
 
-                case 'i':
-                    // get device info
-                    GetDeviceInfo();
-                    break;
-
-                case 'p':
-                    // ping device
-                    Ping();
-                    break;
-
-                case 'j':
-                    // join network
-                    Join();
-                    break;
-
-                case 'u':
-                    // send u-data
-                    SendUData();
-                    break;
-
-                case 'c':
-                    // send c-data
-                    SendCData();
-                    break;
-
                 case 't':
-                    // get time from module
-                    GetTime();
-                    break;
-
-                case 'n':
-                    // get network status
-                    GetLWstatus();
+                    // Obtener Temperatura
+                    SolicitaSensor();
                     break;
 
                 case ' ':
@@ -152,106 +150,11 @@ void ShowMenu(const char* comPort) {
     printf("Using comport: %s\r\n", comPort);
     printf("------------------------------\n\r");
     printf("[SPACE]\t: show this menu\n\r");
-    printf("[p]\t: ping device\n\r");
-    printf("[i]\t: get device information\n\r");
-    printf("[j]\t: join network request\n\r");
-    printf("[u]\t: send unconfirmed radio message\n\r");
-    printf("[c]\t: send confirmed radio message\n\r");
     printf("[t]\t: get time from module\n\r");
-    printf("[n]\t: get network status\n\r");
     printf("[q]\t: exit program\n\r");
     #ifdef DEBUG
     printf("[f]\t: DEBUG - Get CLOCKS_PER_SEC value\n\r");
     #endif // DEBUG
-}
-
-/**
- * Ping
- * @brief: ping device
- */
-void Ping() {
-    printf("ping request\n\r");
-
-    WiMOD_LoRaWAN_SendPing();
-}
-
-/**
- * GetDeviceInfo
- * @brief: get device information
- */
-void GetDeviceInfo() {
-    printf("get firmware version\n\r");
-
-    WiMOD_LoRaWAN_GetFirmwareVersion();
-}
-
-/**
- * Join
- * @brief: ping device
- */
-void Join() {
-    printf("join network request\n\r");
-
-    WiMOD_LoRaWAN_JoinNetworkRequest();
-}
-
-/**
- * SendUData
- * @brief: send unconfirmed radio message
- */
-void SendUData() {
-    printf("send U-Data\n\r");
-
-    // port 0x21
-    const UINT8 port = 0x21;
-
-    const UINT8 data[]={0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe,0xca,0xfe};
-    /*
-    UINT8 data[4];
-
-    data[0] = 0x01;
-    data[1] = 0x02;
-    data[2] = 0x03;
-    data[3] = 0x04;
-    */
-
-    // send unconfirmed radio message
-    WiMOD_LoRaWAN_SendURadioData(port, (unsigned char*)data, 200);
-}
-
-/**
- * SendCData
- * @brief: send confirmed radio message
- */
-void SendCData() {
-    printf("send C-Data\n\r");
-
-    // port 0x21
-    UINT8 port = 0x23;
-
-    UINT8 data[6];
-
-    data[0] = 0x0A;
-    data[1] = 0x0B;
-    data[2] = 0x0C;
-    data[3] = 0x0D;
-    data[4] = 0x0E;
-    data[5] = 0x0F;
-
-    // send unconfirmed radio message
-    WiMOD_LoRaWAN_SendCRadioData(port, data, 6);
-}
-
-static void     GetTime() {
-    printf("get Time\n\r");
-
-    WiMOD_LoRaWAN_GetTime();
-}
-
-static void     GetLWstatus() {
-    printf("get LoRaWAN Network Status\n\r");
-
-    WiMOD_LoRaWAN_GetNetworkStatus();
 }
 //------------------------------------------------------------------------------
 // end of file
