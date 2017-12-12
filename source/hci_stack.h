@@ -9,7 +9,7 @@
  */
 
 #ifndef LORAWAN_HCI_H
-#define	LORAWAN_HCI_H
+#define LORAWAN_HCI_H
 
 #ifdef	__cplusplus
 extern "C" {
@@ -33,7 +33,6 @@ extern "C" {
     #define SLIP_ESC_ESC    0xDD
 
     //Not so sure about the following defs:
-    #define WIMOD_HCI_MSG_HEADER_SIZE       2
     #define WIMOD_HCI_MSG_PAYLOAD_SIZE      200
     #define WIMOD_HCI_MSG_FCS_SIZE          2
 

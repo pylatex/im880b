@@ -21,7 +21,7 @@
 #endif
 #include <xc.h>
 #if defined SMACH || defined TEST_2
-#include "WMLW_APIconsts.h"
+#include "WMLW_API.h"
 #include "hci_stack.h"
 #endif
 #if defined TEST_1 || defined TEST_3

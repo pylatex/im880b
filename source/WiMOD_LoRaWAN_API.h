@@ -22,7 +22,7 @@ extern "C" {
 
     #include <stdint.h>
     #include <stdbool.h>
-    #include "WMLW_APIconsts.h"
+    #include "WMLW_API.h"
 
     //------------------------------------------------------------------------------
     //  General Declarations
