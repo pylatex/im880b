@@ -7,13 +7,13 @@
       <itemPath>source/CRC16.h</itemPath>
       <itemPath>source/SLIP.h</itemPath>
       <itemPath>source/SerialDevice.h</itemPath>
-      <itemPath>source/WMLW_APIconsts.h</itemPath>
       <itemPath>source/WiMOD_HCI_Layer.h</itemPath>
       <itemPath>source/WiMOD_LoRaWAN_API.h</itemPath>
       <itemPath>source/crc16modbus.h</itemPath>
       <itemPath>source/hci_stack.h</itemPath>
       <itemPath>source/i2c.h</itemPath>
       <itemPath>source/T67xx.h</itemPath>
+      <itemPath>source/WMLW_API.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
