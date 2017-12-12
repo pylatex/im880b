@@ -40,6 +40,22 @@ extern "C" {
     #define HIBYTE(x)                       ((UINT16)(x) >> 8)
 
     //So sure about this typedefs
+    typedef union {
+        struct {
+        unsigned char   SapID;      // Service Access Point Identifier
+        unsigned char   MsgID;      // Message Identifier
+        unsigned char   Payload[];  // Payload Field
+        };
+        unsigned char   HCI[];      // The whole HCI message, without CRC field
+    } HCImsg_t;
+
+    typedef struct {
+        unsigned int    size;   // Payload Length, won't be transmitted over UART!!!
+        bool            check;  // Checksum verifying bit
+        unsigned char   CRC[WIMOD_HCI_MSG_FCS_SIZE];    // Frame Check Sequence Field
+        HCImsg_t       *HCImsg;
+    }HCIMessage_t2;
+
     typedef struct
     {
         unsigned int        size; // Payload Length, won't be transmitted over UART!!!
