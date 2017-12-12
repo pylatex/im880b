@@ -29,8 +29,12 @@ typedef uint16_t                        UINT16;
 #define WIMOD_HCI_MSG_PAYLOAD_SIZE      300
 #define WIMOD_HCI_MSG_FCS_SIZE          2
 
+#ifndef LOBYTE
 #define LOBYTE(x)                       (x)
+#endif // LOBYTE
+#ifndef HIBYTE
 #define HIBYTE(x)                       ((UINT16)(x) >> 8)
+#endif // HIBYTE
 
 /**
  * HCI Message Structure (internal software usage)

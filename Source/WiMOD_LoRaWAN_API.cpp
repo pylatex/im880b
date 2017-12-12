@@ -21,8 +21,12 @@
 #include <time.h>
 #endif // DEBUG
 
+#ifndef MAKEWORD
 #define MAKEWORD(lo,hi) ((lo)|((hi) << 8))
+#endif // MAKEWORD
+#ifndef MAKELONG
 #define MAKELONG(lo,hi) ((lo)|((hi) << 16))
+#endif // MAKELONG
 
 //------------------------------------------------------------------------------
 //  Forward Declarations

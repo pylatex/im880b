@@ -14,7 +14,6 @@
 #include <conio.h>
 #include <stdio.h>
 #include <string.h>
-#include "target.h"   //Open and modify to change the target system (WIN/UX)
 #include "WiMOD_LoRaWAN_API.h"
 #ifdef DEBUG
 #include <time.h>
