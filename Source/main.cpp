@@ -25,13 +25,7 @@
 
 // forward declarations
 static void     ShowMenu(const char*);
-static void     Ping();
-static void     GetDeviceInfo();
-static void     Join();
-static void     SendUData();
-static void     SendCData();
-static void     GetTime();
-static void     GetLWstatus();
+int flag;
 
 #define DEF_PORT "COM5"  //Default port, in case of empty input
 
@@ -42,8 +36,20 @@ static void     GetLWstatus();
 /**
  * Envio de mensaje por UART
  */
-void SolicitaSensor() {
+void SolicitarMedida() {
     unsigned char orden[] = {0x68,0x01,0x04,0x93};
+    SerialDevice_SendData(orden,4);
+}
+
+void InciarMedicion() {
+    flag=1;
+    unsigned char orden[] = {0x68,0x01,0x01,0x96};
+    SerialDevice_SendData(orden,4);
+}
+
+void PararMedicion() {
+    flag=2;
+    unsigned char orden[] = {0x68,0x01,0x02,0x95};
     SerialDevice_SendData(orden,4);
 }
 
@@ -56,15 +62,38 @@ void RespuestaSensor() {
 
     // read small chunk of data
     int rxLength = SerialDevice_ReadData(rxBuf, MAXIMO_SENSOR);
-
-    // data available ?
-    //void SLIP_DecodeData(UINT8 *srcData, int srcLength)
-    // iterate over all received bytes
-    printf("Respuesta:");
-    for (unsigned char i=0;i<rxLength;i++) {
-        printf(" %2X",rxBuf[i]);
+    if (rxLength) { // data available ?
+        if (rxBuf[0]==0x96 && rxBuf[1] == 0x96) {
+            //Instruccion no aceptada por el sensor
+            printf("Algo Malio Sal. Reintente\r\n");
+            return;
+        }
+        else if ((rxBuf[0]==0x40)&&(rxBuf[1]==0x05)&&(rxBuf[2]==0x04))
+        {
+            //Mostrar mediciones
+            printf(" PM 2.5: %d, PM 10: %d\r\n",((rxBuf[3]<<8)+rxBuf[4]),((rxBuf[5]<<8)+rxBuf[6]));
+        }
+        else if ((rxBuf[0]==0xA5)&&(rxBuf[1]==0xA5))
+        {
+            if(flag == 1)
+            {
+                    printf(" Medicion Iniciada\r\n");
+            }
+            else{
+                printf(" Medicion Detenida\r\n");
+            }
+        } else {
+            //Caso por defecto, procesamiento no implementado.
+            printf("Respuesta (%i):",rxLength);
+            for (unsigned char i=0;i<rxLength;i++) {
+                printf(" %02X",rxBuf[i]);
+            }
+            printf("\n\r");
+        }
+        #ifdef DEBUG
+        printf("%d\n\r",(int)clock());
+        #endif // DEBUG
     }
-    printf("\n\r");
 }
 
 /**
@@ -122,8 +151,18 @@ int main(int argc, char *argv[])
                     break;
 
                 case 't':
-                    // Obtener Temperatura
-                    SolicitaSensor();
+                    // Obtener medida
+                    SolicitarMedida();
+                    break;
+
+                case 'i':
+                    // inciar medicion
+                    InciarMedicion();
+                    break;
+
+                case 's':
+                    // parar medicion
+                    PararMedicion();
                     break;
 
                 case ' ':
@@ -150,7 +189,9 @@ void ShowMenu(const char* comPort) {
     printf("Using comport: %s\r\n", comPort);
     printf("------------------------------\n\r");
     printf("[SPACE]\t: show this menu\n\r");
-    printf("[t]\t: get time from module\n\r");
+    printf("[i]\t: Start measure from module\n\r");
+    printf("[s]\t: End measure from module\n\r");
+    printf("[t]\t: get measure from module\n\r");
     printf("[q]\t: exit program\n\r");
     #ifdef DEBUG
     printf("[f]\t: DEBUG - Get CLOCKS_PER_SEC value\n\r");
