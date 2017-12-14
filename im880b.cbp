@@ -13,6 +13,7 @@
 				<Option compiler="gcc" />
 				<Option parameters="COM5" />
 				<Compiler>
+					<Add option="-std=c99" />
 					<Add option="-g" />
 				</Compiler>
 			</Target>
@@ -43,6 +44,10 @@
 		<Unit filename="Source/WiMOD_HCI_Layer.h" />
 		<Unit filename="Source/WiMOD_LoRaWAN_API.cpp" />
 		<Unit filename="Source/WiMOD_LoRaWAN_API.h" />
+		<Unit filename="Source/hpm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Source/hpm.h" />
 		<Unit filename="Source/main.cpp" />
 		<Unit filename="Source/target.h" />
 		<Extensions>
