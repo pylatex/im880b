@@ -8,14 +8,15 @@
  */
 
 //MODOS DE COMPILACION. Descomentar el que se quiera probar:
-#define SMACH       //Maquina de estados (principal)
+//#define SMACH       //Maquina de estados (principal)
 //#define TEST_1      //Verificacion UART/Reloj
 //#define TEST_2      //Verificacion comunicacion PIC-WiMOD
 //#define TEST_3      //Verificacion I2C(con sensor CO2 de Telaire)/UART
+//#define TEST_4      //Medicion ADC y envio por UART
 //------------------------------------------------------------------------------
 //  Definitions and Setup
 //------------------------------------------------------------------------------
-#if defined TEST_1 || defined TEST_3
+#if defined TEST_1 || defined TEST_3 || defined TEST_4
 #include <string.h>
 #include <stdio.h>
 #endif
@@ -24,7 +25,7 @@
 #include "WMLW_APIconsts.h"
 #include "hci_stack.h"
 #endif
-#if defined TEST_1 || defined TEST_3
+#if defined TEST_1 || defined TEST_3 || defined TEST_4
 #include "SerialDevice.h"
 #endif
 #if defined SMACH || defined TEST_3
@@ -45,7 +46,7 @@
 #pragma config CCP2MX = ON, PBADEN = OFF, LPT1OSC = ON, MCLRE =	ON
 #pragma config STVREN = OFF, LVP = OFF, DEBUG=OFF, XINST = OFF
 
-#define LED LATA0 //Para las pruebas de parpadeo y ping
+#define LED LATA1 //Para las pruebas de parpadeo y ping
 //#define PIN RC0   //Para probar en un loop con LED=PIN
 #endif
 
@@ -110,10 +111,14 @@ void setup (void) {
     #ifdef _18F2550
     OSCCON=0x73;    //Internal at 8 MHz
     while(!IOFS);   //Waits for stabilization
-    ADCON1=0x0F;    //All pins as digital
+    //ADCON1=0x0F;    //All pins as digital
     PORTA=0;
     LATA=0;
-    TRISA=0xFE; //RA0 as output
+    TRISA=0xFD; //RA0 as output
+
+    //Inicializacion del ADC
+    ADCON1=0x0E;
+    ADCON2=0x83;
     #endif
 
     #ifdef _16F1769
@@ -176,7 +181,9 @@ void main(void)
     } status = RESET; //Initial State for the machine of Main.
     #endif
 
+    #ifndef TEST_4
     enableInterrupts();
+    #endif
 
     while (true) {
         //State Machine Description
@@ -361,6 +368,16 @@ void main(void)
         LED=false;
         ms100(5);
         #endif
+
+        //Prueba 4: Medicion ADC y envio por UART
+        #ifdef TEST_4
+        ADCON0=0x03;    //Inicia Medicion en AD0
+        while(GO);      //Se queda esperando hasta que acabe la conversion
+        unsigned char phrase[15],phlen;
+        phlen=sprintf(phrase,"ADC:%u\n\r",ADRES);
+        enviaMsgSerie(phrase,phlen);
+        ms100(10);
+        #endif
     }
 }
 
@@ -381,13 +398,15 @@ void __interrupt ISR (void) {
         #ifdef TEST_2
         LED=false;
         #endif
+    }
     #ifdef _I2C_H
-    } else if (I2C_ISR_COLLISION_CONDITION()) {
+    else if (I2C_ISR_COLLISION_CONDITION()) {
         I2C_BusCollisionISR();
     } else if (I2C_ISR_EVENT_CONDITION()) {
         I2C_ISR();
+    }
     #endif
-    } else {
+    else {
         //Unhandled Interrupt
     }
 }
