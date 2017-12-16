@@ -1,10 +1,10 @@
 //------------------------------------------------------------------------------
 //
-//	File:		WiMOD_HCI_Layer.h
-//	Abstract:	WiMOD HCI Message Layer
-//	Version:	0.1
-//	Date:		18.05.2016
-//	Disclaimer:	This example code is provided by IMST GmbH on an "AS IS"
+// File:		WiMOD_HCI_Layer.h
+// Abstract:	WiMOD HCI Message Layer
+// Version:	0.1
+// Date:		18.05.2016
+// Disclaimer:	This example code is provided by IMST GmbH on an "AS IS"
 //              basis without any warranties.
 //
 //------------------------------------------------------------------------------
@@ -15,16 +15,16 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     //  Include Files
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
 
     #include <stdint.h>
     #include <stdbool.h>
 
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     //  General Declarations & Definitions
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
 
     typedef unsigned char                   UINT8;
     typedef uint16_t                        UINT16;
@@ -33,10 +33,12 @@ extern "C" {
     #define WIMOD_HCI_MSG_PAYLOAD_SIZE      300
     #define WIMOD_HCI_MSG_FCS_SIZE          2
 
+    #ifndef LOBYTE
     #define LOBYTE(x)                       (x)
+    #endif // LOBYTE
+    #ifndef HIBYTE
     #define HIBYTE(x)                       ((UINT16)(x) >> 8)
-
-    #define WMLWbaudrate    115200
+    #endif // HIBYTE
 
     //HCI Message Structure (internal software usage)
     typedef struct
@@ -59,9 +61,9 @@ extern "C" {
 
     }TWiMOD_HCI_Message;
 
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     //  Function Prototypes
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
 
     //Message receiver callback
     typedef TWiMOD_HCI_Message *(*TWiMOD_HCI_CbRxMessage)(TWiMOD_HCI_Message *rxMessage);
@@ -69,8 +71,8 @@ extern "C" {
     //Init HCI Layer
     bool
     WiMOD_HCI_Init(const unsigned char     *comPort,
-                   TWiMOD_HCI_CbRxMessage   cbRxMessage,
-                   TWiMOD_HCI_Message      *rxMessage);
+               TWiMOD_HCI_CbRxMessage   cbRxMessage,
+               TWiMOD_HCI_Message      *rxMessage);
 
     //Send HCI Message
     int

@@ -9,6 +9,30 @@
 //
 //------------------------------------------------------------------------------
 
+#ifdef  Q_OS_WIN
+
+#include <windows.h>
+
+#define Baudrate_9600       9600
+#define Baudrate_115200     115200
+#define DataBits_7          7
+#define DataBits_8          8
+#define Parity_Even         EVENPARITY
+#define Parity_None         NOPARITY
+
+#endif // Q_OS_WIN
+
+#ifdef Q_OS_UX
+
+#include <termios.h>
+
+#define Baudrate_9600       B9600
+#define Baudrate_115200     B115200
+#define DataBits_7          CS7
+#define DataBits_8          CS8
+
+#endif // Q_OS_UX
+
 //------------------------------------------------------------------------------
 // Include Files
 //------------------------------------------------------------------------------

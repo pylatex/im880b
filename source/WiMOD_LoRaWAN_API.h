@@ -16,17 +16,17 @@
 extern "C" {
 #endif
 
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     //  Include Files
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
 
     #include <stdint.h>
     #include <stdbool.h>
     #include "WMLW_API.h"
 
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     //  General Declarations
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
 
     typedef uint8_t     UINT8;
     typedef uint16_t    UINT16;
@@ -39,9 +39,9 @@ extern "C" {
         const char *String;
     }TIDString;
 
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     //  Function Prototypes
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
 
     // init
     bool
@@ -61,15 +61,23 @@ extern "C" {
 
     // send unconfirmed radio data
     int
-    WiMOD_LoRaWAN_SendURadioData(UINT8 port, UINT8 *data, int length);
+    WiMOD_LoRaWAN_SendURadioData(UINT8 port, UINT8 *data, UINT8 length);
 
     // send confirmed radio data
     int
-    WiMOD_LoRaWAN_SendCRadioData(UINT8 port, UINT8 *data, int length);
+    WiMOD_LoRaWAN_SendCRadioData(UINT8 port, UINT8 *data, UINT8 length);
 
     // receiver process
     void
     WiMOD_LoRaWAN_Process();
+
+    // ask the time from module's RTC
+    int
+    WiMOD_LoRaWAN_GetTime();
+
+    // get the LoRaWAN Network status of the device
+    int
+    WiMOD_LoRaWAN_GetNetworkStatus();
 
 #ifdef	__cplusplus
 }

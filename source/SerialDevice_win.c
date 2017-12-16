@@ -13,22 +13,31 @@
 //------------------------------------------------------------------------------
 //  Include Files
 //------------------------------------------------------------------------------
-#include "SerialDevice.h"
-#include <stdbool.h>
-#include <windows.h>
-#define Baudrate_9600       9600
-#define Baudrate_115200     115200
-#define DataBits_7          7
-#define DataBits_8          8
-#define Parity_Even         EVENPARITY
-#define Parity_None         NOPARITY
 
+#include "SerialDevice.h"
+
+#ifdef  Q_OS_WIN
+#include <windows.h>
+#endif // Q_OS_WIN
+#ifdef Q_OS_UX
+//#include <stdio.h>   /* Standard input/output definitions */
+#include <string.h>  /* String function definitions */
+#include <unistd.h>  /* UNIX standard function definitions */
+#include <fcntl.h>   /* File control definitions */
+//#include <errno.h>   /* Error number definitions */
+#include <termios.h> /* POSIX terminal control definitions */
+#endif // Q_OS_UX
 //------------------------------------------------------------------------------
 //  Section RAM
 //------------------------------------------------------------------------------
 
+#ifdef Q_OS_WIN
 // File Handle
 static HANDLE   ComHandle = INVALID_HANDLE_VALUE;
+#endif
+#ifdef Q_OS_UX
+static int fd = -1; // File descriptor for the port
+#endif // Q_OS_UX
 
 //------------------------------------------------------------------------------
 //  Section Code
@@ -45,9 +54,8 @@ SerialDevice_Open(const unsigned char  *comPort,
                   int                   dataBits,
                   UINT8                 parity)
 {
-    //POR HACER: el primer argumento ya no es un string, hay que armarlo aca
-    //si se requiere.
 
+#ifdef Q_OS_WIN
     // handle valid ?
     if (ComHandle != INVALID_HANDLE_VALUE)
         SerialDevice_Close();
@@ -106,6 +114,39 @@ SerialDevice_Open(const unsigned char  *comPort,
         // close device
         SerialDevice_Close();
     }
+#endif // Q_OS_WIN
+#ifdef Q_OS_UX
+    char devName[80];
+    struct termios options;
+
+    strcpy(devName, comPort);
+
+    fd = open(devName, O_RDWR | O_NOCTTY | O_NDELAY);
+    if (fd == -1)
+    {
+        /*
+        * Could not open the port.
+        */
+
+        return false;
+    }
+    else {
+        fcntl(fd, F_SETFL, 0);
+
+        //Get the current options for the port
+        tcgetattr(fd, &options);
+        //Set baud rates
+        cfsetispeed(&options, baudRate);
+        cfsetospeed(&options, baudRate);
+        options.c_cflag &= ~CSIZE; /* Mask the character size bits */
+        options.c_cflag |= dataBits;    /* Select 8 data bits */
+        //Enable the receiver and set local mode
+        options.c_cflag |= (CLOCAL | CREAD);
+        //Set the new options for the port
+        tcsetattr(fd, TCSANOW, &options);
+    }
+    return (fd);
+#endif // Q_OS_UX
     // error
     return false;
 
@@ -118,6 +159,7 @@ SerialDevice_Open(const unsigned char  *comPort,
 bool
 SerialDevice_Close()
 {
+#ifdef Q_OS_WIN
     // handle valid ?
     if (ComHandle != INVALID_HANDLE_VALUE) {
         // cancel last operation
@@ -135,6 +177,10 @@ SerialDevice_Close()
         // ok
         return true;
     }
+#else
+    // Todo : add your own platform specific code here
+#endif
+    // error
     return false;
 }
 
@@ -145,6 +191,7 @@ SerialDevice_Close()
 int
 SerialDevice_SendData(UINT8 *txBuffer, UINT8 txLength)
 {
+#ifdef Q_OS_WIN
     // handle valid ?
     if (ComHandle == INVALID_HANDLE_VALUE)
         return -1;
@@ -163,6 +210,16 @@ SerialDevice_SendData(UINT8 *txBuffer, UINT8 txLength)
         // ok
         return numTxBytes;
     }
+#endif // Q_OS_WIN
+#ifdef Q_OS_UX
+    unsigned int n = write(fd, txBuffer, txLength);
+    if (n < 0)
+        return -1;
+    else
+        return n;
+#endif // Q_OS_UX
+    // error
+    return -1;
 }
 
 /**
@@ -172,6 +229,7 @@ SerialDevice_SendData(UINT8 *txBuffer, UINT8 txLength)
 int
 SerialDevice_SendByte(UINT8 txByte)
 {
+#ifdef Q_OS_WIN
     // handle valid ?
     if (ComHandle == INVALID_HANDLE_VALUE)
         return -1;
@@ -190,6 +248,9 @@ SerialDevice_SendByte(UINT8 txByte)
         // ok
         return numTxBytes;
     }
+#else
+    // Todo : add your own platform specific code here
+#endif
     // error
     return -1;
 }
@@ -201,6 +262,7 @@ SerialDevice_SendByte(UINT8 txByte)
 int
 SerialDevice_ReadData(UINT8 *rxBuffer, int rxBufferSize)
 {
+#ifdef  Q_OS_WIN
     // handle ok ?
     if (ComHandle == INVALID_HANDLE_VALUE)
         return -1;
@@ -213,6 +275,9 @@ SerialDevice_ReadData(UINT8 *rxBuffer, int rxBufferSize)
         // return number of bytes read
         return (int)numRxBytes;
     }
+#else
+    // Todo : add your own platform specific code here
+#endif
     // error
     return -1;
 }
