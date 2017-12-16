@@ -21,7 +21,7 @@
 #endif
 #include <xc.h>
 #if defined SMACH || defined TEST_2
-#include "WMLW_API.h"
+#include "WiMOD_LoRaWAN_API.h"
 #include "hci_stack.h"
 #endif
 #if defined TEST_1 || defined TEST_3
@@ -73,7 +73,6 @@ void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo);
 
 volatile unsigned char rx_err; //Relacionados con el receptor
 #ifdef LORAWAN_HCI_H
-volatile static HCIMessage_t TxMessage;
 volatile static HCIMessage_t RxMessage;
 #endif
 volatile unsigned bool pendingmsg;
@@ -189,12 +188,7 @@ void main(void)
                     status = TestUART; //Full Duplex UART and Rx interruptions enabled
                 break;
             case TestUART:
-                //Message Setup
-                TxMessage.SapID = DEVMGMT_ID;
-                TxMessage.MsgID = DEVMGMT_MSG_PING_REQ;
-                TxMessage.size = 0;
-                //Send Message
-                SendHCI((HCIMessage_t *)&TxMessage);
+                WiMOD_LoRaWAN_SendPing();
                 //Wait for TimeOut or HCI message and identify the situation:
                 StartTimerDelayMs(20);
                 while (TMR1ON && !pendingmsg); //Escapes at timeout or HCI received.
@@ -208,12 +202,7 @@ void main(void)
                 }
                 break;
             case GetNwkStatus:
-                //Message Setup
-                TxMessage.SapID = LORAWAN_ID;
-                TxMessage.MsgID = LORAWAN_MSG_GET_NWK_STATUS_REQ;
-                TxMessage.size = 0;
-                //Send Message
-                SendHCI((HCIMessage_t *)&TxMessage);
+                WiMOD_LoRaWAN_GetNetworkStatus();
                 //Wait for TimeOut or HCI message and identify the situation:
                 StartTimerDelayMs(20);
                 while (TMR1ON && !pendingmsg); //Escapes at timeout or HCI received.
@@ -241,12 +230,7 @@ void main(void)
                 }
                 break;
             case NWKinactive:
-                //Message Setup
-                TxMessage.SapID = LORAWAN_ID;
-                TxMessage.MsgID = LORAWAN_MSG_JOIN_NETWORK_REQ;
-                TxMessage.size = 0;
-                //Send Message
-                SendHCI((HCIMessage_t *)&TxMessage);
+                WiMOD_LoRaWAN_JoinNetworkRequest();
                 //Wait for TimeOut or HCI message and identify the situation:
                 StartTimerDelayMs(20);
                 while (TMR1ON && !pendingmsg); //Escapes at timeout or HCI received.
@@ -303,19 +287,17 @@ void main(void)
                 LED=true;
                 //Starts an I2C reading and decides upon the response.
                 respuesta=T67XX_Read(T67XX_GASPPM_FC,T67XX_GASPPM,4);
-                TxMessage.SapID=LORAWAN_ID;
-                TxMessage.MsgID=LORAWAN_MSG_SEND_UDATA_REQ;
-                TxMessage.Payload[0]=5; //Puerto LoRaWAN
+                unsigned char carga[5],peso;
                 if (respuesta) {
-                    TxMessage.Payload[1]=1; //Lectura: CO2
-                    TxMessage.Payload[2]=respuesta[2];  //MSB
-                    TxMessage.Payload[3]=respuesta[3];  //LSB
-                    TxMessage.size=4;
+                    carga[0]=1; //Lectura: CO2
+                    carga[1]=respuesta[2];  //MSB
+                    carga[2]=respuesta[3];  //LSB
+                    peso=3;
                 } else {
-                    TxMessage.Payload[1]=0; //Lectura: Ninguna (Error de conexion con sensor)
-                    TxMessage.size=2;
+                    carga[0]=0; //Lectura: Ninguna (Error de conexion con sensor)
+                    peso=1;
                 }
-                SendHCI((HCIMessage_t *)&TxMessage);
+                WiMOD_LoRaWAN_SendURadioData(5, carga, peso);
                 status = NODEidleActive;
                 ms100(1);   //Completa los 5 segundos...
                 LED=false;
@@ -336,10 +318,7 @@ void main(void)
 
         //Prueba 2: Envio de Ping hacia iM880B (puede verse con WiMOD LoRaWAN DevTool)
         #ifdef TEST_2
-        TxMessage.SapID = DEVMGMT_ID;           //Message Setup
-        TxMessage.MsgID = DEVMGMT_MSG_PING_REQ;
-        TxMessage.size = 0;
-        SendHCI(&TxMessage);                    //Send Message
+        WiMOD_LoRaWAN_SendPing();
         ms100(10);
         #endif
 

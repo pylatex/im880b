@@ -58,7 +58,7 @@ extern "C" {
 
     typedef struct
     {
-        unsigned int        size; // Payload Length, won't be transmitted over UART!!!
+        unsigned char       size; // Payload Length, won't be transmitted over UART!!!
         bool                check;     //Checksum verifying bit
         union {
             struct {

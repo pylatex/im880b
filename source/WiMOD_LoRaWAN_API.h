@@ -61,11 +61,11 @@ extern "C" {
 
     // send unconfirmed radio data
     int
-    WiMOD_LoRaWAN_SendURadioData(UINT8 port, UINT8 *data, int length);
+    WiMOD_LoRaWAN_SendURadioData(UINT8 port, UINT8 *data, UINT8 length);
 
     // send confirmed radio data
     int
-    WiMOD_LoRaWAN_SendCRadioData(UINT8 port, UINT8 *data, int length);
+    WiMOD_LoRaWAN_SendCRadioData(UINT8 port, UINT8 *data, UINT8 length);
 
     // receiver process
     void

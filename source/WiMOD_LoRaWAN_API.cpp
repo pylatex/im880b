@@ -184,7 +184,7 @@ WiMOD_LoRaWAN_JoinNetworkRequest()
 int
 WiMOD_LoRaWAN_SendURadioData(UINT8  port,       // LoRaWAN Port
                              UINT8 *srcData,    // application payload
-                             int    srcLength)  // length of application payload
+                             UINT8  srcLength)  // length of application payload
 {
     // 1. check length
     if (srcLength > (WIMOD_HCI_MSG_PAYLOAD_SIZE - 1))
@@ -216,7 +216,7 @@ WiMOD_LoRaWAN_SendURadioData(UINT8  port,       // LoRaWAN Port
 int
 WiMOD_LoRaWAN_SendCRadioData(UINT8  port,       // LoRaWAN Port
                              UINT8 *srcData,    // application data
-                             int    srcLength)  // length of application data
+                             UINT8  srcLength)  // length of application data
 {
     // 1. check length
     if (srcLength > (WIMOD_HCI_MSG_PAYLOAD_SIZE - 1))
