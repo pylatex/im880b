@@ -14,14 +14,18 @@
 //------------------------------------------------------------------------------
 #include <string.h>
 #include <stdio.h>
-#include "WiMOD_LoRaWAN_API.h"
-#include "WiMOD_HCI_Layer.h"
 #ifdef DEBUG
 #include <time.h>
 #endif // DEBUG
+#include "WiMOD_LoRaWAN_API.h"
+#include "WiMOD_HCI_Layer.h"
 
+#ifndef MAKEWORD
 #define MAKEWORD(lo,hi) ((lo)|((hi) << 8))
+#endif // MAKEWORD
+#ifndef MAKELONG
 #define MAKELONG(lo,hi) ((lo)|((hi) << 16))
+#endif // MAKELONG
 
 //------------------------------------------------------------------------------
 //  Forward Declarations
@@ -288,7 +292,7 @@ static TWiMOD_HCI_Message*
 WiMOD_LoRaWAN_Process_RxMessage(TWiMOD_HCI_Message  *rxMessage)
 {
     #ifdef DEBUG
-    printf("%d\n\r",(int)clock()); //DEPURACION. Se puede comentar
+    printf("%d\n\r",(int)clock());
     #endif // DEBUG
     switch(rxMessage->SapID)
     {

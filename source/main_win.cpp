@@ -1,15 +1,26 @@
 /*
+ * File:		main.cpp
+ * Abstract:	main module
+ * Version:	0.1
+ * Date:		18.05.2016
+ * Disclaimer:	This example code is provided by IMST GmbH on an "AS IS"
+ *              basis without any warranties.
+ *
  * La mayoria de archivos vienen del comprimido
  * WiMOD_LoRaWAN_ExampleCode_HCI_C_V0_1.zip
  * y han sido ligeramente modificados para soportar tipos estandar.
  */
-
+#define DEBUG
 //------------------------------------------------------------------------------
 //  Definitions and Setup
 //------------------------------------------------------------------------------
-//#include <string.h>
+#include <conio.h>
+#include <stdio.h>
+#include <string.h>
 #include "WiMOD_LoRaWAN_API.h"
-
+#ifdef DEBUG
+#include <time.h>
+#endif // DEBUG
 //------------------------------------------------------------------------------
 //  Declarations, Definitions and Variables
 //------------------------------------------------------------------------------
@@ -21,6 +32,10 @@ static void     GetDeviceInfo();
 static void     Join();
 static void     SendUData();
 static void     SendCData();
+static void     GetTime();
+static void     GetLWstatus();
+
+#define DEF_PORT "COM5"  //Default port, in case of empty input
 
 //------------------------------------------------------------------------------
 //  Section Code
@@ -42,7 +57,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        strcpy(comPort, defPORT);
+        strcpy(comPort, DEF_PORT);
         printf("usage: WiMOD_LoRaWAN_HCI_C_ExampleCode COMxy");
     }
 
@@ -70,44 +85,52 @@ int main(int argc, char *argv[])
             char cmd = getch();
 
             printf("%c\n\r",cmd);
-
+            #ifdef DEBUG
+            printf("%d\n\r",(int)clock());
+            #endif // DEBUG
             // handle commands
             switch(cmd)
             {
-                case    'e':
-                case    'x':
-                        run = false;
-                        break;
+                case 'q': //exit
+                    run = false;
+                    break;
 
-                case    'i':
-                        // get device info
-                        GetDeviceInfo();
-                        break;
+                case 'i': // get device info
+                    GetDeviceInfo();
+                    break;
 
+                case 'p': // ping device
+                    Ping();
+                    break;
 
-                case    'p':
-                        // ping device
-                        Ping();
-                        break;
+                case 'j': // join network
+                    Join();
+                    break;
 
-                case    'j':
-                        // join network
-                        Join();
-                        break;
+                case 'u': // send u-data
+                    SendUData();
+                    break;
 
-                case    'u':
-                        // send u-data
-                        SendUData();
-                        break;
+                case 'c': // send c-data
+                    SendCData();
+                    break;
 
-                case    'c':
-                        // send c-data
-                        SendCData();
-                        break;
+                case 't': // get time from module
+                    GetTime();
+                    break;
 
-                case    ' ':
-                        ShowMenu(comPort);
-                        break;
+                case 'n': // get network status
+                    GetLWstatus();
+                    break;
+
+                case ' ': //Print the menu
+                    ShowMenu(comPort);
+                    break;
+
+                #ifdef DEBUG
+                case 'f':
+                    printf("CLOCKS_PER_SEC=%d\n\r",(int)CLOCKS_PER_SEC);
+                #endif // DEBUG
             }
         }
     }
@@ -129,8 +152,12 @@ void ShowMenu(const char* comPort) {
     printf("[j]\t: join network request\n\r");
     printf("[u]\t: send unconfirmed radio message\n\r");
     printf("[c]\t: send confirmed radio message\n\r");
-    printf("[e|x]\t: exit program\n\r");
-
+    printf("[t]\t: get time from module\n\r");
+    printf("[n]\t: get network status\n\r");
+    printf("[q]\t: exit program\n\r");
+    #ifdef DEBUG
+    printf("[f]\t: DEBUG - Get CLOCKS_PER_SEC value\n\r");
+    #endif // DEBUG
 }
 
 /**
@@ -170,18 +197,11 @@ void Join() {
 void SendUData() {
     printf("send U-Data\n\r");
 
-    // port 0x21
-    UINT8 port = 0x21;
-
-    UINT8 data[4];
-
-    data[0] = 0x01;
-    data[1] = 0x02;
-    data[2] = 0x03;
-    data[3] = 0x04;
+    const UINT8 port = 0x21;
+    const UINT8 data[]={0x01,0x02,0x03,0x04};
 
     // send unconfirmed radio message
-    WiMOD_LoRaWAN_SendURadioData(port, data, 4);
+    WiMOD_LoRaWAN_SendURadioData(port, &data, 4);
 }
 
 /**
@@ -191,18 +211,32 @@ void SendUData() {
 void SendCData() {
     printf("send C-Data\n\r");
 
-    // port 0x21
-    UINT8 port = 0x23;
+    const UINT8 port = 0x23;
+    const UINT8 data[]={0x0A,0x0B,0x0C,0x0D,0x0E,0x0F};
 
-    UINT8 data[6];
-
-    data[0] = 0x0A;
-    data[1] = 0x0B;
-    data[2] = 0x0C;
-    data[3] = 0x0D;
-    data[4] = 0x0E;
-    data[5] = 0x0F;
-
-    // send unconfirmed radio message
+    // send confirmed radio message
     WiMOD_LoRaWAN_SendCRadioData(port, data, 6);
 }
+
+/**
+ * GetTime
+ * @brief: Prints the time as returned from iM880B RTC
+ */
+static void GetTime() {
+    printf("get Time\n\r");
+
+    WiMOD_LoRaWAN_GetTime();
+}
+
+/**
+ * GetLWstatus
+ * @brief: Get the LoRaWAN status of the iM88x
+ */
+static void     GetLWstatus() {
+    printf("get LoRaWAN Network Status\n\r");
+
+    WiMOD_LoRaWAN_GetNetworkStatus();
+}
+//------------------------------------------------------------------------------
+// end of file
+//------------------------------------------------------------------------------
