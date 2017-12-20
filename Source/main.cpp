@@ -27,6 +27,7 @@
 // forward declarations
 static void     ShowMenu(const char*);
 
+
 #define DEF_PORT "COM5"  //Default port, in case of empty input
 
 //------------------------------------------------------------------------------
@@ -65,10 +66,21 @@ int main(int argc, char *argv[])
     // show menu
     ShowMenu(comPort);
 
+    //
+    InicializacionHPM(SerialDevice_SendData);
+
+    #define MAXIMO_SENSOR 32
+
     // main loop
     while(run) {
         // handle receiver process
-        RespuestaSensor();
+        unsigned char   rxBuf[MAXIMO_SENSOR];
+
+        // read small chunk of data
+        int rxLength = SerialDevice_ReadData(rxBuf, MAXIMO_SENSOR);
+        if (rxLength) { // data available ?
+            RespuestaSensor(rxBuf,MAXIMO_SENSOR);
+        }
 
         // keyboard pressed ?
         if(kbhit())
@@ -93,12 +105,12 @@ int main(int argc, char *argv[])
                     break;
 
                 case 'i':
-                    // inciar medicion
+                    // inciar medición
                     InciarMedicion();
                     break;
 
                 case 's':
-                    // parar medicion
+                    // parar medición
                     PararMedicion();
                     break;
 
@@ -115,6 +127,7 @@ int main(int argc, char *argv[])
     }
     return 0;
 }
+
 
 /**
  * ShowMenu
