@@ -12,7 +12,7 @@
 //#define TEST_1      //Verificacion UART/Reloj
 //#define TEST_2      //Verificacion comunicacion PIC-WiMOD
 //#define TEST_3      //Verificacion I2C(con sensor CO2 de Telaire)/UART
-//#define TEST_4      //Medicion ADC y envio por UART
+#define TEST_4      //Medicion ADC y envio por UART
 //------------------------------------------------------------------------------
 //  Definitions and Setup
 //------------------------------------------------------------------------------
@@ -32,6 +32,7 @@
 #include "i2c.h"
 #include "T67xx.h"
 #endif
+#include "MQ2.h"
 
 
 #define _XTAL_FREQ 8000000  //May be either Internal RC or external oscillator.
@@ -155,7 +156,7 @@ void setup (void) {
     SerialDevice_Open("",8,0);
     #endif
     #ifdef LORAWAN_HCI_H
-    InitHCI(ProcesaHCI,(HCIMessage_t *) &RxMessage);
+    InitHCI(ProcesaHCI,&RxMessage);
     #endif
 }
 
@@ -371,10 +372,8 @@ void main(void)
 
         //Prueba 4: Medicion ADC y envio por UART
         #ifdef TEST_4
-        ADCON0=0x03;    //Inicia Medicion en AD0
-        while(GO);      //Se queda esperando hasta que acabe la conversion
         unsigned char phrase[15],phlen;
-        phlen=sprintf(phrase,"ADC:%u\n\r",ADRES);
+        phlen=sprintf(phrase,"Propano:%u\n\r",valorPropano());
         enviaMsgSerie(phrase,phlen);
         ms100(10);
         #endif
