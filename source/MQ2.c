@@ -15,6 +15,6 @@ void ADCpropano(void) {
 }
 
 unsigned short valorPropano(void) {
-    
+    ADCpropano();
     return MQ2.adcres;
 }
