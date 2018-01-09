@@ -8,11 +8,11 @@
  */
 
 //MODOS DE COMPILACION. Descomentar el que se quiera probar:
-//#define SMACH       //Maquina de estados (principal)
+#define SMACH       //Maquina de estados (principal)
 //#define TEST_1      //Verificacion UART/Reloj
 //#define TEST_2      //Verificacion comunicacion PIC-WiMOD
 //#define TEST_3      //Verificacion I2C(con sensor CO2 de Telaire)/UART
-#define TEST_4      //Medicion ADC y envio por UART
+//#define TEST_4      //Medicion ADC y envio por UART
 //------------------------------------------------------------------------------
 //  Definitions and Setup
 //------------------------------------------------------------------------------
@@ -32,8 +32,9 @@
 #include "i2c.h"
 #include "T67xx.h"
 #endif
+#if defined TEST_4 || defined SMACH
 #include "MQ2.h"
-
+#endif
 
 #define _XTAL_FREQ 8000000  //May be either Internal RC or external oscillator.
 //#define _XTAL_FREQ 7372800  //External Quartz Crystal to derivate common UART speeds
