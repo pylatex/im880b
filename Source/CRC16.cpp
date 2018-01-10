@@ -13,7 +13,7 @@
 //  Section Include Files
 //------------------------------------------------------------------------------
 
-#include "crc16.h"
+#include "CRC16.h"
 
 // use fast table algorithm
 #define __CRC16_TABLE__
@@ -132,9 +132,9 @@ CRC16_Calc  (UINT8             *data,
  * This function checks a data block with attached CRC16
  */
 bool
-CRC16_Check     (UINT8                    *data,
-                 UINT16                    length,
-                 UINT16                    initVal)
+CRC16_Check     (UINT8     *data,
+                 UINT16     length,
+                 UINT16     initVal)
 {
     // calc ones complement of CRC16
     UINT16 crc = ~CRC16_Calc(data, length, initVal);

@@ -295,7 +295,7 @@ static TWiMOD_HCI_Message*
 WiMOD_LoRaWAN_Process_RxMessage(TWiMOD_HCI_Message  *rxMessage)
 {
     #ifdef DEBUG
-    printf("%d\n\r",(int)clock()); //DEPURACION. Se puede comentar
+    printf("%d\n\r",(int)clock());
     #endif // DEBUG
     switch(rxMessage->SapID)
     {
@@ -578,13 +578,13 @@ WiMOD_LoRaWAN_Process_GetNwkStatRsp(TWiMOD_HCI_Message *rxMessage) {
  * @brief: show response status as human readable string
  */
 static void
-WiMOD_LoRaWAN_ShowResponse(const char *string, const TIDString *statusTable, UINT8 statusID)
+WiMOD_LoRaWAN_ShowResponse(const char *phrase, const TIDString *statusTable, UINT8 statusID)
 {
     while(statusTable->String)
     {
         if (statusTable->ID == statusID)
         {
-            printf(string);
+            printf(phrase);
             printf(" - Status(0x%02X) : ", statusID);
             printf(statusTable->String);
             printf("\n\r");

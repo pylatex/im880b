@@ -63,6 +63,10 @@ WiMOD_LoRaWAN_SendURadioData(UINT8 port, UINT8 *data, int length);
 int
 WiMOD_LoRaWAN_SendCRadioData(UINT8 port, UINT8 *data, int length);
 
+// receiver process
+void
+WiMOD_LoRaWAN_Process();
+
 // ask the time from module's RTC
 int
 WiMOD_LoRaWAN_GetTime();
@@ -70,10 +74,6 @@ WiMOD_LoRaWAN_GetTime();
 // get the LoRaWAN Network status of the device
 int
 WiMOD_LoRaWAN_GetNetworkStatus();
-
-// receiver process
-void
-WiMOD_LoRaWAN_Process();
 
 #endif // WIMOD_LORAWAN_API_H
 

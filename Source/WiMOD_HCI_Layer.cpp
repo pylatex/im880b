@@ -20,7 +20,19 @@
 #define Parity_Even         EVENPARITY
 #define Parity_None         NOPARITY
 
-#endif
+#endif // Q_OS_WIN
+
+#ifdef Q_OS_UX
+
+#include <termios.h>
+
+#define Baudrate_9600       B9600
+#define Baudrate_115200     B115200
+#define DataBits_7          CS7
+#define DataBits_8          CS8
+#define Parity_None         PARENB
+
+#endif // Q_OS_UX
 
 //------------------------------------------------------------------------------
 // Include Files
@@ -90,6 +102,7 @@ WiMOD_HCI_Init(const char              *comPort,        // comPort
 
     // init serial device
     return SerialDevice_Open(comPort, Baudrate_115200, DataBits_8, Parity_None);
+
 }
 
 /**
@@ -146,7 +159,7 @@ int WiMOD_HCI_SendMessage(TWiMOD_HCI_Message *txMessage)
         }
     }
 
-    // error - SLIP layer couldn't encode message - buffer to small ?
+    // error - SLIP layer couldn't encode message - buffer too small ?
     return -1;
 }
 

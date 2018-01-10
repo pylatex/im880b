@@ -17,7 +17,15 @@
 
 #ifdef  Q_OS_WIN
 #include <windows.h>
-#endif
+#endif // Q_OS_WIN
+#ifdef Q_OS_UX
+//#include <stdio.h>   // Standard input/output definitions
+#include <string.h>  // String function definitions
+#include <unistd.h>  // UNIX standard function definitions
+#include <fcntl.h>   // File control definitions
+//#include <errno.h>   // Error number definitions
+#include <termios.h> // POSIX terminal control definitions
+#endif // Q_OS_UX
 //------------------------------------------------------------------------------
 //  Section RAM
 //------------------------------------------------------------------------------
@@ -27,9 +35,10 @@
 // File Handle
 static HANDLE   ComHandle = INVALID_HANDLE_VALUE;
 
-#else
-// Todo : add your own platform specific variables here
 #endif
+#ifdef Q_OS_UX
+static int fd = -1; // File descriptor for the port
+#endif // Q_OS_UX
 
 //------------------------------------------------------------------------------
 //  Section Code
@@ -105,11 +114,41 @@ SerialDevice_Open(const char   *comPort,
         // close device
         SerialDevice_Close();
     }
-#else
-    // Todo : add your own platform specific code here
-#endif
+#endif // Q_OS_WIN
+#ifdef Q_OS_UX
+    char devName[80];
+    struct termios options;
+
+    strcpy(devName, comPort);
+
+    fd = open(devName, O_RDWR | O_NOCTTY | O_NDELAY);
+    if (fd == -1)
+    {
+        //Could not open the port.
+        return false;
+    }
+    else {
+        fcntl(fd, F_SETFL, 0);
+
+        //Get the current options for the port
+        tcgetattr(fd, &options);
+        //Set baud rates
+        cfsetispeed(&options, baudRate);
+        cfsetospeed(&options, baudRate);
+        options.c_cflag &= ~CSIZE; /* Mask the character size bits */
+        options.c_cflag |= dataBits;    /* Select 8 data bits */
+        //Enable the receiver and set local mode
+        options.c_cflag |= (CLOCAL | CREAD);
+        //Set the new options for the port
+        tcsetattr(fd, TCSANOW, &options);
+    }
+
+
+    return (fd);
+#endif // Q_OS_UX
     // error
     return false;
+
 }
 
 /**
@@ -170,9 +209,15 @@ SerialDevice_SendData(UINT8 *txBuffer, int txLength)
         // ok
         return numTxBytes;
     }
-#else
-    // Todo : add your own platform specific code here
-#endif
+#endif // Q_OS_WIN
+#ifdef Q_OS_UX
+    unsigned int n = write(fd, txBuffer, txLength);
+    if (n < 0)
+        return -1;
+    else
+        return n;
+
+#endif // Q_OS_UX
     // error
     return -1;
 }

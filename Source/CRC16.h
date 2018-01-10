@@ -1,14 +1,10 @@
 //------------------------------------------------------------------------------
 //
-//	File:		CRC16.h
-//
-//	Abstract:	CRC16 calculation
-//
-//	Version:	0.2
-//
-//	Date:		18.05.2016
-//
-//	Disclaimer:	This example code is provided by IMST GmbH on an "AS IS"
+//  File:       CRC16.h
+//  Abstract:   CRC16 calculation
+//  Version:    0.2
+//  Date:       18.05.2016
+//  Disclaimer: This example code is provided by IMST GmbH on an "AS IS"
 //              basis without any warranties.
 //
 //------------------------------------------------------------------------------

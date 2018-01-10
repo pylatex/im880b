@@ -36,9 +36,7 @@ typedef uint16_t                        UINT16;
 #define HIBYTE(x)                       ((UINT16)(x) >> 8)
 #endif // HIBYTE
 
-/**
- * HCI Message Structure (internal software usage)
- */
+// HCI Message Structure (internal software usage)
 typedef struct
 {
     // Payload Length Information,
