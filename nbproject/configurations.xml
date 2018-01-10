@@ -7,13 +7,14 @@
       <itemPath>source/CRC16.h</itemPath>
       <itemPath>source/SLIP.h</itemPath>
       <itemPath>source/SerialDevice.h</itemPath>
+      <itemPath>source/WMLW_API.h</itemPath>
       <itemPath>source/WiMOD_HCI_Layer.h</itemPath>
       <itemPath>source/WiMOD_LoRaWAN_API.h</itemPath>
       <itemPath>source/crc16modbus.h</itemPath>
       <itemPath>source/hci_stack.h</itemPath>
       <itemPath>source/i2c.h</itemPath>
       <itemPath>source/T67xx.h</itemPath>
-      <itemPath>source/WMLW_API.h</itemPath>
+      <itemPath>source/MQ2.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -35,6 +36,7 @@
       <itemPath>source/crc16modbus.c</itemPath>
       <itemPath>source/i2c.c</itemPath>
       <itemPath>source/T67xx.c</itemPath>
+      <itemPath>source/MQ2.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -57,8 +59,8 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC8</languageToolchain>
-        <languageToolchainVersion>1.44</languageToolchainVersion>
-        <platform>2</platform>
+        <languageToolchainVersion>1.45</languageToolchainVersion>
+        <platform>3</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -625,7 +627,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC8</languageToolchain>
-        <languageToolchainVersion>1.44</languageToolchainVersion>
+        <languageToolchainVersion>1.45</languageToolchainVersion>
         <platform>2</platform>
       </toolsSet>
       <compileType>
