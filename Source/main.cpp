@@ -7,6 +7,8 @@
               basis without any warranties.
 ------------------------------------------------------------------------------*/
 #define DEBUG
+
+#define HPM     //Descomentar para hacer pruebas con el sensor HPM directamente
 //------------------------------------------------------------------------------
 //  Include Files
 //------------------------------------------------------------------------------
@@ -57,9 +59,12 @@ int kbhit(void)
 
 #include <stdio.h>
 #include <string.h>
-#include "WiMOD_LoRaWAN_API.h"
+#ifdef HPM
 #include "SerialDevice.h"
 #include "hpm.h"
+#else
+#include "WiMOD_LoRaWAN_API.h"
+#endif // HPM
 #ifdef DEBUG
 #include <time.h>
 #endif // DEBUG
@@ -69,6 +74,7 @@ int kbhit(void)
 
 // forward declarations
 static void     ShowMenu(const char*);
+#ifndef HPM
 void            Ping();
 void            GetDeviceInfo();
 void            Join();
@@ -76,6 +82,7 @@ void            SendUData();
 void            SendCData();
 static void     GetTime();
 static void     GetLWstatus();
+#endif // HPM
 
 #define DEF_PORT "COM5"  //Default port, in case of empty input
 
@@ -104,7 +111,11 @@ int main(int argc, char *argv[])
     }
 
     // init interface:
+    #ifdef HPM
     if(!SerialDevice_Open(comPort,9600,8,0))
+    #else
+    if(!WiMOD_LoRaWAN_Init(comPort))
+    #endif // HPM
     {
         printf("error - couldn't open interface on comport %s\r\n",comPort);
         printf("try: WiMOD_LoRaWAN_HCI_C_ExampleCode COMxy to select another comport\n\r");
@@ -115,21 +126,25 @@ int main(int argc, char *argv[])
     // show menu
     ShowMenu(comPort);
 
-    //
+    #ifdef HPM
     InicializacionHPM(SerialDevice_SendData);
+    #endif // HPM
 
     #define MAXIMO_SENSOR 32
 
     // main loop
     while(run) {
         // handle receiver process
-        unsigned char   rxBuf[MAXIMO_SENSOR];
-
+        #ifdef HPM
+        unsigned char rxBuf[MAXIMO_SENSOR];
         // read small chunk of data
         int rxLength = SerialDevice_ReadData(rxBuf, MAXIMO_SENSOR);
         if (rxLength) { // data available ?
             RespuestaSensor(rxBuf,MAXIMO_SENSOR);
         }
+        #else
+        WiMOD_LoRaWAN_Process();
+        #endif // HPM
 
         // keyboard pressed ?
         if(kbhit())
@@ -147,7 +162,7 @@ int main(int argc, char *argv[])
                 case 'q': //exit
                     run = false;
                     break;
-
+#ifndef HPM
                 case 'i': // get device info
                     GetDeviceInfo();
                     break;
@@ -174,7 +189,7 @@ int main(int argc, char *argv[])
 
                 case 'n': // get network status
                     GetLWstatus();
-
+#else
                 case 'm': // Obtener medida
                     SolicitarMedida();
                     break;
@@ -186,7 +201,7 @@ int main(int argc, char *argv[])
                 case 's': // parar medición
                     PararMedicion();
                     break;
-
+#endif // HPM
                 case ' ': //Print the menu
                     ShowMenu(comPort);
                     break;
@@ -208,6 +223,7 @@ void ShowMenu(const char* comPort) {
     printf("|Using comport: %24s |\r\n", comPort);
     printf("+----------------------------------------+\n\r");
     printf("[SPACE]\t: show this menu\n\r");
+    #ifndef HPM
     printf("[p]\t: ping device\n\r");
     printf("[i]\t: get device information\n\r");
     printf("[j]\t: join network request\n\r");
@@ -215,15 +231,18 @@ void ShowMenu(const char* comPort) {
     printf("[c]\t: send confirmed radio message\n\r");
     printf("[t]\t: get time from module\n\r");
     printf("[n]\t: get network status\n\r");
+    #else
     printf("[m]\t: Get measures from module\n\r");
     printf("[b]\t: Begin module measuring\n\r");
     printf("[s]\t: Stop module measuring\n\r");
+    #endif // HPM
     printf("[q]\t: exit program\n\r");
     #ifdef DEBUG
     printf("CLOCKS_PER_SEC=%d\n\r",(int)CLOCKS_PER_SEC);
     #endif // DEBUG
 }
 
+#ifndef HPM
 /**
  * Ping
  * @brief: ping device
@@ -293,6 +312,7 @@ static void     GetLWstatus() {
     printf("get LoRaWAN Network Status\n\r");
     WiMOD_LoRaWAN_GetNetworkStatus();
 }
+#endif // HPM
 //------------------------------------------------------------------------------
 // end of file
 //------------------------------------------------------------------------------
