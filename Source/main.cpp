@@ -8,7 +8,7 @@
 ------------------------------------------------------------------------------*/
 #define DEBUG
 
-#define HPM     //Descomentar para hacer pruebas con el sensor HPM directamente
+//#define HPM     //Descomentar para hacer pruebas con el sensor HPM directamente
 //------------------------------------------------------------------------------
 //  Include Files
 //------------------------------------------------------------------------------
