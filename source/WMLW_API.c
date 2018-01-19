@@ -44,7 +44,7 @@ WiMOD_LoRaWAN_GetNetworkStatus() {
     TxMessage.MsgID = LORAWAN_MSG_GET_NWK_STATUS_REQ;
     TxMessage.size = 0;
     //Send Message
-    SendHCI(&TxMessage);
+    return SendHCI(&TxMessage);
 }
 
 /**
@@ -66,7 +66,7 @@ WiMOD_LoRaWAN_JoinNetworkRequest(){
     TxMessage.MsgID = LORAWAN_MSG_JOIN_NETWORK_REQ;
     TxMessage.size = 0;
     //Send Message
-    SendHCI(&TxMessage);
+    return SendHCI(&TxMessage);
 }
 
 /**
@@ -82,7 +82,7 @@ WiMOD_LoRaWAN_SendURadioData(UINT8 port, UINT8 *data, UINT8 length){
     TxMessage.size = (unsigned)(length+1);
     memcpy(&TxMessage.Payload[1], data, length);
     //Send Message
-    SendHCI(&TxMessage);
+    return SendHCI(&TxMessage);
 }
 
 /**
@@ -91,6 +91,14 @@ WiMOD_LoRaWAN_SendURadioData(UINT8 port, UINT8 *data, UINT8 length){
  */
 int
 WiMOD_LoRaWAN_SendCRadioData(UINT8 port, UINT8* data, UINT8 length){
+    //Message Setup
+    TxMessage.SapID=LORAWAN_ID;
+    TxMessage.MsgID=LORAWAN_MSG_SEND_CDATA_REQ;
+    TxMessage.Payload[0]=port; //Puerto LoRaWAN
+    TxMessage.size = (unsigned)(length+1);
+    memcpy(&TxMessage.Payload[1], data, length);
+    //Send Message
+    return SendHCI(&TxMessage);
 }
 
 /**
