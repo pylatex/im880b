@@ -13,14 +13,15 @@
 //#define TEST_2      //Verificacion comunicacion PIC-WiMOD
 //#define TEST_3      //Verificacion I2C(con sensor CO2 de Telaire)/UART
 //#define TEST_4      //Medicion ADC y envio por UART
+
 //------------------------------------------------------------------------------
 //  Definitions and Setup
 //------------------------------------------------------------------------------
+#include <xc.h>
 #if defined TEST_1 || defined TEST_3 || defined TEST_4
 #include <string.h>
 #include <stdio.h>
 #endif
-#include <xc.h>
 #if defined SMACH || defined TEST_2
 #include "WiMOD_LoRaWAN_API.h"
 #include "hci_stack.h"
@@ -32,7 +33,7 @@
 #include "i2c.h"
 #include "T67xx.h"
 #endif
-#if defined TEST_4 || defined SMACH
+#if defined TEST_4
 #include "MQ2.h"
 #endif
 

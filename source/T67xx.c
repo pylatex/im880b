@@ -2,15 +2,21 @@
  * Liberia para control de los sensores Telaire T67xx. Codigo basado en los
  * ejemplos disponibles en "i2c.h"
  */
-
-#define T67XX_I2CMODE
-#ifdef T67XX_I2CMODE
-#include "i2c.h"
-#endif
 #include "T67xx.h"
 
-#define T67XX_ADDR          T67XX_DEFADDR
+#define T67XX_I2C_MODE
+//#define T67XX_UART_MODE
+
+#ifdef T67XX_I2C_MODE
+#include "i2c.h"
 #define I2C_MAX_ATTEMPTS    30
+#endif
+
+#ifdef T67XX_UART_MODE
+#include "SerialDevice.h"
+#endif
+
+#define T67XX_ADDR          T67XX_DEFADDR
 
 /**
  * Reads a register on the T67xx sensor.
@@ -21,11 +27,8 @@
  * @return A pointer to the array result of reading the sensor register specified
  */
 unsigned char *T67XX_Read(unsigned char fc,unsigned short address,unsigned char RespLength)
-{
-#ifdef T67XX_I2CMODE
-    I2C_MESSAGE_STATUS status;
+{   
     static uint8_t  Buffer[7];
-    uint16_t        attempts;
 
     // build the write buffer first (MODBUS Request w/o CRC)
     // starting address of the EEPROM memory
@@ -34,6 +37,10 @@ unsigned char *T67XX_Read(unsigned char fc,unsigned short address,unsigned char 
     Buffer[2] = (uint8_t)(address);    //low byte
     Buffer[3] = 0;     //Quantity of registers
     Buffer[4] = 1;     //to be read
+
+#ifdef T67XX_I2C_MODE
+    I2C_MESSAGE_STATUS status;
+    uint16_t        attempts;
 
     // Now it is possible that the slave device will be slow.
     // As a work around on these slaves, the application can
@@ -82,5 +89,9 @@ unsigned char *T67XX_Read(unsigned char fc,unsigned short address,unsigned char 
         return Buffer;
     else
         return 0;   //null pointer
+#endif  //T67XX_I2C_MODE
+
+#ifdef T67XX_UART_MODE
+    
 #endif
 }
