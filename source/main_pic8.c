@@ -33,7 +33,7 @@
 #include "i2c.h"
 #include "T67xx.h"
 #endif
-#if defined TEST_4
+#if defined SMACH || defined TEST_4
 #include "MQ2.h"
 #endif
 
@@ -296,12 +296,16 @@ void main(void)
                 LED=true;
                 //Starts an I2C reading and decides upon the response.
                 respuesta=T67XX_Read(T67XX_GASPPM_FC,T67XX_GASPPM,4);
-                unsigned char carga[5],peso;
+                unsigned short mq2=valorPropano(); 
+                unsigned char carga[6],peso;
                 if (respuesta) {
                     carga[0]=1; //Lectura: CO2
                     carga[1]=respuesta[2];  //MSB
                     carga[2]=respuesta[3];  //LSB
-                    peso=3;
+                    carga[3]=3;
+                    carga[4]=(unsigned char)(mq2>>8);
+                    carga[5]=(unsigned char)(mq2&0xFF);
+                    peso=6;
                 } else {
                     carga[0]=0; //Lectura: Ninguna (Error de conexion con sensor)
                     peso=1;
