@@ -45,7 +45,7 @@ extern "C" {
 
     // init
     bool
-    WiMOD_LoRaWAN_Init(const unsigned char *comPort);
+    WiMOD_LoRaWAN_Init(const char *comPort);
 
     // ping device
     int

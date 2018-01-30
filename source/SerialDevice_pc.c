@@ -1,13 +1,13 @@
 //------------------------------------------------------------------------------
 //
-//	File:		SerialDevice.cpp
-//	Abstract:	Serial Device Abstraction
-//	Version:	0.1
-//	Date:		18.05.2016
-//	Disclaimer:	This example code is provided by IMST GmbH on an "AS IS" basis
-//				without any warranties.
+// File:        SerialDevice.cpp
+// Abstract:    Serial Device Abstraction
+// Version:     0.1
+// Date:        18.05.2016
+// Disclaimer:  This example code is provided by IMST GmbH on an "AS IS" basis
+//              without any warranties.
 //
-//  This file were modified to allow as possible an independant platform implementation
+// This file was modified to allow as possible a no platform dependant implementation
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
@@ -20,23 +20,27 @@
 #include <windows.h>
 #endif // Q_OS_WIN
 #ifdef Q_OS_UX
-//#include <stdio.h>   /* Standard input/output definitions */
-#include <string.h>  /* String function definitions */
-#include <unistd.h>  /* UNIX standard function definitions */
-#include <fcntl.h>   /* File control definitions */
-//#include <errno.h>   /* Error number definitions */
-#include <termios.h> /* POSIX terminal control definitions */
+//#include <stdio.h>    // Standard input/output definitions
+#include <string.h>     // String function definitions
+#include <unistd.h>     // UNIX standard function definitions
+#include <fcntl.h>      // File control definitions
+//#include <errno.h>    // Error number definitions
+#include <termios.h>    // POSIX terminal control definitions
 #endif // Q_OS_UX
 //------------------------------------------------------------------------------
 //  Section RAM
 //------------------------------------------------------------------------------
 
 #ifdef Q_OS_WIN
+
 // File Handle
 static HANDLE   ComHandle = INVALID_HANDLE_VALUE;
+
 #endif
 #ifdef Q_OS_UX
+
 static int fd = -1; // File descriptor for the port
+
 #endif // Q_OS_UX
 
 //------------------------------------------------------------------------------
@@ -50,9 +54,10 @@ static int fd = -1; // File descriptor for the port
  * Configura e Inicia el modulo/puerto serie.
  */
 bool
-SerialDevice_Open(const unsigned char  *comPort,
-                  int                   dataBits,
-                  UINT8                 parity)
+SerialDevice_Open(const char   *comPort,
+                  UINT32        baudRate,
+                  int           dataBits,
+                  UINT8         parity)
 {
 
 #ifdef Q_OS_WIN
@@ -124,10 +129,7 @@ SerialDevice_Open(const unsigned char  *comPort,
     fd = open(devName, O_RDWR | O_NOCTTY | O_NDELAY);
     if (fd == -1)
     {
-        /*
-        * Could not open the port.
-        */
-
+        //Could not open the port.
         return false;
     }
     else {
@@ -145,6 +147,7 @@ SerialDevice_Open(const unsigned char  *comPort,
         //Set the new options for the port
         tcsetattr(fd, TCSANOW, &options);
     }
+
     return (fd);
 #endif // Q_OS_UX
     // error
@@ -217,6 +220,7 @@ SerialDevice_SendData(UINT8 *txBuffer, UINT8 txLength)
         return -1;
     else
         return n;
+
 #endif // Q_OS_UX
     // error
     return -1;

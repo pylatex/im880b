@@ -1,17 +1,18 @@
 //------------------------------------------------------------------------------
 //
-//	File:		WiMOD_LoRaWAN_API.cpp
-//	Abstract:	API Layer of LoRaWAN Host Controller Interface
-//	Version:	0.1
-//	Date:		18.05.2016
-//	Disclaimer:	This example code is provided by IMST GmbH on an "AS IS" basis
-//				without any warranties.
+// File:        WiMOD_LoRaWAN_API.cpp
+// Abstract:    API Layer of LoRaWAN Host Controller Interface
+// Version:     0.1
+// Date:        18.05.2016
+// Disclaimer:  This example code is provided by IMST GmbH on an "AS IS" basis
+//              without any warranties.
 //
 //------------------------------------------------------------------------------
 #define DEBUG
 //------------------------------------------------------------------------------
 // Include Files
 //------------------------------------------------------------------------------
+
 #include <string.h>
 #include <stdio.h>
 #ifdef DEBUG
@@ -121,7 +122,7 @@ static const TIDString WiMOD_LoRaWAN_StatusStrings[] =
  * @brief: init complete interface
  */
 bool
-WiMOD_LoRaWAN_Init(const unsigned char *comPort)
+WiMOD_LoRaWAN_Init(const char *comPort)
 {
     // init HCI layer
     return WiMOD_HCI_Init(comPort,                  // comPort
@@ -575,15 +576,15 @@ WiMOD_LoRaWAN_Process_GetNwkStatRsp(TWiMOD_HCI_Message *rxMessage) {
  * @brief: show response status as human readable string
  */
 static void
-WiMOD_LoRaWAN_ShowResponse(const char *string, const TIDString *statusTable, UINT8 statusID)
+WiMOD_LoRaWAN_ShowResponse(const char *phrase, const TIDString *statusTable, UINT8 statusID)
 {
     while(statusTable->String)
     {
         if (statusTable->ID == statusID)
         {
-            printf(string);
+            printf("%s",phrase);
             printf(" - Status(0x%02X) : ", statusID);
-            printf(statusTable->String);
+            printf("%s",statusTable->String);
             printf("\n\r");
             return;
         }

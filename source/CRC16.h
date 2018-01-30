@@ -1,10 +1,10 @@
 //------------------------------------------------------------------------------
 //
-//	File:		CRC16.h
-//	Abstract:	CRC16 calculation
-//	Version:	0.2
-//	Date:		18.05.2016
-//	Disclaimer:	This example code is provided by IMST GmbH on an "AS IS"
+// File:        CRC16.h
+// Abstract:    CRC16 calculation
+// Version:     0.2
+// Date:        18.05.2016
+// Disclaimer:  This example code is provided by IMST GmbH on an "AS IS"
 //              basis without any warranties.
 //
 //------------------------------------------------------------------------------
@@ -15,6 +15,7 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
+
     //--------------------------------------------------------------------------
     //  Section Include Files
     //--------------------------------------------------------------------------
@@ -48,6 +49,7 @@ extern "C" {
     CRC16_Check (UINT8     *data,
                  UINT16     length,
                  UINT16     initVal);
+
 #ifdef	__cplusplus
 }
 #endif

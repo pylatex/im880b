@@ -1,10 +1,10 @@
 //------------------------------------------------------------------------------
 //
-// File:		WiMOD_HCI_Layer.h
-// Abstract:	WiMOD HCI Message Layer
-// Version:	0.1
-// Date:		18.05.2016
-// Disclaimer:	This example code is provided by IMST GmbH on an "AS IS"
+// File:        WiMOD_HCI_Layer.h
+// Abstract:    WiMOD HCI Message Layer
+// Version:     0.1
+// Date:        18.05.2016
+// Disclaimer:  This example code is provided by IMST GmbH on an "AS IS"
 //              basis without any warranties.
 //
 //------------------------------------------------------------------------------
@@ -15,6 +15,7 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
+
     //--------------------------------------------------------------------------
     //  Include Files
     //--------------------------------------------------------------------------
@@ -40,7 +41,7 @@ extern "C" {
     #define HIBYTE(x)                       ((UINT16)(x) >> 8)
     #endif // HIBYTE
 
-    //HCI Message Structure (internal software usage)
+    // HCI Message Structure (internal software usage)
     typedef struct
     {
         // Payload Length Information,
@@ -70,9 +71,9 @@ extern "C" {
 
     //Init HCI Layer
     bool
-    WiMOD_HCI_Init(const unsigned char     *comPort,
-               TWiMOD_HCI_CbRxMessage   cbRxMessage,
-               TWiMOD_HCI_Message      *rxMessage);
+    WiMOD_HCI_Init(const char              *comPort,
+                   TWiMOD_HCI_CbRxMessage   cbRxMessage,
+                   TWiMOD_HCI_Message      *rxMessage);
 
     //Send HCI Message
     int
