@@ -1,11 +1,15 @@
-/*------------------------------------------------------------------------------
-  File:       main.cpp
-  Abstract:   main module
-  Version:    0.1
-  Date:       18.05.2016
-  Disclaimer: This example code is provided by IMST GmbH on an "AS IS"
-              basis without any warranties.
-------------------------------------------------------------------------------*/
+/*
+ * File:        main.cpp
+ * Abstract:    main module
+ * Version:     0.1
+ * Date:        18.05.2016
+ * Disclaimer:  This example code is provided by IMST GmbH on an "AS IS"
+ *              basis without any warranties.
+ *
+ * La mayoria de archivos vienen del comprimido
+ * WiMOD_LoRaWAN_ExampleCode_HCI_C_V0_1.zip
+ * y han sido ligeramente modificados para soportar tipos estandar.
+ */
 #define DEBUG
 
 //#define HPM     //Descomentar para hacer pruebas con el sensor HPM directamente
@@ -75,11 +79,11 @@ int kbhit(void)
 // forward declarations
 static void     ShowMenu(const char*);
 #ifndef HPM
-void            Ping();
-void            GetDeviceInfo();
-void            Join();
-void            SendUData();
-void            SendCData();
+static void     Ping();
+static void     GetDeviceInfo();
+static void     Join();
+static void     SendUData();
+static void     SendCData();
 static void     GetTime();
 static void     GetLWstatus();
 #endif // HPM
@@ -211,7 +215,6 @@ int main(int argc, char *argv[])
     }
     return 0;
 }
-
 
 /**
  * ShowMenu

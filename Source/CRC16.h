@@ -1,10 +1,10 @@
 //------------------------------------------------------------------------------
 //
-//  File:       CRC16.h
-//  Abstract:   CRC16 calculation
-//  Version:    0.2
-//  Date:       18.05.2016
-//  Disclaimer: This example code is provided by IMST GmbH on an "AS IS"
+// File:        CRC16.h
+// Abstract:    CRC16 calculation
+// Version:     0.2
+// Date:        18.05.2016
+// Disclaimer:  This example code is provided by IMST GmbH on an "AS IS"
 //              basis without any warranties.
 //
 //------------------------------------------------------------------------------
@@ -12,45 +12,47 @@
 #ifndef    __CRC16_H__
 #define    __CRC16_H__
 
-//------------------------------------------------------------------------------
-//
-//  Section Include Files
-//
-//------------------------------------------------------------------------------
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
-#include <stdint.h>
+    //--------------------------------------------------------------------------
+    //  Section Include Files
+    //--------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-//
-//  Section Defines & Declarations
-//
-//------------------------------------------------------------------------------
+    #include <stdint.h>
+    #include <stdbool.h>
 
-typedef uint8_t     UINT8;
-typedef uint16_t    UINT16;
+    //--------------------------------------------------------------------------
+    //  Section Defines & Declarations
+    //--------------------------------------------------------------------------
 
-#define CRC16_INIT_VALUE    0xFFFF    // initial value for CRC algorithm
-#define CRC16_GOOD_VALUE    0x0F47    // constant compare value for check
-#define CRC16_POLYNOM       0x8408    // 16-BIT CRC CCITT POLYNOM
+    typedef uint8_t     UINT8;
+    typedef uint16_t    UINT16;
 
-//------------------------------------------------------------------------------
-//
-//  Function Prototypes
-//
-//------------------------------------------------------------------------------
+    #define CRC16_INIT_VALUE    0xFFFF    // initial value for CRC algorithm
+    #define CRC16_GOOD_VALUE    0x0F47    // constant compare value for check
+    #define CRC16_POLYNOM       0x8408    // 16-BIT CRC CCITT POLYNOM
 
-// Calc CRC16
-UINT16
-CRC16_Calc  (UINT8     *data,
-             UINT16     length,
-             UINT16     initVal);
+    //--------------------------------------------------------------------------
+    //  Function Prototypes
+    //--------------------------------------------------------------------------
 
-// Calc & Check CRC16
-bool
-CRC16_Check (UINT8     *data,
-             UINT16     length,
-             UINT16     initVal);
+    // Calc CRC16
+    UINT16
+    CRC16_Calc  (UINT8     *data,
+                 UINT16     length,
+                 UINT16     initVal);
 
+    // Calc & Check CRC16
+    bool
+    CRC16_Check (UINT8     *data,
+                 UINT16     length,
+                 UINT16     initVal);
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif // __CRC16_H__
 //------------------------------------------------------------------------------

@@ -1,11 +1,11 @@
 //------------------------------------------------------------------------------
 //
-//	File:		WiMOD_LoRaWAN_API.cpp
-//	Abstract:	API Layer of LoRaWAN Host Controller Interface
-//	Version:	0.1
-//	Date:		18.05.2016
-//	Disclaimer:	This example code is provided by IMST GmbH on an "AS IS" basis
-//				without any warranties.
+// File:        WiMOD_LoRaWAN_API.cpp
+// Abstract:    API Layer of LoRaWAN Host Controller Interface
+// Version:     0.1
+// Date:        18.05.2016
+// Disclaimer:  This example code is provided by IMST GmbH on an "AS IS" basis
+//              without any warranties.
 //
 //------------------------------------------------------------------------------
 #define DEBUG
@@ -13,13 +13,13 @@
 // Include Files
 //------------------------------------------------------------------------------
 
-#include "WiMOD_LoRaWAN_API.h"
-#include "WiMOD_HCI_Layer.h"
 #include <string.h>
 #include <stdio.h>
 #ifdef DEBUG
 #include <time.h>
 #endif // DEBUG
+#include "WiMOD_LoRaWAN_API.h"
+#include "WiMOD_HCI_Layer.h"
 
 #ifndef MAKEWORD
 #define MAKEWORD(lo,hi) ((lo)|((hi) << 8))
@@ -64,9 +64,7 @@ void WiMOD_LoRaWAN_Process_TimeRsp(TWiMOD_HCI_Message *rxMessage);
 void WiMOD_LoRaWAN_Process_GetNwkStatRsp(TWiMOD_HCI_Message *rxMessage);
 
 //------------------------------------------------------------------------------
-//
 //  Section RAM
-//
 //------------------------------------------------------------------------------
 
 // reserve one Tx-Message
@@ -187,7 +185,7 @@ WiMOD_LoRaWAN_JoinNetworkRequest()
 int
 WiMOD_LoRaWAN_SendURadioData(UINT8  port,       // LoRaWAN Port
                              UINT8 *srcData,    // application payload
-                             int    srcLength)  // length of application payload
+                             UINT8  srcLength)  // length of application payload
 {
     // 1. check length
     if (srcLength > (WIMOD_HCI_MSG_PAYLOAD_SIZE - 1))
@@ -219,7 +217,7 @@ WiMOD_LoRaWAN_SendURadioData(UINT8  port,       // LoRaWAN Port
 int
 WiMOD_LoRaWAN_SendCRadioData(UINT8  port,       // LoRaWAN Port
                              UINT8 *srcData,    // application data
-                             int    srcLength)  // length of application data
+                             UINT8  srcLength)  // length of application data
 {
     // 1. check length
     if (srcLength > (WIMOD_HCI_MSG_PAYLOAD_SIZE - 1))
@@ -584,9 +582,9 @@ WiMOD_LoRaWAN_ShowResponse(const char *phrase, const TIDString *statusTable, UIN
     {
         if (statusTable->ID == statusID)
         {
-            printf(phrase);
+            printf("%s",phrase);
             printf(" - Status(0x%02X) : ", statusID);
-            printf(statusTable->String);
+            printf("%s",statusTable->String);
             printf("\n\r");
             return;
         }
