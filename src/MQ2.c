@@ -10,7 +10,7 @@ MQ2_t MQ2;
 
 void ADCpropano(void) {
     ADCON0=0x03;    //Inicia Medicion en AD0
-    while(GO);      //Se queda esperando hasta que acabe la conversion
+    while(ADCON0bits.GO);      //Se queda esperando hasta que acabe la conversion
     MQ2.adcres = ADRES;
 }
 

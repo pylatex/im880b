@@ -60,7 +60,7 @@
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC8</languageToolchain>
         <languageToolchainVersion>1.45</languageToolchainVersion>
-        <platform>3</platform>
+        <platform>2</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -571,16 +571,52 @@
         <property key="stack-type" value="compiled"/>
       </XC8-config-global>
       <item path="src/SLIP.c" ex="true" overriding="false">
+        <HI-TECH-COMP>
+        </HI-TECH-COMP>
+        <HI-TECH-LINK>
+        </HI-TECH-LINK>
+        <XC8-config-global>
+        </XC8-config-global>
       </item>
       <item path="src/SerialDevice_pc.c" ex="true" overriding="false">
+        <HI-TECH-COMP>
+        </HI-TECH-COMP>
+        <HI-TECH-LINK>
+        </HI-TECH-LINK>
+        <XC8-config-global>
+        </XC8-config-global>
       </item>
       <item path="src/WiMOD_HCI_Layer.c" ex="true" overriding="false">
+        <HI-TECH-COMP>
+        </HI-TECH-COMP>
+        <HI-TECH-LINK>
+        </HI-TECH-LINK>
+        <XC8-config-global>
+        </XC8-config-global>
       </item>
       <item path="src/WiMOD_LoRaWAN_API.c" ex="true" overriding="false">
+        <HI-TECH-COMP>
+        </HI-TECH-COMP>
+        <HI-TECH-LINK>
+        </HI-TECH-LINK>
+        <XC8-config-global>
+        </XC8-config-global>
       </item>
       <item path="src/crc16modbus.c" ex="true" overriding="false">
+        <HI-TECH-COMP>
+        </HI-TECH-COMP>
+        <HI-TECH-LINK>
+        </HI-TECH-LINK>
+        <XC8-config-global>
+        </XC8-config-global>
       </item>
       <item path="src/main_pc.cpp" ex="true" overriding="false">
+        <HI-TECH-COMP>
+        </HI-TECH-COMP>
+        <HI-TECH-LINK>
+        </HI-TECH-LINK>
+        <XC8-config-global>
+        </XC8-config-global>
       </item>
     </conf>
     <conf name="P16F1769" type="2">
@@ -1102,6 +1138,18 @@
         <property key="stack-size-main" value="auto"/>
         <property key="stack-type" value="compiled"/>
       </XC8-config-global>
+      <item path="src/SLIP.c" ex="true" overriding="false">
+      </item>
+      <item path="src/SerialDevice_pc.c" ex="true" overriding="false">
+      </item>
+      <item path="src/WiMOD_HCI_Layer.c" ex="true" overriding="false">
+      </item>
+      <item path="src/WiMOD_LoRaWAN_API.c" ex="true" overriding="false">
+      </item>
+      <item path="src/crc16modbus.c" ex="true" overriding="false">
+      </item>
+      <item path="src/main_pc.cpp" ex="true" overriding="false">
+      </item>
     </conf>
   </confs>
 </configurationDescriptor>
