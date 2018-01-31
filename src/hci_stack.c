@@ -43,7 +43,7 @@ bool InitHCI (
     WMHCIsetup.rxmsg=RxMessage;
     WMHCIsetup.rxmsg->size=0;
     WMHCIsetup.rxmsg->check=false;
-    return SerialDevice_Open("",8,0);   //Enables UART, and from it: RX, TX and interrupts by RX
+    return SerialDevice_Open("",115200,8,0);   //Enables UART, and from it: RX, TX and interrupts by RX
 }
 
 /**

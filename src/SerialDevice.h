@@ -14,7 +14,7 @@ extern "C" {
     // open serial device
     bool
     SerialDevice_Open(const char   *comPort,
-                      //UINT32        baudRate,   //115200, siempre.
+                      UINT32        baudRate,   //115200, siempre.
                       int           dataBits,   //8, siempre.
                       UINT8         parity);    //Ninguna, siempre.
 

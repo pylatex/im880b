@@ -153,7 +153,7 @@ void setup (void) {
     I2C_Initialize();
     #endif
     #ifdef SERIAL_DEVICE_H
-    SerialDevice_Open("",8,0);
+    SerialDevice_Open("",115200,8,0);
     #endif
     #ifdef LORAWAN_HCI_H
     InitHCI(ProcesaHCI,(HCIMessage_t *) &RxMessage);

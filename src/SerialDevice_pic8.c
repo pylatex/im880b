@@ -33,9 +33,10 @@ bool SerialSentIsOpen(void);
  * Configura e Inicia el modulo/puerto serie.
  */
 bool
-SerialDevice_Open(const unsigned char  *comPort,
-                  int                   dataBits,
-                  UINT8                 parity)
+SerialDevice_Open(const char   *comPort,
+                  UINT32        baudRate,   //115200, siempre.
+                  int           dataBits,   //8, siempre.
+                  UINT8         parity)     //Ninguna, siempre.
 {
     //UART, Ajustes comunes a Rx y Tx. Inicializado de acuerdo a datasheet 16F2550
     //Se prueba con 8(interno) y 7.3728(externo) MHz

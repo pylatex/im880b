@@ -1,10 +1,13 @@
-/build/*
-/debug/*
-/dist/*
-/nbproject/*
-!/nbproject/configurations.xml
-!/nbproject/project.xml
-
+bin/*
+build/*
+debug/*
+dist/*
+nbproject/*
+obj/*
+!nbproject/configurations.xml
+!nbproject/project.xml
+im880b.*
+!im880b.cbp
 
 # Compiled source #
 ###################
