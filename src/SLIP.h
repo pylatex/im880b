@@ -27,10 +27,10 @@ extern "C" {
     //------------------------------------------------------------------------------
 
     // SLIP Protocol Characters
-    #define SLIP_END					0xC0
-    #define	SLIP_ESC					0xDB
-    #define	SLIP_ESC_END				0xDC
-    #define	SLIP_ESC_ESC				0xDD
+    #define SLIP_END        0xC0
+    #define SLIP_ESC        0xDB
+    #define SLIP_ESC_END    0xDC
+    #define SLIP_ESC_ESC    0xDD
 
     typedef uint8_t     UINT8;
 
@@ -55,7 +55,7 @@ extern "C" {
 
     // Decode incoming Data
     void
-    SLIP_DecodeData(UINT8*  srcData, int srcLength);
+    SLIP_DecodeData(UINT8 *srcData, int srcLength);
 
 #ifdef	__cplusplus
 }

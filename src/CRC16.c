@@ -1,10 +1,10 @@
 //------------------------------------------------------------------------------
 //
-//	File:		CRC16.cpp
-//	Abstract:	CRC16 calculation
-//	Version:	0.2
-//	Date:		18.05.2016
-//	Disclaimer:	This example code is provided by IMST GmbH on an "AS IS"
+// File:        CRC16.cpp
+// Abstract:    CRC16 calculation
+// Version:     0.2
+// Date:        18.05.2016
+// Disclaimer:  This example code is provided by IMST GmbH on an "AS IS"
 //              basis without any warranties.
 //
 //------------------------------------------------------------------------------
@@ -76,10 +76,10 @@ CRC16_Calc  (UINT8             *data,
              UINT16             length,
              UINT16             initVal)
 {
-#ifdef    __CRC16_TABLE__
-
     // init crc
     UINT16    crc = initVal;
+
+#ifdef    __CRC16_TABLE__
 
     // iterate over all bytes
     while(length--)
@@ -88,11 +88,7 @@ CRC16_Calc  (UINT8             *data,
         crc = (crc >> 8) ^ CRC16_Table[(crc ^ *data++) & 0x00FF];
     }
 
-    // return result
-    return (UINT16)crc;
 #else
-    // init crc
-    UINT16    crc = initVal;
 
     // iterate over all bytes
     while(length--)
@@ -116,9 +112,9 @@ CRC16_Calc  (UINT8             *data,
         }
     }
 
+#endif
     // return result
     return crc;
-#endif
 }
 
 /**

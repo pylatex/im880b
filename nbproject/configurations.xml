@@ -4,17 +4,17 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <itemPath>source/CRC16.h</itemPath>
-      <itemPath>source/SLIP.h</itemPath>
-      <itemPath>source/SerialDevice.h</itemPath>
-      <itemPath>source/WMLW_API.h</itemPath>
-      <itemPath>source/WiMOD_HCI_Layer.h</itemPath>
-      <itemPath>source/WiMOD_LoRaWAN_API.h</itemPath>
-      <itemPath>source/crc16modbus.h</itemPath>
-      <itemPath>source/hci_stack.h</itemPath>
-      <itemPath>source/i2c.h</itemPath>
-      <itemPath>source/T67xx.h</itemPath>
-      <itemPath>source/MQ2.h</itemPath>
+      <itemPath>src/CRC16.h</itemPath>
+      <itemPath>src/MQ2.h</itemPath>
+      <itemPath>src/SLIP.h</itemPath>
+      <itemPath>src/SerialDevice.h</itemPath>
+      <itemPath>src/T67xx.h</itemPath>
+      <itemPath>src/WMLW_API.h</itemPath>
+      <itemPath>src/WiMOD_HCI_Layer.h</itemPath>
+      <itemPath>src/WiMOD_LoRaWAN_API.h</itemPath>
+      <itemPath>src/crc16modbus.h</itemPath>
+      <itemPath>src/hci_stack.h</itemPath>
+      <itemPath>src/i2c.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -23,20 +23,20 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <itemPath>source/CRC16.c</itemPath>
-      <itemPath>source/SerialDevice_pic8.c</itemPath>
-      <itemPath>source/main_pic8.c</itemPath>
-      <itemPath>source/hci_stack.c</itemPath>
-      <itemPath>source/WiMOD_HCI_Layer.c</itemPath>
-      <itemPath>source/SLIP.c</itemPath>
-      <itemPath>source/WMLW_API.c</itemPath>
-      <itemPath>source/main_win.cpp</itemPath>
-      <itemPath>source/SerialDevice_win.c</itemPath>
-      <itemPath>source/WiMOD_LoRaWAN_API.cpp</itemPath>
-      <itemPath>source/crc16modbus.c</itemPath>
-      <itemPath>source/i2c.c</itemPath>
-      <itemPath>source/T67xx.c</itemPath>
-      <itemPath>source/MQ2.c</itemPath>
+      <itemPath>src/CRC16.c</itemPath>
+      <itemPath>src/hci_stack.c</itemPath>
+      <itemPath>src/i2c.c</itemPath>
+      <itemPath>src/main_pic8.c</itemPath>
+      <itemPath>src/MQ2.c</itemPath>
+      <itemPath>src/SerialDevice_pc.c</itemPath>
+      <itemPath>src/SerialDevice_pic8.c</itemPath>
+      <itemPath>src/T67xx.c</itemPath>
+      <itemPath>src/WMLW_API.c</itemPath>
+      <itemPath>src/SLIP.c</itemPath>
+      <itemPath>src/WiMOD_HCI_Layer.c</itemPath>
+      <itemPath>src/WiMOD_LoRaWAN_API.c</itemPath>
+      <itemPath>src/crc16modbus.c</itemPath>
+      <itemPath>src/main_pc.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -570,53 +570,17 @@
         <property key="stack-size-main" value="auto"/>
         <property key="stack-type" value="compiled"/>
       </XC8-config-global>
-      <item path="source/SLIP.c" ex="true" overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
+      <item path="src/SLIP.c" ex="true" overriding="false">
       </item>
-      <item path="source/SerialDevice_win.c" ex="true" overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
+      <item path="src/SerialDevice_pc.c" ex="true" overriding="false">
       </item>
-      <item path="source/WiMOD_HCI_Layer.c" ex="true" overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
+      <item path="src/WiMOD_HCI_Layer.c" ex="true" overriding="false">
       </item>
-      <item path="source/WiMOD_LoRaWAN_API.cpp" ex="true" overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
+      <item path="src/WiMOD_LoRaWAN_API.c" ex="true" overriding="false">
       </item>
-      <item path="source/crc16modbus.c" ex="true" overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
+      <item path="src/crc16modbus.c" ex="true" overriding="false">
       </item>
-      <item path="source/main_win.cpp" ex="true" overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
+      <item path="src/main_pc.cpp" ex="true" overriding="false">
       </item>
     </conf>
     <conf name="P16F1769" type="2">
@@ -1138,62 +1102,6 @@
         <property key="stack-size-main" value="auto"/>
         <property key="stack-type" value="compiled"/>
       </XC8-config-global>
-      <item path="source/MQ2.c" ex="true" overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="source/SLIP.c" ex="true" overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="source/SerialDevice_win.c" ex="true" overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="source/WiMOD_HCI_Layer.c" ex="true" overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="source/WiMOD_LoRaWAN_API.cpp" ex="true" overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="source/crc16modbus.c" ex="true" overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="source/main_win.cpp" ex="true" overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
     </conf>
   </confs>
 </configurationDescriptor>

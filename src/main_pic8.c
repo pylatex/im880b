@@ -296,7 +296,7 @@ void main(void)
                 LED=true;
                 //Starts an I2C reading and decides upon the response.
                 respuesta=T67XX_Read(T67XX_GASPPM_FC,T67XX_GASPPM,4);
-                unsigned short mq2=valorPropano(); 
+                unsigned short mq2=valorPropano();
                 unsigned char carga[6],peso;
                 if (respuesta) {
                     carga[0]=1; //Lectura: CO2
