@@ -15,6 +15,9 @@
       <itemPath>src/crc16modbus.h</itemPath>
       <itemPath>src/hci_stack.h</itemPath>
       <itemPath>src/i2c.h</itemPath>
+      <itemPath>src/iaq_core.h</itemPath>
+      <itemPath>src/gns601.h</itemPath>
+      <itemPath>src/nmea.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -37,6 +40,9 @@
       <itemPath>src/WiMOD_LoRaWAN_API.c</itemPath>
       <itemPath>src/crc16modbus.c</itemPath>
       <itemPath>src/main_pc.cpp</itemPath>
+      <itemPath>src/iaq_core.c</itemPath>
+      <itemPath>src/gns601.c</itemPath>
+      <itemPath>src/nmea.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
