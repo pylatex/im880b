@@ -1,13 +1,17 @@
+# Repo Specific #
+#################
+# Code::Blocks
 bin/*
+obj/*
+im880b.*
+!im880b.cbp
+# MPLAB X
 build/*
 debug/*
 dist/*
 nbproject/*
-obj/*
 !nbproject/configurations.xml
 !nbproject/project.xml
-im880b.*
-!im880b.cbp
 
 # Compiled source #
 ###################
