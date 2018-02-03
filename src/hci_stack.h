@@ -8,8 +8,8 @@
  * Here should be the SLIP+CRC
  */
 
-#ifndef LORAWAN_HCI_H
-#define LORAWAN_HCI_H
+#ifndef MINIFIED_HCI_H
+#define MINIFIED_HCI_H
 
 #ifdef	__cplusplus
 extern "C" {
@@ -22,6 +22,7 @@ extern "C" {
     //--------------------------------------------------------------------------
 
     #define HCI_WKUPCHARS       5
+
     #define HCI_RX_RESETSTAT    -1
     #define HCI_RX_PENDING      -2
     #define HCI_RX_ESCAPE       -3
@@ -54,7 +55,7 @@ extern "C" {
         bool            check;  // Checksum verifying bit
         unsigned char   CRC[WIMOD_HCI_MSG_FCS_SIZE];    // Frame Check Sequence Field
         HCImsg_t       *HCImsg;
-    }HCIMessage_t2;
+    } HCIMessage_t2;
 
     typedef struct
     {
@@ -69,7 +70,7 @@ extern "C" {
             unsigned char   HCI[2+WIMOD_HCI_MSG_PAYLOAD_SIZE];
         };
         unsigned char       CRC[WIMOD_HCI_MSG_FCS_SIZE];  // Frame Check Sequence Field
-    }HCIMessage_t;
+    } HCIMessage_t;
 
     typedef void (*WMHCIuserProc)();
     typedef bool (*WMHCIboolfcchar)(const unsigned char msdelay);   //A bool function receiving a const char
@@ -78,21 +79,35 @@ extern "C" {
     //  Function Prototypes
     //--------------------------------------------------------------------------
 
-    //Use after reading the Rx buffer
-    void ClearRxHCI (void);
+    // The following three functions are similar to the ones in WiMOD_HCI_Layer.h
 
-    // Las siguientes tres son similares a las que tiene WiMOD_HCI_Layer.h
-
-    //HCI Initialization
+    /**
+     * Initializes the serial port / UART
+     * @param UserHandlerRx Call to user function that process a formed HCI message
+     * @return true on success
+     */
     bool InitHCI (
         WMHCIuserProc   HCIRxHandler,   //Handler for processing of Rx HCI messages
         HCIMessage_t   *RxMessage       //HCI message for reception.
     );
 
-    //Envio de un comando HCI
+    /**
+     * @brief: Sends an HCI message
+     * Calculates the CRC to the HCI message to be sent, stored in buffer, then
+     * applies the SLIP wrapper to the result and sends it through the UART.
+     * 
+     * @param buffer: HCI message. In 0 the DstID, in 1 the MsgID. Else the payload
+     * @param size: Size of the payload of the HCI message
+     */
     bool SendHCI (HCIMessage_t *TxMessage);
 
-    //Procesamiento de HCI entrante.
+    /**
+     * Groups every incoming UART octect in an HCI message. Additionally, when
+     * the HCI message is complete, it calls the (handler) function given by
+     * user at initialization, to process the received HCI message.
+     * 
+     * @param rxByte: The byte received by the UART
+     */
     void IncomingHCIpacker (unsigned char rxByte);
 
 #ifdef	__cplusplus

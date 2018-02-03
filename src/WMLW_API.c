@@ -20,10 +20,7 @@ static HCIMessage_t TxMessage;
 // FUNCTION IMPLEMENTATIONS
 //------------------------------------------------------------------------------
 
-/**
- * Ping
- * @brief: ping device
- */
+// ping device
 int
 WiMOD_LoRaWAN_SendPing(){
     //Message Setup
@@ -34,9 +31,7 @@ WiMOD_LoRaWAN_SendPing(){
     return SendHCI(&TxMessage);
 }
 
-/**
- * Request the status of the device on the LoRaWAN Network
- */
+// get the LoRaWAN Network status of the device
 int
 WiMOD_LoRaWAN_GetNetworkStatus() {
     //Message Setup
@@ -47,18 +42,12 @@ WiMOD_LoRaWAN_GetNetworkStatus() {
     return SendHCI(&TxMessage);
 }
 
-/**
- * GetFirmwareVersion
- * @brief: get firmware version
- */
+// get firmware Version
 int
 WiMOD_LoRaWAN_GetFirmwareVersion(){
 }
 
-/**
- * JoinNetworkRequest
- * @brief: send join radio message
- */
+// request to join network
 int
 WiMOD_LoRaWAN_JoinNetworkRequest(){
     //Message Setup
@@ -69,10 +58,7 @@ WiMOD_LoRaWAN_JoinNetworkRequest(){
     return SendHCI(&TxMessage);
 }
 
-/**
- * SendURadioData
- * @brief: send unconfirmed radio message
- */
+// send unconfirmed radio data
 int
 WiMOD_LoRaWAN_SendURadioData(UINT8 port, UINT8 *data, UINT8 length){
     //Message Setup
@@ -85,10 +71,7 @@ WiMOD_LoRaWAN_SendURadioData(UINT8 port, UINT8 *data, UINT8 length){
     return SendHCI(&TxMessage);
 }
 
-/**
- * SendCRadioData
- * @brief: send confirmed radio message
- */
+// send confirmed radio data
 int
 WiMOD_LoRaWAN_SendCRadioData(UINT8 port, UINT8* data, UINT8 length){
     //Message Setup
@@ -101,10 +84,7 @@ WiMOD_LoRaWAN_SendCRadioData(UINT8 port, UINT8* data, UINT8 length){
     return SendHCI(&TxMessage);
 }
 
-/**
- * Process
- * @brief: handle receiver process
- */
+// receiver process
 void
 WiMOD_LoRaWAN_Process(){
 }

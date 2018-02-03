@@ -65,12 +65,7 @@ const UINT16 CRC16_Table[] = {
 //  Section Code
 //------------------------------------------------------------------------------
 
-/**
- * CRC16_Calc
- * @brief:  calculate CRC16
- * This function calculates the one's complement of the standard
- * 16-BIT CRC CCITT polynomial G(x) = 1 + x^5 + x^12 + x^16
- */
+// Calc CRC16
 UINT16
 CRC16_Calc  (UINT8             *data,
              UINT16             length,
@@ -117,11 +112,7 @@ CRC16_Calc  (UINT8             *data,
     return crc;
 }
 
-/**
- * CRC16_Check
- * @brief   calculate & test CRC16
- * This function checks a data block with attached CRC16
- */
+// Calc & Check CRC16
 bool
 CRC16_Check     (UINT8     *data,
                  UINT16     length,

@@ -54,10 +54,7 @@ static TSLIP   SLIP;
 // Section Code
 //------------------------------------------------------------------------------
 
-/**
- * Init
- * @brief: init SLIP decoder
- */
+// Init SLIP layer
 void SLIP_Init(TSLIP_CbRxMessage cbRxMessage)
 {
     // init decoder to idle state, no rx-buffer available
@@ -85,10 +82,7 @@ static void SLIP_StoreTxByte(UINT8 txByte)
       SLIP.TxBuffer[SLIP.TxIndex++] = txByte;
 }
 
-/**
- * EncodeData
- * @brief: encode a messages into dstBuffer
- */
+// Encode outgoing Data
 int SLIP_EncodeData(UINT8 *dstBuffer, int dstBufferSize, UINT8 *srcData, int srcLength)
 {
     // save start pointer
@@ -140,10 +134,7 @@ int SLIP_EncodeData(UINT8 *dstBuffer, int dstBufferSize, UINT8 *srcData, int src
     return -1;
 }
 
-/**
- * SetRxBuffer
- * @brief: configure a rx-buffer and enable receiver/decoder
- */
+// Init first receiver buffer
 bool SLIP_SetRxBuffer(UINT8 *rxBuffer, int rxBufferSize)
 {
     // receiver in IDLE state and client already registered ?
@@ -172,10 +163,7 @@ SLIP_StoreRxByte(UINT8 rxByte)
         SLIP.RxBuffer[SLIP.RxIndex++] = rxByte;
 }
 
-/**
- * DecodeData
- * @brief: process received byte stream
- */
+// Decode incoming Data
 void SLIP_DecodeData(UINT8 *srcData, int srcLength)
 {
     // init result

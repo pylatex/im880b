@@ -76,7 +76,7 @@ void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo);
 #endif
 
 volatile unsigned char rx_err; //Relacionados con el receptor
-#ifdef LORAWAN_HCI_H
+#ifdef MINIFIED_HCI_H
 volatile static HCIMessage_t RxMessage;
 #endif
 volatile unsigned bool pendingmsg;
@@ -155,7 +155,7 @@ void setup (void) {
     #ifdef SERIAL_DEVICE_H
     SerialDevice_Open("",115200,8,0);
     #endif
-    #ifdef LORAWAN_HCI_H
+    #ifdef MINIFIED_HCI_H
     InitHCI(ProcesaHCI,(HCIMessage_t *) &RxMessage);
     #endif
 }
@@ -365,7 +365,7 @@ void main(void)
 }
 
 void __interrupt ISR (void) {
-    #ifdef LORAWAN_HCI_H
+    #ifdef MINIFIED_HCI_H
     if (RCIE && RCIF) {
         //Error reading
         rx_err=RCSTA;
@@ -403,7 +403,7 @@ void ms100 (unsigned char q) {
         __delay_ms(100);    //XC8 compiler
 }
 
-#ifdef LORAWAN_HCI_H
+#ifdef MINIFIED_HCI_H
 /**
  * Handler for (pre)processing of an incoming HCI message. Once the user exits
  * from this handler function, the RxMessage.size variable gets cleared!

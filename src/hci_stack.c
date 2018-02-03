@@ -29,11 +29,7 @@ volatile static HCIMessage_t            HCIrxMessage;
 // Section Source
 //------------------------------------------------------------------------------
 
-/**
- * Initializes the serial port / UART
- * @param UserHandlerRx Call to user function that process a formed HCI message
- * @return true on success
- */
+//HCI Initialization
 bool InitHCI (
     WMHCIuserProc   HCI_RxHandler,    //a function that returns a bool, and receives a HCIMessage_t
     HCIMessage_t   *RxMessage       //HCI message for reception.
@@ -46,14 +42,7 @@ bool InitHCI (
     return SerialDevice_Open("",115200,8,0);   //Enables UART, and from it: RX, TX and interrupts by RX
 }
 
-/**
- * @brief: Sends an HCI message
- * Calculates the CRC to the HCI message to be sent, stored in buffer, then
- * applies the SLIP wrapper to the result and sends it through the UART.
- * 
- * @param buffer: HCI message. In 0 the DstID, in 1 the MsgID. Else the payload
- * @param size: Size of the payload of the HCI message
- */
+//Envio de un comando HCI
 bool SendHCI (HCIMessage_t *TxMessage)
 {
     unsigned short aux=HCI_WKUPCHARS;
@@ -95,12 +84,7 @@ bool SendHCI (HCIMessage_t *TxMessage)
     return (bool) SerialDevice_SendByte(SLIP_END);
 }
 
-/**
- * Groups every incoming UART octect in an HCI message. At the end calls the
- * function given by user at initialization, to process the formed HCI message.
- * 
- * @param rxByte: The byte received by the UART
- */
+//Procesamiento de HCI entrante.
 void IncomingHCIpacker (unsigned char rxByte)
 {
     static bool escape=false;

@@ -1,20 +1,28 @@
 #ifndef HPM_H_INCLUDED
 #define HPM_H_INCLUDED
 
-typedef int (*hpm_enviaSerie_t)(unsigned char *carga,int largo);
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
-void InicializacionHPM(hpm_enviaSerie_t enviaSerie);
+    typedef int (*hpm_enviaSerie_t)(unsigned char *carga,int largo);
 
-//
-void SolicitarMedida(void);
+    void InicializacionHPM(hpm_enviaSerie_t enviaSerie);
 
-//
-void InciarMedicion(void);
+    //
+    void SolicitarMedida(void);
 
-//
-void PararMedicion(void);
+    //
+    void InciarMedicion(void);
 
-//
-void RespuestaSensor(unsigned char *carga,unsigned char peso);
+    //
+    void PararMedicion(void);
+
+    //
+    void RespuestaSensor(unsigned char *carga,unsigned char peso);
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif // HPM_H_INCLUDED

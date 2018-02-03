@@ -15,23 +15,17 @@
 #include <xc.h>
 #include "SerialDevice.h"
 
+#define SerialSentIsOpen() SPEN && TXEN
+
 //------------------------------------------------------------------------------
 //  Section RAM and Function Prototypes
 //------------------------------------------------------------------------------
-
-//Simple check
-bool SerialSentIsOpen(void);
 
 //------------------------------------------------------------------------------
 //  Section Code
 //------------------------------------------------------------------------------
 
-/**
- * Open
- * @brief: open serial device
- * 
- * Configura e Inicia el modulo/puerto serie.
- */
+// open serial device
 bool
 SerialDevice_Open(const char   *comPort,
                   UINT32        baudRate,   //115200, siempre.
@@ -61,31 +55,17 @@ SerialDevice_Open(const char   *comPort,
     return SerialSentIsOpen();
 }
 
-/*
- * Simple check for the status of Tx module
- */
-bool SerialSentIsOpen(void)
-{
-    return (bool)(SPEN && TXEN);
-            }
-
-/**
- * Close
- * @brief: close serial device
- */
+// close serial device
 bool
 SerialDevice_Close()
 {
-    SPEN=false; //2. Habilita Puerto Serie
-    TXEN=false; //6,Tx. Habilita transmisor
-    CREN=false;  //6,Rx. Habilita receptor
-        return true;
-    }
+    SPEN=false;
+    TXEN=false;
+    CREN=false;
+    return true;
+}
 
-/**
- * SendData
- * @brief: send data
- */
+// send data
 int
 SerialDevice_SendData(UINT8 *txBuffer, UINT8 txLength)
 {
@@ -93,15 +73,12 @@ SerialDevice_SendData(UINT8 *txBuffer, UINT8 txLength)
         if (!SerialDevice_SendByte(txBuffer[i])) {
             //Escapes the error
             return false;
-    }
+        }
     }
     return true;
 }
 
-/**
- * SendByte
- * @brief: send single byte
- */
+// send single byte
 int
 SerialDevice_SendByte(UINT8 txByte)
 {
@@ -112,12 +89,9 @@ SerialDevice_SendByte(UINT8 txByte)
         return true;
     }
     return false;
-    }
+}
 
-/**
- * ReadData
- * @brief: read data
- */
+// read data
 int
 SerialDevice_ReadData(UINT8 *rxBuffer, int rxBufferSize)
 {

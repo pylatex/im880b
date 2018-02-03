@@ -12,8 +12,7 @@
 extern "C" {
 #endif
 
-unsigned short valorPropano(void);
-
+    unsigned short valorPropano(void);
 
 #ifdef	__cplusplus
 }

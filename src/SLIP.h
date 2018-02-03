@@ -41,19 +41,31 @@ extern "C" {
     // SLIP message receiver callback
     typedef UINT8  *(*TSLIP_CbRxMessage)(UINT8 *message, int length);
 
-    // Init SLIP layer
+    /**
+     * Init
+     * @brief: init SLIP decoder
+     */
     void
     SLIP_Init(TSLIP_CbRxMessage cbRxMessage);
 
-    // Init first receiver buffer
+    /**
+     * SetRxBuffer
+     * @brief: configure a rx-buffer and enable receiver/decoder
+     */
     bool
     SLIP_SetRxBuffer(UINT8 *rxBuffer, int rxBufferSize);
 
-    // Encode outgoing Data
+    /**
+     * EncodeData
+     * @brief: encode a messages into dstBuffer
+     */
     int
     SLIP_EncodeData(UINT8 *dstBuffer, int txBufferSize, UINT8 *srcData,int srcLength);
 
-    // Decode incoming Data
+    /**
+     * DecodeData
+     * @brief: process received byte stream
+     */
     void
     SLIP_DecodeData(UINT8 *srcData, int srcLength);
 

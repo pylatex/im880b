@@ -69,17 +69,26 @@ extern "C" {
     //Message receiver callback
     typedef TWiMOD_HCI_Message *(*TWiMOD_HCI_CbRxMessage)(TWiMOD_HCI_Message *rxMessage);
 
-    //Init HCI Layer
+    /**
+     * Init
+     * @brief: Init HCI Message layer
+     */
     bool
     WiMOD_HCI_Init(const char              *comPort,
                    TWiMOD_HCI_CbRxMessage   cbRxMessage,
                    TWiMOD_HCI_Message      *rxMessage);
 
-    //Send HCI Message
+    /**
+     * SendMessage
+     * @brief: Send a HCI message (with or without payload)
+     */
     int
     WiMOD_HCI_SendMessage(TWiMOD_HCI_Message *txMessage);
 
-    //Receiver Process
+    /**
+     * Process
+     * @brief: read incoming serial data
+     */
     void
     WiMOD_HCI_Process();
 

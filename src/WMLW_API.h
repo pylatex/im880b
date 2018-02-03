@@ -27,7 +27,7 @@ extern "C" {
 #define DEVMGMT_STATUS_WRONG_PARAMETER      0x03
 #define DEVMGMT_STATUS_WRONG_DEVICE_MODE    0x04
 
-// Message Identifier --------------------------value---PayloadOctets
+// Message Identifier                         | value | PayloadOctets
 #define DEVMGMT_MSG_PING_REQ                    0x01    //0
 #define DEVMGMT_MSG_PING_RSP                    0x02    //1
 
@@ -79,7 +79,7 @@ extern "C" {
 #define LORAWAN_STATUS_CHANNEL_BLOCKED_BY_DC    0x0A
 #define LORAWAN_STATUS_CHANNEL_NOT_AVAILABLE    0x0B
 
-// Message Identifier --------------------------value---PayloadOctets
+// Message Identifier                         | value | PayloadOctets
 #define LORAWAN_MSG_ACTIVATE_DEVICE_REQ         0x01    //36
 #define LORAWAN_MSG_ACTIVATE_DEVICE_RSP         0x02    //1
 

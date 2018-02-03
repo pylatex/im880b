@@ -76,10 +76,7 @@ static TWiMOD_HCI_MsgLayer  HCI;
 // reserve one TxBuffer
 static UINT8                TxBuffer[sizeof( TWiMOD_HCI_Message ) * 2 + 2];
 
-/**
- * Init
- * @brief: Init HCI Message layer
- */
+//Init HCI Layer
 bool
 WiMOD_HCI_Init(const char              *comPort,        // comPort
                TWiMOD_HCI_CbRxMessage   cbRxMessage,    // HCI msg recv. callback
@@ -105,10 +102,7 @@ WiMOD_HCI_Init(const char              *comPort,        // comPort
 
 }
 
-/**
- * SendMessage
- * @brief: Send a HCI message (with or without payload)
- */
+//Send HCI Message
 int WiMOD_HCI_SendMessage(TWiMOD_HCI_Message *txMessage)
 {
     // 1. check parameter
@@ -163,10 +157,7 @@ int WiMOD_HCI_SendMessage(TWiMOD_HCI_Message *txMessage)
     return -1;
 }
 
-/**
- * Process
- * @brief: read incoming serial data
- */
+//Receiver Process
 void WiMOD_HCI_Process()
 {
     UINT8   rxBuf[20];

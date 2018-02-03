@@ -47,12 +47,7 @@ static int fd = -1; // File descriptor for the port
 //  Section Code
 //------------------------------------------------------------------------------
 
-/**
- * Open
- * @brief: open serial device
- *
- * Configura e Inicia el modulo/puerto serie.
- */
+// open serial device
 bool
 SerialDevice_Open(const char   *comPort,
                   UINT32        baudRate,
@@ -155,10 +150,7 @@ SerialDevice_Open(const char   *comPort,
 
 }
 
-/**
- * Close
- * @brief: close serial device
- */
+// close serial device
 bool
 SerialDevice_Close()
 {
@@ -187,10 +179,7 @@ SerialDevice_Close()
     return false;
 }
 
-/**
- * SendData
- * @brief: send data
- */
+// send data
 int
 SerialDevice_SendData(UINT8 *txBuffer, UINT8 txLength)
 {
@@ -226,10 +215,7 @@ SerialDevice_SendData(UINT8 *txBuffer, UINT8 txLength)
     return -1;
 }
 
-/**
- * SendByte
- * @brief: send single byte
- */
+// send single byte
 int
 SerialDevice_SendByte(UINT8 txByte)
 {
@@ -259,10 +245,7 @@ SerialDevice_SendByte(UINT8 txByte)
     return -1;
 }
 
-/**
- * ReadData
- * @brief: read data
- */
+// read data
 int
 SerialDevice_ReadData(UINT8 *rxBuffer, int rxBufferSize)
 {

@@ -43,39 +43,64 @@ extern "C" {
     //  Function Prototypes
     //--------------------------------------------------------------------------
 
-    // init
+    /**
+     * Init
+     * @brief: init complete interface
+     */
     bool
     WiMOD_LoRaWAN_Init(const char *comPort);
 
-    // ping device
+    /**
+     * Ping
+     * @brief: ping device
+     */
     int
     WiMOD_LoRaWAN_SendPing();
 
-    // get firmware Version
+    /**
+     * GetFirmwareVersion
+     * @brief: get firmware version
+     */
     int
     WiMOD_LoRaWAN_GetFirmwareVersion();
 
-    // join network
+    /**
+     * JoinNetworkRequest
+     * @brief: send join radio message
+     */
     int
     WiMOD_LoRaWAN_JoinNetworkRequest();
 
-    // send unconfirmed radio data
+    /**
+     * SendURadioData
+     * @brief: send unconfirmed radio message
+     */
     int
     WiMOD_LoRaWAN_SendURadioData(UINT8 port, UINT8 *data, UINT8 length);
 
-    // send confirmed radio data
+    /**
+     * SendCRadioData
+     * @brief: send confirmed radio message
+     */
     int
     WiMOD_LoRaWAN_SendCRadioData(UINT8 port, UINT8 *data, UINT8 length);
 
-    // receiver process
+    /**
+     * Process
+     * @brief: handle receiver process
+     */
     void
     WiMOD_LoRaWAN_Process();
 
-    // ask the time from module's RTC
+    /**
+     * Request the time from RTC on module
+     */
     int
     WiMOD_LoRaWAN_GetTime();
 
-    // get the LoRaWAN Network status of the device
+    /**
+     * Request the status of the device on the LoRaWAN Network
+     */
     int
     WiMOD_LoRaWAN_GetNetworkStatus();
 

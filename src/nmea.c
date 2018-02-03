@@ -4,7 +4,7 @@
 
 typedef struct {
     char         *pers[PTR_SZ]; //Indices en que se encuentran ubicadas las comas
-    unsigned char fields;      //Cantidad de comas
+    unsigned char fields;       //Cantidad de comas
     unsigned int  CSgiven;      //Suma de verificacion (parseado de los Ultimos dos octetos)
     unsigned char CScalc;       //Suma de verificacion (XOR entre $ y *)
 } NMEA_t;
@@ -14,7 +14,6 @@ unsigned char NibbleVal (unsigned char in);
 
 char NMEAload (char *phrase, unsigned char len) {
     unsigned char aux=0;
-    unsigned int sum=0;
 
     //Detect and skip the beginning of NMEA content
     while (len) {

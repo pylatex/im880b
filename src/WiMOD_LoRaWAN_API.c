@@ -117,10 +117,7 @@ static const TIDString WiMOD_LoRaWAN_StatusStrings[] =
 //  Section Code
 //------------------------------------------------------------------------------
 
-/**
- * Init
- * @brief: init complete interface
- */
+// init
 bool
 WiMOD_LoRaWAN_Init(const char *comPort)
 {
@@ -130,10 +127,7 @@ WiMOD_LoRaWAN_Init(const char *comPort)
                    &RxMessage);                     // rx message
 }
 
-/**
- * Ping
- * @brief: ping device
- */
+// ping device
 int
 WiMOD_LoRaWAN_SendPing()
 {
@@ -146,10 +140,7 @@ WiMOD_LoRaWAN_SendPing()
     return WiMOD_HCI_SendMessage(&TxMessage);
 }
 
-/**
- * GetFirmwareVersion
- * @brief: get firmware version
- */
+// get firmware Version
 int
 WiMOD_LoRaWAN_GetFirmwareVersion()
 {
@@ -162,10 +153,7 @@ WiMOD_LoRaWAN_GetFirmwareVersion()
     return WiMOD_HCI_SendMessage(&TxMessage);
 }
 
-/**
- * JoinNetworkRequest
- * @brief: send join radio message
- */
+// request to join network
 int
 WiMOD_LoRaWAN_JoinNetworkRequest()
 {
@@ -178,10 +166,7 @@ WiMOD_LoRaWAN_JoinNetworkRequest()
     return WiMOD_HCI_SendMessage(&TxMessage);
 }
 
-/**
- * SendURadioData
- * @brief: send unconfirmed radio message
- */
+// send unconfirmed radio data
 int
 WiMOD_LoRaWAN_SendURadioData(UINT8  port,       // LoRaWAN Port
                              UINT8 *srcData,    // application payload
@@ -210,10 +195,7 @@ WiMOD_LoRaWAN_SendURadioData(UINT8  port,       // LoRaWAN Port
     return WiMOD_HCI_SendMessage(&TxMessage);
 }
 
-/**
- * SendCRadioData
- * @brief: send confirmed radio message
- */
+// send confirmed radio data
 int
 WiMOD_LoRaWAN_SendCRadioData(UINT8  port,       // LoRaWAN Port
                              UINT8 *srcData,    // application data
@@ -242,9 +224,7 @@ WiMOD_LoRaWAN_SendCRadioData(UINT8  port,       // LoRaWAN Port
     return WiMOD_HCI_SendMessage(&TxMessage);
 }
 
-/**
- * Request the time from RTC on module
- */
+// Request the time from RTC on module
 int
 WiMOD_LoRaWAN_GetTime() {
     // 1. init header
@@ -258,9 +238,7 @@ WiMOD_LoRaWAN_GetTime() {
     return 0;
 }
 
-/**
- * Request the status of the device on the LoRaWAN Network
- */
+// get the LoRaWAN Network status of the device
 int
 WiMOD_LoRaWAN_GetNetworkStatus() {
     // 1. init header
@@ -274,10 +252,7 @@ WiMOD_LoRaWAN_GetNetworkStatus() {
     return 0;
 }
 
-/**
- * Process
- * @brief: handle receiver process
- */
+// receiver process
 void
 WiMOD_LoRaWAN_Process()
 {

@@ -18,14 +18,7 @@
 
 #define T67XX_ADDR          T67XX_DEFADDR
 
-/**
- * Reads a register on the T67xx sensor.
- * from T67xx sensor.
- * @param fc:           Function Code
- * @param address:      Address of the register
- * @param RespLength:   Expected length of the response (in bytes)
- * @return A pointer to the array result of reading the sensor register specified
- */
+//Lectura del sensor
 unsigned char *T67XX_Read(unsigned char fc,unsigned short address,unsigned char RespLength)
 {   
     static uint8_t  Buffer[7];
