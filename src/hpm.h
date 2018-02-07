@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-    typedef int (*hpm_enviaSerie_t)(unsigned char *carga,int largo);
+    typedef int (*hpm_enviaSerie_t)(unsigned char *carga,char largo);
 
     void InicializacionHPM(hpm_enviaSerie_t enviaSerie);
 

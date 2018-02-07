@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
     ShowMenu(comPort);
 
     #ifdef HPM
-    InicializacionHPM(SerialDevice_SendData);
+    InicializacionHPM((hpm_enviaSerie_t)SerialDevice_SendData);
     #endif // HPM
 
     #define MAXIMO_SENSOR 32
