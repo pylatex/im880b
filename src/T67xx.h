@@ -30,18 +30,13 @@ extern "C" {
     #define T67XX_ABCLOGIC_FC   5
 
     /**
-     * Reads a register on the T67xx sensor.
-     * from T67xx sensor.
-     * @param fc:           Function Code
-     * @param address:      Address of the register
-     * @param RespLength:   Expected length of the response (in bytes)
-     * @return A pointer to the array result of reading the sensor register specified
+     * Reads the last measure of CO2 in ppm
+     * @return measure in array format {MSB,LSB}
      */
-    unsigned char *T67XX_Read(unsigned char fc,unsigned short address,unsigned char RespLength);
+    unsigned char *T67xx_C02 (void);
 
 #ifdef	__cplusplus
 }
 #endif
 
 #endif	/* T6700_H */
-

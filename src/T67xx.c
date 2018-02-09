@@ -2,6 +2,11 @@
  * Liberia para control de los sensores Telaire T67xx. Codigo basado en los
  * ejemplos disponibles en "i2c.h"
  */
+
+//------------------------------------------------------------------------------
+//  Include Files
+//------------------------------------------------------------------------------
+
 #include "T67xx.h"
 
 #define T67XX_I2C_MODE
@@ -16,9 +21,26 @@
 #include "SerialDevice.h"
 #endif
 
+//------------------------------------------------------------------------------
+//  Definitions, Declarations and Variables
+//------------------------------------------------------------------------------
+
 #define T67XX_ADDR          T67XX_DEFADDR
 
-//Lectura del sensor
+unsigned char *T67XX_Read(unsigned char fc,unsigned short address,unsigned char RespLength);
+
+//------------------------------------------------------------------------------
+//  Function Implementations
+//------------------------------------------------------------------------------
+
+/**
+ * Reads a register on the T67xx sensor.
+ * from T67xx sensor.
+ * @param fc:           Function Code
+ * @param address:      Address of the register
+ * @param RespLength:   Expected length of the response (in bytes)
+ * @return A pointer to the array result of reading the sensor register specified
+ */
 unsigned char *T67XX_Read(unsigned char fc,unsigned short address,unsigned char RespLength)
 {   
     static uint8_t  Buffer[7];
@@ -87,4 +109,13 @@ unsigned char *T67XX_Read(unsigned char fc,unsigned short address,unsigned char 
 #ifdef T67XX_UART_MODE
     
 #endif
+}
+
+unsigned char *T67xx_C02 (void)
+{
+    unsigned char *arrp = T67XX_Read(T67XX_GASPPM_FC,T67XX_GASPPM,4);
+    if (arrp)
+        return &arrp[2];
+    else
+        return 0;
 }

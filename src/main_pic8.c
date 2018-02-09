@@ -37,6 +37,8 @@
 #include "MQ2.h"
 #endif
 
+#include "pylatex.h"
+
 #define _XTAL_FREQ 8000000  //May be either Internal RC or external oscillator.
 //#define _XTAL_FREQ 7372800  //External Quartz Crystal to derivate common UART speeds
 
@@ -295,22 +297,11 @@ void main(void)
             case SENSprocess:
                 LED=true;
                 //Starts an I2C reading and decides upon the response.
-                respuesta=T67XX_Read(T67XX_GASPPM_FC,T67XX_GASPPM,4);
-                unsigned short mq2=valorPropano();
-                unsigned char carga[6],peso;
-                if (respuesta) {
-                    carga[0]=1; //Lectura: CO2
-                    carga[1]=respuesta[2];  //MSB
-                    carga[2]=respuesta[3];  //LSB
-                    carga[3]=3;
-                    carga[4]=(unsigned char)(mq2>>8);
-                    carga[5]=(unsigned char)(mq2&0xFF);
-                    peso=6;
-                } else {
-                    carga[0]=0; //Lectura: Ninguna (Error de conexion con sensor)
-                    peso=1;
-                }
-                WiMOD_LoRaWAN_SendURadioData(5, carga, peso);
+                respuesta=T67xx_C02();
+                if (respuesta)
+                    AppendMeasure(PY_CO2,respuesta);
+                AppendMeasure(PY_GAS,short2charp(valorPropano()));
+                SendMeasures();
                 status = NODEidleActive;
                 ms100(1);   //Completa los 5 segundos...
                 LED=false;
@@ -430,3 +421,4 @@ void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo) {
         EUSART_Write(*(arreglo+(aux++)));
 }
 #endif
+
