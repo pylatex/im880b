@@ -1,5 +1,5 @@
 #include <xc.h>
-#include "MQ2.h"
+#include "ADC.h"
 
 typedef struct {
     unsigned short adcres;

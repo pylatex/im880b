@@ -13,6 +13,7 @@
 //#define TEST_2      //Verificacion comunicacion PIC-WiMOD
 //#define TEST_3      //Verificacion I2C(con sensor CO2 de Telaire)/UART
 //#define TEST_4      //Medicion ADC y envio por UART
+//#define TEST_5      //Pruebas Sensor iAQ-CORE
 
 //------------------------------------------------------------------------------
 //  Definitions and Setup
@@ -34,7 +35,10 @@
 #include "T67xx.h"
 #endif
 #if defined SMACH || defined TEST_4
-#include "MQ2.h"
+#include "ADC.h"
+#endif
+#ifdef TEST_5
+#include "iaq.h"
 #endif
 
 #include "pylatex.h"
@@ -92,7 +96,7 @@ volatile unsigned char timeouts;
 //Demora con Timer 1 y CCP 1
 void StartTimerDelayMs(unsigned char cant)
 {
-    //CCPR1=cant*250;
+    //CCPR1=cant*250; //250*A = (256-6)*A = (256-4-2)*A
     CCPR1=(unsigned short)((cant<<8)-(cant<<2)-(cant<<1));
     CCP1IF=false;   //Restablecer comparador
     CCP1CON=0x8B;   //Modulo CCP en Comparacion a (representado) cant/ms
@@ -351,6 +355,10 @@ void main(void)
         phlen=sprintf(phrase,"Propano:%u\n\r",valorPropano());
         enviaMsgSerie(phrase,phlen);
         ms100(10);
+        #endif
+
+        #ifdef TEST_5
+        
         #endif
     }
 }

@@ -12,15 +12,16 @@
         <itemPath>src/WMLW_API.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="Sensores" projectFiles="true">
-        <itemPath>src/MQ2.h</itemPath>
         <itemPath>src/T67xx.h</itemPath>
         <itemPath>src/hpm.h</itemPath>
+        <itemPath>src/iaq.h</itemPath>
       </logicalFolder>
       <itemPath>src/CRC16.h</itemPath>
       <itemPath>src/SerialDevice.h</itemPath>
       <itemPath>src/crc16modbus.h</itemPath>
       <itemPath>src/i2c.h</itemPath>
       <itemPath>src/pylatex.h</itemPath>
+      <itemPath>src/ADC.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -38,17 +39,16 @@
       </logicalFolder>
       <logicalFolder name="f1" displayName="Sensores" projectFiles="true">
         <itemPath>src/hpm.c</itemPath>
-        <itemPath>src/MQ2.c</itemPath>
         <itemPath>src/T67xx.c</itemPath>
+        <itemPath>src/iaq.c</itemPath>
       </logicalFolder>
       <itemPath>src/CRC16.c</itemPath>
       <itemPath>src/i2c.c</itemPath>
       <itemPath>src/main_pic8.c</itemPath>
-      <itemPath>src/SerialDevice_pc.c</itemPath>
       <itemPath>src/SerialDevice_pic8.c</itemPath>
       <itemPath>src/crc16modbus.c</itemPath>
-      <itemPath>src/main_pc.cpp</itemPath>
       <itemPath>src/pylatex.c</itemPath>
+      <itemPath>src/ADC.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -591,14 +591,6 @@
         <XC8-config-global>
         </XC8-config-global>
       </item>
-      <item path="src/SerialDevice_pc.c" ex="true" overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
       <item path="src/WiMOD_HCI_Layer.c" ex="true" overriding="false">
         <HI-TECH-COMP>
         </HI-TECH-COMP>
@@ -616,14 +608,6 @@
         </XC8-config-global>
       </item>
       <item path="src/crc16modbus.c" ex="true" overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="src/main_pc.cpp" ex="true" overriding="false">
         <HI-TECH-COMP>
         </HI-TECH-COMP>
         <HI-TECH-LINK>
@@ -1159,14 +1143,6 @@
         <XC8-config-global>
         </XC8-config-global>
       </item>
-      <item path="src/SerialDevice_pc.c" ex="true" overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
       <item path="src/WiMOD_HCI_Layer.c" ex="true" overriding="false">
         <HI-TECH-COMP>
         </HI-TECH-COMP>
@@ -1184,14 +1160,6 @@
         </XC8-config-global>
       </item>
       <item path="src/crc16modbus.c" ex="true" overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="src/main_pc.cpp" ex="true" overriding="false">
         <HI-TECH-COMP>
         </HI-TECH-COMP>
         <HI-TECH-LINK>
