@@ -116,26 +116,30 @@ void blink (unsigned char cant,unsigned char high,unsigned char low) {
 
 void setup (void) {
 
-    #ifdef _18F2550
+    //OSCILLATOR
+#ifdef _18F2550
     OSCCON=0x73;    //Internal at 8 MHz
     while(!IOFS);   //Waits for stabilization
-    PORTA=0;
-    LATA=0;
-    TRISA=0xFD; //RA0 as output
-
-    //Inicializacion del ADC
-    ADCON1=0x0E;
-    ADCON2=0x83;
-    #endif
-
-    #ifdef _16F1769
+#endif
+#ifdef _16F1769
     OSCCON=0x70;    //Internal at 8 MHz
     while(!HFIOFS); //May be either PLLR or HFIOFS. See OSCSTAT register for specific case
+#endif
+
+    //PINS SETUP
     PORTA=0;
     LATA=0;
+#ifdef _16F1769
     ANSELA=0;       //All pins as digital
-    TRISA=0xFA;     //Pines 2 y 0 son salidas digitales
+#endif
+#ifdef _18F2550
+    ADCON1=0x0E;
+    ADCON2=0x83;
+#endif
+    TRISA=0xFD; //RA1 as output
 
+    //UART & I2C
+#ifdef _16F1769
     //Entradas y salidas UART
     RXPPS=0x05;     //Rx viene de RA5
     RA2PPS=0x16;    //Tx va hacia RA2
@@ -151,7 +155,7 @@ void setup (void) {
     PPSLOCK = 0x55;
     PPSLOCK = 0xAA;
     PPSLOCKbits.PPSLOCKED = 0x01; // lock PPS
-    #endif
+#endif
 
     ms100(2);   //Delay for stabilization of power supply
 
