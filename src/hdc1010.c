@@ -1,8 +1,27 @@
+/*
+ * Implementacion de la libreria para el control del sensor HDC1010
+ */
+
 #include "hdc1010.h"
 #include "i2c.h"
 
+typedef union {
+    unsigned short reg;
+    struct {
+        unsigned        :8;
+        unsigned HRES   :2; //8..9
+        unsigned TRES   :1; //10
+        unsigned BTST   :1; //11
+        unsigned MODE   :1; //12
+        unsigned HEAT   :1; //13
+        unsigned        :1;
+        unsigned RST    :1; //14
+    };
+} HDC_CONFIG_REG_t;
+
 static I2C_MESSAGE_STATUS   status;
 static void HDCreadConfig (void);
+static bool HDCwriteConfig (void);
 static void checkMode (const unsigned mode);
 static unsigned short ExtractUshort (unsigned char *buff);
 static unsigned char *HDC_ReadReg (unsigned char addr,unsigned char len);
@@ -10,7 +29,7 @@ static bool HDC_WriteReg (unsigned char addr, unsigned short *val);
 
 static unsigned short      *temp;   //Variable (address) specified by user, for temperature readings
 static unsigned short      *hum;    //Variable (address) specified by user, for humidity readings
-static HDC_CONFIG_REG_t    *conf;   
+static HDC_CONFIG_REG_t     conf;
 
 #define I2C_MAX_ATTEMPTS    100
 #define HDC_ADDR_PINS       0   //External Pin Setup
@@ -61,30 +80,54 @@ bool HDCboth () {
     return false;
 }
 
+unsigned HDCgetTempResolution (void) {
+    return conf.TRES;
+}
+
+void HDCsetTempResolution (unsigned const TempResolution) {
+    conf.TRES=TempResolution & 0x01;
+    HDCwriteConfig();
+}
+
+unsigned HDCgetHumidityResolution (void) {
+    return conf.HRES;
+}
+
+void HDCsetHumidityResolution (unsigned const HumidityResolution) {
+    conf.HRES=HumidityResolution & 0x03;
+    HDCwriteConfig();
+}
+
 static void HDCreadConfig (void) {
     unsigned char *buff=HDC_ReadReg(HDC_CONFIG,2);
     if (buff)
-        conf->reg=ExtractUshort(buff);
+        conf.reg=ExtractUshort(buff);
 }
 
-bool HDCsetConfig (HDC_CONFIG_REG_t *conf) {
-    conf->reg &= 0xBFF0;    //Previous cleanup of forbidden bits
-    return HDC_WriteReg(HDC_CONFIG,&conf->reg);
+static bool HDCwriteConfig (void) {
+    conf.reg &= 0xBFF0;    //Previous cleanup of forbidden bits
+    return HDC_WriteReg(HDC_CONFIG,&conf.reg);
 }
 
 // OK
 static void checkMode (const unsigned mode) {
-    if (mode <= 1 && conf->MODE != mode) {
-        conf->MODE = mode;
-        HDCsetConfig(conf);
+    if (mode <= 1 && conf.MODE != mode) {
+        conf.MODE = mode;
+        HDCwriteConfig();
     }
 }
 
 // OK
 static unsigned short ExtractUshort (unsigned char *buff) {
-    return buff[0]<<8 | buff[1];
+    return (unsigned short )(buff[0]<<8 | buff[1]);
 }
 
+/**
+ * Updates the HDC1010 pointer address and (if not null pointer in val) writes a value in it
+ * @param addr
+ * @param val
+ * @return success or not
+ */
 static bool HDC_WriteReg (unsigned char addr, unsigned short *val)
 {
     if (addr >= 0x03 && addr <= 0xFA)
