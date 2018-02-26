@@ -5,7 +5,7 @@
 #include "hdc1010.h"
 #include "i2c.h"
 
-typedef union {
+static union {
     unsigned short reg;
     struct {
         unsigned        :8;
@@ -17,7 +17,7 @@ typedef union {
         unsigned        :1;
         unsigned RST    :1; //14
     };
-} HDC_CONFIG_REG_t;
+} conf;
 
 static I2C_MESSAGE_STATUS   status;
 static void HDCreadConfig (void);
@@ -29,17 +29,18 @@ static bool HDC_WriteReg (unsigned char addr, unsigned short *val);
 
 static unsigned short      *temp;   //Variable (address) specified by user, for temperature readings
 static unsigned short      *hum;    //Variable (address) specified by user, for humidity readings
-static HDC_CONFIG_REG_t     conf;
+static void (*delfun)(unsigned cant);
 
-#define I2C_MAX_ATTEMPTS    100
+#define I2C_MAX_ATTEMPTS    200
 #define HDC_ADDR_PINS       0   //External Pin Setup
 #define checkSingle()       checkMode(HDC_MODE_SINGLE)
 #define checkBoth()         checkMode(HDC_MODE_BOTH)
 
-void HDCinit (unsigned short *tempAdd,unsigned short *humAdd) {
+void HDCinit (unsigned short *tempAdd,unsigned short *humAdd,void (*DelayFun)(unsigned q)) {
     temp=tempAdd;
     hum=humAdd;
     HDCreadConfig();
+    delfun=DelayFun;
 }
 
 bool HDCtemp () {
@@ -155,8 +156,33 @@ static bool HDC_WriteReg (unsigned char addr, unsigned short *val)
         while(status == I2C_MESSAGE_PENDING);
 
         if (status == I2C_MESSAGE_COMPLETE)
+        {
+            unsigned short usdelay=0;
+            if (addr == HDC_TEMPERATURE) {
+                switch (conf.TRES) {
+                    case TRES_14:
+                        usdelay += 2700;
+                    case TRES_11:
+                        usdelay += 3650;
+                    default:
+                        break;
+                }
+            } else if (addr == HDC_HUMIDITY) {
+                switch (conf.HRES) {
+                    case HRES_14:
+                        usdelay += 2650;
+                    case HRES_11:
+                        usdelay += 1350;
+                    case HRES_8:
+                        usdelay += 2500;
+                    default:
+                        break;
+                }
+            }
+            if (usdelay)
+                delfun(usdelay);
             return true;
-
+        }
         // if status is  I2C_MESSAGE_ADDRESS_NO_ACK,
         //               or I2C_DATA_NO_ACK,
         // The device may be busy and needs more time for the last

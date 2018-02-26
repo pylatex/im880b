@@ -38,12 +38,15 @@ extern "C" {
 
     #define HDC_I2C_BASE_ADDR   0x40
 
+    #define HDC_DELAY_WAITING   true
+    #define HDC_DELAY_TIMEOUT   false
+
     /**
      * Initializes the library working mode
      * @param tempAdd   Address in which will be saved the temperature readings
      * @param humAdd    Address in which will be saved the humidity readings
      */
-    void HDCinit (unsigned short *tempAdd,unsigned short *humAdd);
+    void HDCinit (unsigned short *tempAdd,unsigned short *humAdd,void (*DelayFun)(unsigned q));
 
     /**
      * Updates the last temperature result in the pointed variable
