@@ -10,6 +10,7 @@
 //------------------------------------------------------------------------------
 
 #include "WiMOD_LoRaWAN_API.h"
+#include "hci_stack.h"
 #include "pylatex.h"
 
 //------------------------------------------------------------------------------
@@ -19,23 +20,28 @@
 #define LARGO   20
 #define PUERTO  5
 
-static enum {
+typedef enum {
+    WaitingUART,
+    WaitingNetStat,
+            WaitingActivation,
+    NWKinactive,
+    NWKactive,
+    NWKjoining,
     RESET,
     TestUART,
     GetNwkStatus,
-    NWKinactive,
-    NWKjoining,
-    NODEidleActive,
     NWKaccept,
     SENSprocess
-} status = RESET; //Initial State for the machine of Main.
+} status_t;
+
+static volatile status_t status = WaitingUART; //Initial State for the machine of Main.
 
 typedef struct {
     char carga[LARGO];
     char cnt;
 } PY_T;
 
-#define initPayload() PY.cnt=0
+#define initAppPayload() PY.cnt=0
 
 static PY_T PY;
 volatile static HCIMessage_t RxMessage;
@@ -45,7 +51,23 @@ volatile static HCIMessage_t RxMessage;
 //------------------------------------------------------------------------------
 
 void initLoraApp (void) {
-    initPayload();
+    initAppPayload();
+    InitHCI(ProcesaHCI,(HCIMessage_t *) &RxMessage);
+    WiMOD_LoRaWAN_SendPing();
+    while (status == WaitingUART);      //Espera hasta que haya respuesta del iM880
+    WiMOD_LoRaWAN_GetNetworkStatus();
+    while (status == WaitingNetStat);   //Espera a obtener el estado de la red
+    if (status == NWKinactive) {
+        WiMOD_LoRaWAN_JoinNetworkRequest();
+        while (status == NWKinactive);
+    }
+    while (status == WaitingActivation);
+}
+
+void connectLora (void) {
+    do {
+        ;
+    } while (true);
 }
 
 bool AppendMeasure (char variable,char *medida) {
@@ -71,7 +93,7 @@ bool AppendMeasure (char variable,char *medida) {
 
 void SendMeasures (void) {
     WiMOD_LoRaWAN_SendURadioData(5, PY.carga, PY.cnt);
-    initPayload();
+    initAppPayload();
 }
 
 char *short2charp (unsigned short in) {
@@ -79,6 +101,10 @@ char *short2charp (unsigned short in) {
     val[0]=in>>8    & 0xFF;
     val[1]=in       & 0xFF;
     return val;
+}
+
+void pylatexRx (char RxByteUART) {
+    IncomingHCIpacker(RxByteUART);
 }
 
 void maquina () {
@@ -119,7 +145,7 @@ void maquina () {
                             status = NWKinactive;
                             break;
                         case 2: //Active (OTAA)
-                            status = NODEidleActive;
+                            status = NWKactive;
                             break;
                         case 3: //Accediendo (OTAA)
                             status = NWKjoining;
@@ -174,12 +200,12 @@ void maquina () {
                     //The incoming HCI message is an indication of reception with no data
                     if (RxMessage.Payload[0] == LORAWAN_STATUS_OK) {
                         pendingmsg = false;
-                        status = NODEidleActive;
+                        status = NWKactive;
                     }
                 }
             }
             break;
-        case NODEidleActive:
+        case NWKactive:
             //Create more states to attend other HCI messages or modify this state
             ms100(49);//Espera ~5 segundos
             status = SENSprocess;
@@ -192,11 +218,69 @@ void maquina () {
                 AppendMeasure(PY_CO2,respuesta);
             AppendMeasure(PY_GAS,short2charp(valorPropano()));
             SendMeasures();
-            status = NODEidleActive;
+            status = NWKactive;
             ms100(1);   //Completa los 5 segundos...
             LED=false;
             break;
         default:
             break;
+    }
+}
+
+/**
+ * Handler for (pre)processing of an incoming HCI message. Once the user exits
+ * from this handler function, the RxMessage.size variable gets cleared!
+ */
+static void ProcesaHCI() {
+    if (RxMessage.check) {
+        switch (status) {
+
+            case WaitingUART:
+                //Basta con cualquier HCI entrante.
+                status = WaitingNetStat;
+                break;
+
+            case WaitingNetStat:
+                if ((RxMessage.SapID == LORAWAN_ID) && (RxMessage.MsgID == LORAWAN_MSG_GET_NWK_STATUS_RSP)) {
+                    //The incoming HCI message is a response of NWK STATUS
+                    switch (RxMessage.Payload[1]) {
+                        case 0: //Inactive
+                        case 1: //Active (ABP)
+                            status = NWKinactive;
+                            break;
+                        case 3: //Accediendo (OTAA)
+                            status = NWKjoining;
+                            break;
+                        case 2: //Active (OTAA)
+                            status = NWKactive;
+                        default:
+                            break;
+                    }
+                }
+                break;
+
+            case NWKinactive:
+                if ((RxMessage.SapID == LORAWAN_ID) && (RxMessage.MsgID == LORAWAN_MSG_JOIN_NETWORK_RSP)) {
+                    status = WaitingActivation;
+                }
+                break;
+                
+            case WaitingActivation:
+                if ((RxMessage.SapID == LORAWAN_ID) && (RxMessage.MsgID == LORAWAN_MSG_JOIN_NETWORK_IND)) {
+                    //The incoming HCI message is a join event
+                    switch (RxMessage.Payload[0]) {
+                        case 0x00:  //device successfully activated
+                        case 0x01:  //device successfully activated, Rx Channel Info attached
+                            status = NWKaccept;
+                        default:
+                            break;
+                    }
+                }
+                status = WaitingActivation;
+                break;
+
+            case NWKactive:
+                break;
+        }
     }
 }

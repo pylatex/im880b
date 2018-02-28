@@ -1,7 +1,7 @@
 /*
  * Archivo de ejemplo, para implementacion en microcontroladores.
  * Se pretende que se requieran interrupciones para el funcionamiento.
- * 
+ *
  * La mayoria de archivos vienen del comprimido
  * WiMOD_LoRaWAN_ExampleCode_HCI_C_V0_1.zip
  * y han sido ligeramente modificados para soportar tipos estandar.
@@ -187,7 +187,7 @@ void main(void)
     #endif
     #ifdef SMACH
     enum {
-        RESET, TestUART, GetNwkStatus, NWKinactive, NWKjoining, NODEidleActive, 
+        RESET, TestUART, GetNwkStatus, NWKinactive, NWKjoining, NODEidleActive,
         NWKaccept, SENSprocess
     } status = RESET; //Initial State for the machine of Main.
     #endif
@@ -244,7 +244,6 @@ void main(void)
                             default:
                                 break;
                         }
-                        
                     }
                 }
                 break;
