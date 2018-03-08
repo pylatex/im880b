@@ -58,8 +58,10 @@ bool AppendMeasure (char variable,char *medida) {
 }
 
 void SendMeasures (void) {
-    WiMOD_LoRaWAN_SendURadioData(5, PY.carga, PY.cnt);
-    initPayload();
+    if (PY.cnt) {
+        WiMOD_LoRaWAN_SendURadioData(5, PY.carga, PY.cnt);
+        initPayload();
+    }
 }
 
 char *short2charp (unsigned short in) {

@@ -46,10 +46,13 @@
 #define _XTAL_FREQ 8000000  //May be either Internal RC or external oscillator.
 //#define _XTAL_FREQ 7372800  //External Quartz Crystal to derivate common UART speeds
 
-#ifdef _18F2550
-//PIC18F2550 with INTOSC@8MHz
+#ifdef _18F2550 //PIC18F2550
 #pragma config PLLDIV = 1, CPUDIV = OSC1_PLL2, USBDIV = 1
-#pragma config FOSC = INTOSCIO_EC,  FCMEN = ON, IESO = OFF
+#if _XTAL_FREQ == 8000000
+#pragma config FOSC = INTOSCIO_EC,  FCMEN = ON, IESO = OFF // INTOSC @ 8MHz
+#elif _XTAL_FREQ == 7372800
+#pragma config FOSC = HS,  FCMEN = ON, IESO = OFF // HS @ 7.3728MHz
+#endif
 #pragma config PWRT = ON, BOR = OFF, BORV = 3, VREGEN = OFF
 #pragma config WDT = OFF, WDTPS = 32768
 #pragma config CCP2MX = ON, PBADEN = OFF, LPT1OSC = ON, MCLRE =	ON
@@ -60,10 +63,10 @@
 #endif
 
 #ifdef _16F1769
-#pragma config FOSC = INTOSC, WDTE = OFF, PWRTE = ON, MCLRE = OFF, CP = OFF, BOREN = OFF, CLKOUTEN = OFF, IESO = ON, FCMEN = ON
+#pragma config FOSC = INTOSC, WDTE = OFF, PWRTE = ON, MCLRE = ON, CP = OFF, BOREN = OFF, CLKOUTEN = OFF, IESO = ON, FCMEN = ON
 #pragma config WRT = OFF, PPS1WAY =	OFF, ZCD = OFF, PLLEN =	OFF, STVREN = ON, BORV = HI, LPBOR =	OFF, LVP = OFF
 
-#define LED LATA0   //Para las pruebas de parpadeo y ping
+#define LED LATC0   //Para las pruebas de parpadeo y ping
 //#define PIN RB5     //Para probar en un loop con LED=PIN
 #endif
 
@@ -78,7 +81,7 @@
 void ms100(unsigned char q); //A (100*q) ms delay
 void ProcesaHCI(); //Procesamiento de HCI entrante
 #ifdef SERIAL_DEVICE_H
-void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo);
+void enviaMsgSerie(char *arreglo,unsigned char largo);
 #endif
 
 volatile unsigned char rx_err; //Relacionados con el receptor
@@ -127,16 +130,20 @@ void setup (void) {
 #endif
 
     //PINS SETUP
-    PORTA=0;
-    LATA=0;
 #ifdef _16F1769
+    PORTC=0;
+    LATC=0;
     ANSELA=0;       //All pins as digital
+    ANSELC=0;       //All pins as digital
+    TRISC=0xFE; //RC0 as output
 #endif
 #ifdef _18F2550
+    PORTA=0;
+    LATA=0;
     ADCON1=0x0E;
     ADCON2=0x83;
-#endif
     TRISA=0xFD; //RA1 as output
+#endif
 
     //UART & I2C
 #ifdef _16F1769
@@ -182,9 +189,7 @@ void enableInterrupts (void) {
 void main(void)
 {
     setup();
-    #ifdef T6700_H
-    unsigned char *respuesta;
-    #endif
+
     #ifdef SMACH
     enum {
         RESET, TestUART, GetNwkStatus, NWKinactive, NWKjoining, NODEidleActive, 
@@ -304,11 +309,12 @@ void main(void)
                 break;
             case SENSprocess:
                 LED=true;
-                //Starts an I2C reading and decides upon the response.
-                respuesta=T67xx_C02();
-                if (respuesta)
-                    AppendMeasure(PY_CO2,respuesta);
-                AppendMeasure(PY_GAS,short2charp(valorPropano()));
+                //* Reading of T6713 though I2C
+                unsigned short rsp;
+                if (T67xx_CO2(&rsp))
+                    AppendMeasure(PY_CO2,short2charp(rsp));
+                // */
+                //AppendMeasure(PY_GAS,short2charp(valorPropano()));
                 SendMeasures();
                 status = NODEidleActive;
                 ms100(1);   //Completa los 5 segundos...
@@ -322,7 +328,7 @@ void main(void)
         //Prueba 1: Verificacion UART y Reloj ~ 1 Hz
         #ifdef TEST_1
         LED = true;
-        enviaMsgSerie("estoy vivo\n\r",0);
+        enviaMsgSerie((char *)"estoy vivo\r\n",0);
         ms100(5);
         LED = false;
         ms100(5);
@@ -336,27 +342,27 @@ void main(void)
 
         //Prueba 3: I2C hacia sensor CO2 Telaire T6713.
         #ifdef TEST_3
-        respuesta=T67XX_Read(T67XX_GASPPM_FC,T67XX_GASPPM,4);
-        unsigned char phrase[30],phlen;
+        unsigned short rsp;
+        char phrase[30];
+        unsigned char phlen;
 
-        if (respuesta) {
-            unsigned short valor=(unsigned short)((respuesta[2]<<8)|(respuesta[3]));
-            phlen=sprintf(phrase,"CO2: %u PPM\n\r",valor);
-            enviaMsgSerie((unsigned const char *)phrase,phlen);
+        if (T67xx_CO2(&rsp)) {
+            phlen=sprintf(phrase,"CO2: %u PPM\r\n",rsp);
+            enviaMsgSerie(phrase,phlen);
         } else {
-            enviaMsgSerie("No hubo lectura\n\r",0);
+            enviaMsgSerie((char *)"No hubo lectura\r\n",0);
         }
 
         LED=true;
         ms100(5);
         LED=false;
-        ms100(5);
+        ms100(45);
         #endif
 
         //Prueba 4: Medicion ADC y envio por UART
         #ifdef TEST_4
         unsigned char phrase[15],phlen;
-        phlen=sprintf(phrase,"Propano:%u\n\r",valorPropano());
+        phlen=sprintf(phrase,"Propano:%u\r\n",valorPropano());
         enviaMsgSerie(phrase,phlen);
         ms100(10);
         #endif
@@ -424,7 +430,7 @@ void ProcesaHCI() {
 #endif
 
 #ifdef SERIAL_DEVICE_H
-void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo) {
+void enviaMsgSerie(char *arreglo,unsigned char largo) {
     unsigned char aux=0;
     if (!largo)
         largo=strlen(arreglo);
