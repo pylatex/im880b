@@ -212,6 +212,7 @@ void I2C_Initialize(void)
     // Baud Rate Generator Value: SSPADD 3;
     //SSPADD = 0x4F;  //100 Kbps I2C std @ 32 MHz
     SSPADD = 0x13;  //100 Kbps I2C std @ 8 MHz
+    //SSPADD = 0x12;  //97 Kbps ~I2C std @ 7.3728 MHz
 
     // clear the master interrupt flag
     PIR1bits.SSPIF = 0;

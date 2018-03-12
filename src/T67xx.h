@@ -11,6 +11,7 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
+    #include <stdbool.h>
 
     #define T67XX_DEFADDR       0x15    //Default Slave Address
     //Addressess
@@ -31,9 +32,10 @@ extern "C" {
 
     /**
      * Reads the last measure of CO2 in ppm
+     * @param reg Pointer to unsigned short in which the result will be saved
      * @return measure in array format {MSB,LSB}
      */
-    unsigned char *T67xx_C02 (void);
+    bool T67xx_CO2 (unsigned short *reg);
 
 #ifdef	__cplusplus
 }

@@ -27,7 +27,7 @@ extern "C" {
 #define DEVMGMT_STATUS_WRONG_PARAMETER      0x03
 #define DEVMGMT_STATUS_WRONG_DEVICE_MODE    0x04
 
-// Message Identifier                         | value | PayloadOctets
+// Message Identifier                         | value | PayloadOctets | WiMOD LoraWAN HCI PDF version
 #define DEVMGMT_MSG_PING_REQ                    0x01    //0
 #define DEVMGMT_MSG_PING_RSP                    0x02    //1
 
@@ -37,10 +37,10 @@ extern "C" {
 #define DEVMGMT_MSG_GET_DEVICE_INFO_REQ         0x03    //0
 #define DEVMGMT_MSG_GET_DEVICE_INFO_RSP         0x04    //10
 
-#define DEVMGMT_MSG_GET_FW_INFO_REQ             DEVMGMT_MSG_GET_FW_VERSION_REQ  //WiMOD LoraWAN HCI PDF ver 1.13
-#define DEVMGMT_MSG_GET_FW_VERSION_REQ          0x05    //0
-#define DEVMGMT_MSG_GET_FW_INFO_RSP             DEVMGMT_MSG_GET_FW_VERSION_RSP  //WiMOD LoraWAN HCI PDF ver 1.13
-#define DEVMGMT_MSG_GET_FW_VERSION_RSP          0x06    //1+n
+#define DEVMGMT_MSG_GET_FW_INFO_REQ             0x05    //0                     1.13
+#define DEVMGMT_MSG_GET_FW_VERSION_REQ          DEVMGMT_MSG_GET_FW_INFO_REQ //DEPRECATED
+#define DEVMGMT_MSG_GET_FW_INFO_RSP             0x06    //1+n                   1.13
+#define DEVMGMT_MSG_GET_FW_VERSION_RSP          DEVMGMT_MSG_GET_FW_INFO_RSP //DEPRECATED
 
 #define DEVMGMT_MSG_GET_DEVICE_STATUS_REQ       0x17    //0
 #define DEVMGMT_MSG_GET_DEVICE_STATUS_RSP       0x18    //60
@@ -71,44 +71,47 @@ extern "C" {
 #define LORAWAN_STATUS_CMD_NOT_SUPPORTED        0x02
 #define LORAWAN_STATUS_WRONG_PARAMETER          0x03
 #define LORAWAN_STATUS_WRONG_DEVICE_MODE        0x04
-#define LORAWAN_STATUS_NOT_ACTIVATED            0x05
+#define LORAWAN_STATUS_DEVICE_NOT_ACTIVATED     0x05                            //1.22
+#define LORAWAN_STATUS_NOT_ACTIVATED            LORAWAN_STATUS_DEVICE_NOT_ACTIVATED //DEPRECATED
 #define LORAWAN_STATUS_BUSY                     0x06
 #define LORAWAN_STATUS_QUEUE_FULL               0x07
 #define LORAWAN_STATUS_LENGTH_ERROR             0x08
 #define LORAWAN_STATUS_NO_FACTORY_SETTINGS      0x09
-#define LORAWAN_STATUS_CHANNEL_BLOCKED_BY_DC    0x0A
+#define LORAWAN_STATUS_CHANNEL_BLOCKED          0x0A                            //1.22
+#define LORAWAN_STATUS_CHANNEL_BLOCKED_BY_DC    LORAWAN_STATUS_CHANNEL_BLOCKED  //DEPRECATED
 #define LORAWAN_STATUS_CHANNEL_NOT_AVAILABLE    0x0B
 
-// Message Identifier                         | value | PayloadOctets
+// Message Identifier                         | value | PayloadOctets | WiMOD LoraWAN HCI PDF version
 #define LORAWAN_MSG_ACTIVATE_DEVICE_REQ         0x01    //36
 #define LORAWAN_MSG_ACTIVATE_DEVICE_RSP         0x02    //1
-
 #define LORAWAN_MSG_REACTIVATE_DEVICE_REQ       0x1D    //0
 #define LORAWAN_MSG_REACTIVATE_DEVICE_RSP       0x1E    //5
+#define LORAWAN_MSG_DEACTIVATE_DEVICE_REQ       0x21    //0
+#define LORAWAN_MSG_DEACTIVATE_DEVICE_RSP       0x22    //1
 
 #define LORAWAN_MSG_SET_JOIN_PARAM_REQ          0x05    //24
 #define LORAWAN_MSG_SET_JOIN_PARAM_RSP          0x06    //1
 #define LORAWAN_MSG_JOIN_NETWORK_REQ            0x09    //0
 #define LORAWAN_MSG_JOIN_NETWORK_RSP            0x0A    //1
-#define LORAWAN_MSG_JOIN_NETWORK_TX_IND         LORAWAN_MSG_JOIN_TRANSMIT_IND   //WiMOD LoraWAN HCI PDF ver 1.13
-#define LORAWAN_MSG_JOIN_TRANSMIT_IND           0x0B    //1 (+3)
+#define LORAWAN_MSG_JOIN_NETWORK_TX_IND         0x0B    //1 (+3)                1.13
+#define LORAWAN_MSG_JOIN_TRANSMIT_IND           LORAWAN_MSG_JOIN_NETWORK_TX_IND //DEPRECATED
 #define LORAWAN_MSG_JOIN_NETWORK_IND            0x0C    //1 (+4 or +9)
 
 #define LORAWAN_MSG_SEND_UDATA_REQ              0x0D    //1+n
 #define LORAWAN_MSG_SEND_UDATA_RSP              0x0E    //1 (+4)
-#define LORAWAN_MSG_SEND_UDATA_TX_IND           LORAWAN_MSG_SEND_UDATA_IND      //WiMOD LoraWAN HCI PDF ver 1.13
-#define LORAWAN_MSG_SEND_UDATA_IND              0x0F    //1 (+2)
+#define LORAWAN_MSG_SEND_UDATA_TX_IND           0x0F    //1 (+2)                1.13
+#define LORAWAN_MSG_SEND_UDATA_IND              LORAWAN_MSG_SEND_UDATA_TX_IND   //DEPRECATED
 #define LORAWAN_MSG_RECV_UDATA_IND              0x10    //1+n (+5)
 
 #define LORAWAN_MSG_SEND_CDATA_REQ              0x11    //1+n
 #define LORAWAN_MSG_SEND_CDATA_RSP              0x12    //1 (+4)
-#define LORAWAN_MSG_SEND_CDATA_TX_IND           LORAWAN_MSG_SEND_CDATA_IND      //WiMOD LoraWAN HCI PDF ver 1.13
-#define LORAWAN_MSG_SEND_CDATA_IND              0x13    //1 (+3)
+#define LORAWAN_MSG_SEND_CDATA_TX_IND           0x13    //1 (+3)                1.13
+#define LORAWAN_MSG_SEND_CDATA_IND              LORAWAN_MSG_SEND_CDATA_TX_IND   //DEPRECATED
 #define LORAWAN_MSG_RECV_CDATA_IND              0x14    //1+n (+5)
 
 #define LORAWAN_MSG_RECV_ACK_IND                0x15    //1(+5) (OBSOLETE - search in PDF for details)
-#define LORAWAN_MSG_RECV_NO_DATA_IND            LORAWAN_MSG_RECV_NODATA_IND     //WiMOD LoraWAN HCI PDF ver 1.13
-#define LORAWAN_MSG_RECV_NODATA_IND             0x16    //1
+#define LORAWAN_MSG_RECV_NO_DATA_IND            0x16    //1                     1.13
+#define LORAWAN_MSG_RECV_NODATA_IND             LORAWAN_MSG_RECV_NO_DATA_IND    //DEPRECATED
 
 #define LORAWAN_MSG_SET_RSTACK_CONFIG_REQ       0x19    //6
 #define LORAWAN_MSG_SET_RSTACK_CONFIG_RSP       0x1A    //1
@@ -128,15 +131,19 @@ extern "C" {
 #define LORAWAN_MSG_FACTORY_RESET_REQ           0x23    //0
 #define LORAWAN_MSG_FACTORY_RESET_RSP           0x24    //1
 
-#define LORAWAN_MSG_DEACTIVATE_DEVICE_REQ       0x21    //0
-#define LORAWAN_MSG_DEACTIVATE_DEVICE_RSP       0x22    //1
-
 #define LORAWAN_MSG_GET_NWK_STATUS_REQ          0x29    //0
 #define LORAWAN_MSG_GET_NWK_STATUS_RSP          0x2A    //2
 
 #define LORAWAN_MSG_SEND_MAC_CMD_REQ            0x2B    //1+n
 #define LORAWAN_MSG_SEND_MAC_CMD_RSP            0x2C    //1
 #define LORAWAN_MSG_RECV_MAC_CMD_IND            0x2D    //1+n (+5)
+
+#define LORAWAN_MSG_GET_SUPPORTED_BANDS_REQ     0x35    //0                     1.22
+#define LORAWAN_MSG_GET_SUPPORTED_BANDS_RSP     0x36    //1+2*(n+1)             1.22
+#define LORAWAN_MSG_GET_LINKADRREQ_CONFIG_REQ   0x3D    //0                     1.22
+#define LORAWAN_MSG_GET_LINKADRREQ_CONFIG_RSP   0x3E    //2                     1.22
+#define LORAWAN_MSG_SET_LINKADRREQ_CONFIG_REQ   0x3B    //1                     1.22
+#define LORAWAN_MSG_SET_LINKADRREQ_CONFIG_RSP   0x3C    //1 (+1)                1.22
 
 #ifdef	__cplusplus
 }

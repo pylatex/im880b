@@ -23,7 +23,7 @@
 typedef enum {
     WaitingUART,
     WaitingNetStat,
-            WaitingActivation,
+    WaitingActivation,
     NWKinactive,
     NWKactive,
     NWKjoining,
@@ -37,20 +37,26 @@ typedef enum {
 static volatile status_t status = WaitingUART; //Initial State for the machine of Main.
 
 typedef struct {
-    char carga[LARGO];
-    char cnt;
+    char                    carga[LARGO];
+    char                    cnt;
+    delayHandlerFunction    delfun;
+    volatile bool          *tmrrun;
 } PY_T;
 
 #define initAppPayload() PY.cnt=0
 
 static PY_T PY;
+volatile unsigned bool pendingmsg;
+volatile unsigned char timeouts;
 volatile static HCIMessage_t RxMessage;
+static void ProcesaHCI(); //Procesamiento de HCI entrante
 
 //------------------------------------------------------------------------------
 //  Function Implementations
 //------------------------------------------------------------------------------
 
 void initLoraApp (void) {
+    PY.delfun=0;    //No delay function at startup
     initAppPayload();
     InitHCI(ProcesaHCI,(HCIMessage_t *) &RxMessage);
     WiMOD_LoRaWAN_SendPing();
@@ -64,10 +70,9 @@ void initLoraApp (void) {
     while (status == WaitingActivation);
 }
 
-void connectLora (void) {
-    do {
-        ;
-    } while (true);
+void registerDelayFunction(delayHandlerFunction delfun,volatile bool *flag) {
+    PY.delfun=delfun;
+    PY.tmrrun=flag;
 }
 
 bool AppendMeasure (char variable,char *medida) {
@@ -91,9 +96,14 @@ bool AppendMeasure (char variable,char *medida) {
     return false;
 }
 
-void SendMeasures (void) {
-    WiMOD_LoRaWAN_SendURadioData(5, PY.carga, PY.cnt);
-    initAppPayload();
+void SendMeasures (bool confirmed) {
+    if (PY.cnt) {
+        if (confirmed)
+            WiMOD_LoRaWAN_SendCRadioData(5, PY.carga, PY.cnt);
+        else
+            WiMOD_LoRaWAN_SendURadioData(5, PY.carga, PY.cnt);
+        initAppPayload();
+    }
 }
 
 char *short2charp (unsigned short in) {
@@ -101,10 +111,6 @@ char *short2charp (unsigned short in) {
     val[0]=in>>8    & 0xFF;
     val[1]=in       & 0xFF;
     return val;
-}
-
-void pylatexRx (char RxByteUART) {
-    IncomingHCIpacker(RxByteUART);
 }
 
 void maquina () {
@@ -118,8 +124,8 @@ void maquina () {
         case TestUART:
             WiMOD_LoRaWAN_SendPing();
             //Wait for TimeOut or HCI message and identify the situation:
-            StartTimerDelayMs(20);
-            while (TMR1ON && !pendingmsg); //Escapes at timeout or HCI received.
+            if (PY.delfun) PY.delfun(20);
+            while (*PY.tmrrun && !pendingmsg); //Escapes at timeout or HCI received.
             if (pendingmsg) {
                 timeouts=0;
                 if ((RxMessage.SapID == DEVMGMT_ID) && (RxMessage.MsgID == DEVMGMT_MSG_PING_RSP)) {
@@ -132,8 +138,8 @@ void maquina () {
         case GetNwkStatus:
             WiMOD_LoRaWAN_GetNetworkStatus();
             //Wait for TimeOut or HCI message and identify the situation:
-            StartTimerDelayMs(20);
-            while (TMR1ON && !pendingmsg); //Escapes at timeout or HCI received.
+            if (PY.delfun) PY.delfun(20);
+            while (*PY.tmrrun && !pendingmsg); //Escapes at timeout or HCI received.
             if (pendingmsg) {
                 timeouts=0;
                 if ((RxMessage.SapID == LORAWAN_ID) && (RxMessage.MsgID == LORAWAN_MSG_GET_NWK_STATUS_RSP)) {
@@ -159,8 +165,8 @@ void maquina () {
         case NWKinactive:
             WiMOD_LoRaWAN_JoinNetworkRequest();
             //Wait for TimeOut or HCI message and identify the situation:
-            StartTimerDelayMs(20);
-            while (TMR1ON && !pendingmsg); //Escapes at timeout or HCI received.
+            if (PY.delfun) PY.delfun(20);
+            while (*PY.tmrrun && !pendingmsg); //Escapes at timeout or HCI received.
             if (pendingmsg) {
                 timeouts=0;
                 if ((RxMessage.SapID == LORAWAN_ID) && (RxMessage.MsgID == LORAWAN_MSG_JOIN_NETWORK_RSP)) {
@@ -174,8 +180,8 @@ void maquina () {
             break;
         case NWKjoining:
             //Wait for TimeOut or HCI message and identify the situation:
-            StartTimerDelayMs(20);
-            while (TMR1ON && !pendingmsg); //Escapes at timeout or HCI received.
+            if (PY.delfun) PY.delfun(20);
+            while (*PY.tmrrun && !pendingmsg); //Escapes at timeout or HCI received.
             if (pendingmsg) {
                 timeouts=0;
                 if ((RxMessage.SapID == LORAWAN_ID) && (RxMessage.MsgID == LORAWAN_MSG_JOIN_NETWORK_IND)) {
@@ -192,8 +198,8 @@ void maquina () {
             break;
         case NWKaccept:
             //Wait for TimeOut or HCI message and identify the situation:
-            StartTimerDelayMs(20);
-            while (TMR1ON && !pendingmsg); //Escapes at timeout or HCI received.
+            if (PY.delfun) PY.delfun(20);
+            while (*PY.tmrrun && !pendingmsg); //Escapes at timeout or HCI received.
             if (pendingmsg) {
                 timeouts=0;
                 if ((RxMessage.SapID == LORAWAN_ID) && (RxMessage.MsgID == LORAWAN_MSG_RECV_NO_DATA_IND)) {
@@ -207,10 +213,11 @@ void maquina () {
             break;
         case NWKactive:
             //Create more states to attend other HCI messages or modify this state
-            ms100(49);//Espera ~5 segundos
+            //ms100(49);//Espera ~5 segundos
             status = SENSprocess;
             break;
         case SENSprocess:
+            /*
             LED=true;
             //Starts an I2C reading and decides upon the response.
             respuesta=T67xx_C02();
@@ -218,13 +225,18 @@ void maquina () {
                 AppendMeasure(PY_CO2,respuesta);
             AppendMeasure(PY_GAS,short2charp(valorPropano()));
             SendMeasures();
-            status = NWKactive;
             ms100(1);   //Completa los 5 segundos...
             LED=false;
+            */
+            status = NWKactive;
             break;
         default:
             break;
     }
+}
+
+void pylatexRx (char RxByteUART) {
+    IncomingHCIpacker(RxByteUART);
 }
 
 /**
@@ -264,7 +276,7 @@ static void ProcesaHCI() {
                     status = WaitingActivation;
                 }
                 break;
-                
+
             case WaitingActivation:
                 if ((RxMessage.SapID == LORAWAN_ID) && (RxMessage.MsgID == LORAWAN_MSG_JOIN_NETWORK_IND)) {
                     //The incoming HCI message is a join event

@@ -23,14 +23,18 @@ extern "C" {
     #define PY_ILUM     7   //LUX       ??
     #define PY_GAS      8   //GAS       A
 
+    typedef void (*delayHandlerFunction)(unsigned char mscant);
+
     void initLoraApp (void);
     bool AppendMeasure (char variable,char *medida);
-    void SendMeasures (void);
+    void SendMeasures (bool confirmed);
     char *short2charp (unsigned short in);
+    void registerDelayFunction(delayHandlerFunction delfun,volatile bool *flag);
+
+    void pylatexRx (char RxByteUART);
 
 #ifdef	__cplusplus
 }
 #endif
 
 #endif	/* PYLATEX_H */
-
