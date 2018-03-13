@@ -209,9 +209,12 @@ void main(void)
             AppendMeasure(PY_CO2,short2charp(rsp));
         // */
         //AppendMeasure(PY_GAS,short2charp(valorPropano()));
-        SendMeasures((cnt<60)?false:true);
-        cnt++;
-        if (cnt>60) cnt=0;
+        if (cnt++ < 60)
+            SendMeasures(false);
+        else {
+            SendMeasures(true);
+            cnt=0;
+        }
         ms100(1);
         LED=false;
         ms100(49);  //Approx. each 5 sec ((49+1)x100ms)
