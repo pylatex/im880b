@@ -41,12 +41,14 @@ extern "C" {
     #define HDC_DELAY_WAITING   true
     #define HDC_DELAY_TIMEOUT   false
 
+    typedef void (*DelayFunction)(unsigned char time);
+
     /**
      * Initializes the library working mode
      * @param tempAdd   Address in which will be saved the temperature readings
      * @param humAdd    Address in which will be saved the humidity readings
      */
-    void HDCinit (unsigned short *tempAdd,unsigned short *humAdd,void (*DelayFun)(unsigned q));
+    void HDCinit (unsigned short *tempAdd,unsigned short *humAdd,DelayFunction msDelayHandler);
 
     /**
      * Updates the last temperature result in the pointed variable

@@ -5,7 +5,7 @@
 #include "hdc1010.h"
 #include "i2c.h"
 
-static union {
+typedef union {
     unsigned short reg;
     struct {
         unsigned        :8;
@@ -17,7 +17,14 @@ static union {
         unsigned        :1;
         unsigned RST    :1; //14
     };
-} conf;
+} HDC_conf_t;
+
+static struct {
+    HDC_conf_t      conf;
+    unsigned short *temp;   //Variable (address) specified by user, for temperature readings
+    unsigned short *hum;    //Variable (address) specified by user, for humidity readings
+    DelayFunction   delay;
+} HDC;
 
 static I2C_MESSAGE_STATUS   status;
 static void HDCreadConfig (void);
@@ -27,20 +34,16 @@ static unsigned short ExtractUshort (unsigned char *buff);
 static unsigned char *HDC_ReadReg (unsigned char addr,unsigned char len);
 static bool HDC_WriteReg (unsigned char addr, unsigned short *val);
 
-static unsigned short      *temp;   //Variable (address) specified by user, for temperature readings
-static unsigned short      *hum;    //Variable (address) specified by user, for humidity readings
-static void (*delfun)(unsigned cant);
-
 #define I2C_MAX_ATTEMPTS    200
 #define HDC_ADDR_PINS       0   //External Pin Setup
 #define checkSingle()       checkMode(HDC_MODE_SINGLE)
 #define checkBoth()         checkMode(HDC_MODE_BOTH)
 
-void HDCinit (unsigned short *tempAdd,unsigned short *humAdd,void (*DelayFun)(unsigned q)) {
-    temp=tempAdd;
-    hum=humAdd;
+void HDCinit (unsigned short *tempAdd,unsigned short *humAdd,DelayFunction msDelayHandler) {
+    HDC.temp=tempAdd;
+    HDC.hum=humAdd;
     HDCreadConfig();
-    delfun=DelayFun;
+    HDC.delay=msDelayHandler;
 }
 
 bool HDCtemp () {
@@ -48,7 +51,7 @@ bool HDCtemp () {
 
     unsigned char *ptr=HDC_ReadReg(HDC_TEMPERATURE,2);
     if (ptr) {
-        *temp = ExtractUshort(ptr);
+        *HDC.temp = ExtractUshort(ptr);
         return true;
     }
 
@@ -60,7 +63,7 @@ bool HDChumidity () {
 
     unsigned char *ptr=HDC_ReadReg(HDC_HUMIDITY,2);
     if (ptr) {
-        *hum = ExtractUshort(ptr);
+        *HDC.hum = ExtractUshort(ptr);
         return true;
     }
 
@@ -72,9 +75,9 @@ bool HDCboth () {
 
     unsigned char *ptr=HDC_ReadReg(HDC_TEMPERATURE,4);
     if (ptr) {
-        *temp = ExtractUshort(ptr);
+        *HDC.temp = ExtractUshort(ptr);
         ptr += 2;
-        *hum = ExtractUshort(ptr);
+        *HDC.hum = ExtractUshort(ptr);
         return true;
     }
 
@@ -82,38 +85,38 @@ bool HDCboth () {
 }
 
 unsigned HDCgetTempResolution (void) {
-    return conf.TRES;
+    return HDC.conf.TRES;
 }
 
 void HDCsetTempResolution (unsigned const TempResolution) {
-    conf.TRES=TempResolution & 0x01;
+    HDC.conf.TRES=TempResolution & 0x01;
     HDCwriteConfig();
 }
 
 unsigned HDCgetHumidityResolution (void) {
-    return conf.HRES;
+    return HDC.conf.HRES;
 }
 
 void HDCsetHumidityResolution (unsigned const HumidityResolution) {
-    conf.HRES=HumidityResolution & 0x03;
+    HDC.conf.HRES=HumidityResolution & 0x03;
     HDCwriteConfig();
 }
 
 static void HDCreadConfig (void) {
     unsigned char *buff=HDC_ReadReg(HDC_CONFIG,2);
     if (buff)
-        conf.reg=ExtractUshort(buff);
+        HDC.conf.reg=ExtractUshort(buff);
 }
 
 static bool HDCwriteConfig (void) {
-    conf.reg &= 0xBFF0;    //Previous cleanup of forbidden bits
-    return HDC_WriteReg(HDC_CONFIG,&conf.reg);
+    HDC.conf.reg &= 0xBFF0;    //Previous cleanup of forbidden bits
+    return HDC_WriteReg(HDC_CONFIG,&HDC.conf.reg);
 }
 
 // OK
 static void checkMode (const unsigned mode) {
-    if (mode <= 1 && conf.MODE != mode) {
-        conf.MODE = mode;
+    if (mode <= 1 && HDC.conf.MODE != mode) {
+        HDC.conf.MODE = mode;
         HDCwriteConfig();
     }
 }
@@ -157,30 +160,8 @@ static bool HDC_WriteReg (unsigned char addr, unsigned short *val)
 
         if (status == I2C_MESSAGE_COMPLETE)
         {
-            unsigned short usdelay=0;
-            if (addr == HDC_TEMPERATURE) {
-                switch (conf.TRES) {
-                    case TRES_14:
-                        usdelay += 2700;
-                    case TRES_11:
-                        usdelay += 3650;
-                    default:
-                        break;
-                }
-            } else if (addr == HDC_HUMIDITY) {
-                switch (conf.HRES) {
-                    case HRES_14:
-                        usdelay += 2650;
-                    case HRES_11:
-                        usdelay += 1350;
-                    case HRES_8:
-                        usdelay += 2500;
-                    default:
-                        break;
-                }
-            }
-            if (usdelay)
-                delfun(usdelay);
+            if (addr == HDC_TEMPERATURE || addr == HDC_HUMIDITY)
+                HDC.delay(7);
             return true;
         }
         // if status is  I2C_MESSAGE_ADDRESS_NO_ACK,

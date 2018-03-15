@@ -8,10 +8,10 @@
  */
 
 //MODOS DE COMPILACION. Descomentar el que se quiera probar:
-#define SMACH       //Maquina de estados (principal)
+//#define SMACH       //Maquina de estados (principal)
 //#define TEST_1      //Verificacion UART/Reloj
 //#define TEST_2      //Verificacion comunicacion PIC-WiMOD
-//#define TEST_3      //Verificacion I2C(con sensor CO2 de Telaire)/UART
+#define TEST_3      //Verificacion I2C(con sensor CO2 de Telaire)/UART
 //#define TEST_4      //Medicion ADC y envio por UART
 //#define TEST_5      //Pruebas Sensor iAQ-CORE
 
@@ -32,7 +32,8 @@
 #endif
 #if defined SMACH || defined TEST_3
 #include "i2c.h"
-#include "T67xx.h"
+//#include "T67xx.h"
+#include "hdc1010.h"
 #endif
 #if defined SMACH || defined TEST_4
 #include "ADC.h"
@@ -172,6 +173,11 @@ void enableInterrupts (void) {
     GIE = true; //Global Interrupts Enable
 }
 
+void msdelay (unsigned char cantidad) {
+    StartTimerDelayMs(cantidad);
+    while (TMR1ON);
+}
+
 /**
  * Main
  */
@@ -190,6 +196,11 @@ void main(void)
 
     #ifndef TEST_4
     enableInterrupts();
+    #endif
+
+    #ifdef HDC1010_H
+    unsigned short temp,hum;
+    HDCinit (&temp,&hum,msdelay);
     #endif
 
     while (true) {
@@ -332,12 +343,24 @@ void main(void)
 
         //Prueba 3: I2C hacia sensor CO2 Telaire T6713.
         #ifdef TEST_3
+
+        //Pruebas con sensor T6713
+        /*
         respuesta=T67XX_Read(T67XX_GASPPM_FC,T67XX_GASPPM,4);
         unsigned char phrase[30],phlen;
 
         if (respuesta) {
             unsigned short valor=(unsigned short)((respuesta[2]<<8)|(respuesta[3]));
             phlen=sprintf(phrase,"CO2: %u PPM\n\r",valor);
+            enviaMsgSerie((unsigned const char *)phrase,phlen);
+        } else {
+            enviaMsgSerie("No hubo lectura\n\r",0);
+        }
+        // */
+        unsigned char phrase[40],phlen;
+
+        if (HDCboth()) {
+            phlen=sprintf(phrase,"Temperatura: %u, Humedad: %u\n\r",temp,hum);
             enviaMsgSerie((unsigned const char *)phrase,phlen);
         } else {
             enviaMsgSerie("No hubo lectura\n\r",0);
