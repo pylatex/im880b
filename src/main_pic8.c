@@ -26,6 +26,8 @@
 #if defined TEST_2
 #include "WiMOD_LoRaWAN_API.h"
 #include "hci_stack.h"
+void ProcesaHCI();
+volatile unsigned bool pendingmsg;
 #endif
 #if defined TEST_1 || defined TEST_3 || defined TEST_4
 #include "SerialDevice.h"
@@ -193,15 +195,14 @@ void main(void)
     enableInterrupts();
     #endif
 
-    LED=true;
-    initLoraApp();
-    LED=false;
-    registerDelayFunction(StartTimerDelayMs,&delrun);
-    char cnt=0;
-
     while (true) {
         //State Machine Description
         #ifdef SMACH
+        LED=true;
+        initLoraApp();
+        LED=false;
+        registerDelayFunction(StartTimerDelayMs,&delrun);
+        for (char cnt=0;cnt<60;cnt++) {
         LED=true;
         //* Reading of T6713 though I2C
         unsigned short rsp;
@@ -209,15 +210,11 @@ void main(void)
             AppendMeasure(PY_CO2,short2charp(rsp));
         // */
         //AppendMeasure(PY_GAS,short2charp(valorPropano()));
-        if (cnt++ < 60)
-            SendMeasures(false);
-        else {
-            SendMeasures(true);
-            cnt=0;
-        }
+        SendMeasures(false);
         ms100(1);
         LED=false;
         ms100(49);  //Approx. each 5 sec ((49+1)x100ms)
+        }
         #endif
 
         //Prueba 1: Verificacion UART y Reloj ~ 1 Hz

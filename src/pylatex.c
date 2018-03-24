@@ -26,12 +26,7 @@ typedef enum {
     WaitingActivation,
     NWKinactive,
     NWKactive,
-    NWKjoining,
-    RESET,
-    TestUART,
-    GetNwkStatus,
-    NWKaccept,
-    SENSprocess
+    NWKjoining
 } status_t;
 
 typedef struct {
@@ -45,7 +40,6 @@ typedef struct {
 #define initAppPayload() PY.cnt=0
 
 static PY_T PY;
-volatile unsigned bool pendingmsg;
 volatile unsigned char timeouts;
 volatile static HCIMessage_t RxMessage;
 static void ProcesaHCI(); //Procesamiento de HCI entrante
@@ -64,9 +58,9 @@ void initLoraApp (void) {
     for (;;){
         WiMOD_LoRaWAN_GetNetworkStatus();
         while (PY.status == WaitingNetStat);
+        if (PY.status == NWKactive) break;
         if (PY.status == NWKinactive) WiMOD_LoRaWAN_JoinNetworkRequest();
         while (PY.status == NWKinactive || PY.status == NWKjoining);
-        if (PY.status == NWKactive) break;
     }
 }
 
