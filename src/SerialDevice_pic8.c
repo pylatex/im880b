@@ -91,13 +91,6 @@ SerialDevice_SendByte(UINT8 txByte)
     return false;
 }
 
-// read data
-int
-SerialDevice_ReadData(UINT8 *rxBuffer, int rxBufferSize)
-{
-    // Todo : add your own platform specific code here
-    return -1;
-}
 //------------------------------------------------------------------------------
 // end of file
 //------------------------------------------------------------------------------

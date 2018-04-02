@@ -23,10 +23,6 @@ extern "C" {
 
     #define HCI_WKUPCHARS       5
 
-    #define HCI_RX_RESETSTAT    -1
-    #define HCI_RX_PENDING      -2
-    #define HCI_RX_ESCAPE       -3
-
     // SLIP Protocol Characters
     #define SLIP_END        0xC0
     #define SLIP_ESC        0xDB
@@ -73,7 +69,6 @@ extern "C" {
     } HCIMessage_t;
 
     typedef void (*WMHCIuserProc)();
-    typedef bool (*WMHCIboolfcchar)(const unsigned char msdelay);   //A bool function receiving a const char
     
     //--------------------------------------------------------------------------
     //  Function Prototypes
