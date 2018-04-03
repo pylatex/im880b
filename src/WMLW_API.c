@@ -42,11 +42,6 @@ WiMOD_LoRaWAN_GetNetworkStatus() {
     return SendHCI(&TxMessage);
 }
 
-// get firmware Version
-int
-WiMOD_LoRaWAN_GetFirmwareVersion(){
-}
-
 // request to join network
 int
 WiMOD_LoRaWAN_JoinNetworkRequest(){
@@ -82,9 +77,4 @@ WiMOD_LoRaWAN_SendCRadioData(UINT8 port, UINT8* data, UINT8 length){
     memcpy(&TxMessage.Payload[1], data, length);
     //Send Message
     return SendHCI(&TxMessage);
-}
-
-// receiver process
-void
-WiMOD_LoRaWAN_Process(){
 }

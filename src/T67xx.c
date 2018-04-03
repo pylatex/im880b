@@ -111,11 +111,14 @@ unsigned char *T67XX_Read(unsigned char fc,unsigned short address,unsigned char 
 #endif
 }
 
-unsigned char *T67xx_C02 (void)
+bool T67xx_CO2 (unsigned short *reg)
 {
-    unsigned char *arrp = T67XX_Read(T67XX_GASPPM_FC,T67XX_GASPPM,4);
-    if (arrp)
-        return &arrp[2];
-    else
-        return 0;
+    unsigned char *arrp;
+
+    if (arrp = T67XX_Read(T67XX_GASPPM_FC,T67XX_GASPPM,4))
+    {
+        *reg = (unsigned short)(arrp[2]<<8) + (unsigned short)(arrp[3]);
+        return true;
+    }
+    return false;
 }

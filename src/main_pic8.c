@@ -1,7 +1,7 @@
 /*
  * Archivo de ejemplo, para implementacion en microcontroladores.
  * Se pretende que se requieran interrupciones para el funcionamiento.
- * 
+ *
  * La mayoria de archivos vienen del comprimido
  * WiMOD_LoRaWAN_ExampleCode_HCI_C_V0_1.zip
  * y han sido ligeramente modificados para soportar tipos estandar.
@@ -11,9 +11,8 @@
 //#define SMACH       //Maquina de estados (principal)
 //#define TEST_1      //Verificacion UART/Reloj
 //#define TEST_2      //Verificacion comunicacion PIC-WiMOD
-#define TEST_3      //Verificacion I2C(con sensor CO2 de Telaire)/UART
+#define TEST_3      //Verificacion I2C/UART
 //#define TEST_4      //Medicion ADC y envio por UART
-//#define TEST_5      //Pruebas Sensor iAQ-CORE
 
 //------------------------------------------------------------------------------
 //  Definitions and Setup
@@ -23,23 +22,23 @@
 #include <string.h>
 #include <stdio.h>
 #endif
-#if defined SMACH || defined TEST_2
+#if defined TEST_2
 #include "WiMOD_LoRaWAN_API.h"
 #include "hci_stack.h"
+void ProcesaHCI();
+volatile unsigned bool pendingmsg;
 #endif
 #if defined TEST_1 || defined TEST_3 || defined TEST_4
 #include "SerialDevice.h"
 #endif
 #if defined SMACH || defined TEST_3
 #include "i2c.h"
-//#include "T67xx.h"
+#include "T67xx.h"
 #include "hdc1010.h"
+#include "iaq.h"
 #endif
 #if defined SMACH || defined TEST_4
 #include "ADC.h"
-#endif
-#ifdef TEST_5
-#include "iaq.h"
 #endif
 
 #include "pylatex.h"
@@ -47,10 +46,13 @@
 #define _XTAL_FREQ 8000000  //May be either Internal RC or external oscillator.
 //#define _XTAL_FREQ 7372800  //External Quartz Crystal to derivate common UART speeds
 
-#ifdef _18F2550
-//PIC18F2550 with INTOSC@8MHz
+#ifdef _18F2550 //PIC18F2550
 #pragma config PLLDIV = 1, CPUDIV = OSC1_PLL2, USBDIV = 1
-#pragma config FOSC = INTOSCIO_EC,  FCMEN = ON, IESO = OFF
+#if _XTAL_FREQ == 8000000
+#pragma config FOSC = INTOSCIO_EC,  FCMEN = ON, IESO = OFF // INTOSC @ 8MHz
+#elif _XTAL_FREQ == 7372800
+#pragma config FOSC = HS,  FCMEN = ON, IESO = OFF // HS @ 7.3728MHz
+#endif
 #pragma config PWRT = ON, BOR = OFF, BORV = 3, VREGEN = OFF
 #pragma config WDT = OFF, WDTPS = 32768
 #pragma config CCP2MX = ON, PBADEN = OFF, LPT1OSC = ON, MCLRE =	ON
@@ -61,10 +63,10 @@
 #endif
 
 #ifdef _16F1769
-#pragma config FOSC = INTOSC, WDTE = OFF, PWRTE = ON, MCLRE = OFF, CP = OFF, BOREN = OFF, CLKOUTEN = OFF, IESO = ON, FCMEN = ON
+#pragma config FOSC = INTOSC, WDTE = OFF, PWRTE = ON, MCLRE = ON, CP = OFF, BOREN = OFF, CLKOUTEN = OFF, IESO = ON, FCMEN = ON
 #pragma config WRT = OFF, PPS1WAY =	OFF, ZCD = OFF, PLLEN =	OFF, STVREN = ON, BORV = HI, LPBOR =	OFF, LVP = OFF
 
-#define LED LATA0   //Para las pruebas de parpadeo y ping
+#define LED LATC0   //Para las pruebas de parpadeo y ping
 //#define PIN RB5     //Para probar en un loop con LED=PIN
 #endif
 
@@ -77,23 +79,21 @@
 //------------------------------------------------------------------------------
 
 void ms100(unsigned char q); //A (100*q) ms delay
-void ProcesaHCI(); //Procesamiento de HCI entrante
 #ifdef SERIAL_DEVICE_H
-void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo);
+void enviaMsgSerie(char *arreglo,unsigned char largo);
 #endif
 
 volatile unsigned char rx_err; //Relacionados con el receptor
 #ifdef MINIFIED_HCI_H
 volatile static HCIMessage_t RxMessage;
 #endif
-volatile unsigned bool pendingmsg;
 volatile unsigned int lengthrx;
-volatile unsigned char timeouts;
 
 //------------------------------------------------------------------------------
 //  Section Code
 //------------------------------------------------------------------------------
 
+static volatile bool delrun;
 //Demora con Timer 1 y CCP 1
 void StartTimerDelayMs(unsigned char cant)
 {
@@ -104,6 +104,7 @@ void StartTimerDelayMs(unsigned char cant)
     T1CON=0x30;     //Prescale 1:8
     TMR1=0;
     TMR1ON=true;
+    delrun=true;
 }
 
 void blink (unsigned char cant,unsigned char high,unsigned char low) {
@@ -117,26 +118,34 @@ void blink (unsigned char cant,unsigned char high,unsigned char low) {
 
 void setup (void) {
 
-    #ifdef _18F2550
+    //OSCILLATOR
+#ifdef _18F2550
     OSCCON=0x73;    //Internal at 8 MHz
     while(!IOFS);   //Waits for stabilization
-    PORTA=0;
-    LATA=0;
-    TRISA=0xFD; //RA0 as output
-
-    //Inicializacion del ADC
-    ADCON1=0x0E;
-    ADCON2=0x83;
-    #endif
-
-    #ifdef _16F1769
+#endif
+#ifdef _16F1769
     OSCCON=0x70;    //Internal at 8 MHz
     while(!HFIOFS); //May be either PLLR or HFIOFS. See OSCSTAT register for specific case
+#endif
+
+    //PINS SETUP
+#ifdef _16F1769
+    PORTC=0;
+    LATC=0;
+    ANSELA=0;       //All pins as digital
+    ANSELC=0;       //All pins as digital
+    TRISC=0xFE; //RC0 as output
+#endif
+#ifdef _18F2550
     PORTA=0;
     LATA=0;
-    ANSELA=0;       //All pins as digital
-    TRISA=0xFA;     //Pines 2 y 0 son salidas digitales
+    ADCON1=0x0E;
+    ADCON2=0x83;
+    TRISA=0xFD; //RA1 as output
+#endif
 
+    //UART & I2C
+#ifdef _16F1769
     //Entradas y salidas UART
     RXPPS=0x05;     //Rx viene de RA5
     RA2PPS=0x16;    //Tx va hacia RA2
@@ -152,7 +161,7 @@ void setup (void) {
     PPSLOCK = 0x55;
     PPSLOCK = 0xAA;
     PPSLOCKbits.PPSLOCKED = 0x01; // lock PPS
-    #endif
+#endif
 
     ms100(2);   //Delay for stabilization of power supply
 
@@ -184,15 +193,6 @@ void msdelay (unsigned char cantidad) {
 void main(void)
 {
     setup();
-    #ifdef T6700_H
-    unsigned char *respuesta;
-    #endif
-    #ifdef SMACH
-    enum {
-        RESET, TestUART, GetNwkStatus, NWKinactive, NWKjoining, NODEidleActive, 
-        NWKaccept, SENSprocess
-    } status = RESET; //Initial State for the machine of Main.
-    #endif
 
     #ifndef TEST_4
     enableInterrupts();
@@ -206,130 +206,32 @@ void main(void)
     while (true) {
         //State Machine Description
         #ifdef SMACH
-        switch (status) {
-            case RESET:
-                pendingmsg = false;
-                timeouts = 0;
-                if (InitHCI(ProcesaHCI,(HCIMessage_t *) &RxMessage))
-                    status = TestUART; //Full Duplex UART and Rx interruptions enabled
-                break;
-            case TestUART:
-                WiMOD_LoRaWAN_SendPing();
-                //Wait for TimeOut or HCI message and identify the situation:
-                StartTimerDelayMs(20);
-                while (TMR1ON && !pendingmsg); //Escapes at timeout or HCI received.
-                if (pendingmsg) {
-                    timeouts=0;
-                    if ((RxMessage.SapID == DEVMGMT_ID) && (RxMessage.MsgID == DEVMGMT_MSG_PING_RSP)) {
-                        //The incoming HCI message is a response of PING
-                        status = GetNwkStatus;
-                        pendingmsg = false;
-                    }
-                }
-                break;
-            case GetNwkStatus:
-                WiMOD_LoRaWAN_GetNetworkStatus();
-                //Wait for TimeOut or HCI message and identify the situation:
-                StartTimerDelayMs(20);
-                while (TMR1ON && !pendingmsg); //Escapes at timeout or HCI received.
-                if (pendingmsg) {
-                    timeouts=0;
-                    if ((RxMessage.SapID == LORAWAN_ID) && (RxMessage.MsgID == LORAWAN_MSG_GET_NWK_STATUS_RSP)) {
-                        pendingmsg = false;
-                        //The incoming HCI message is a response of NWK STATUS
-                        switch (RxMessage.Payload[1]) {
-                            case 0: //Inactive
-                            case 1: //Active (ABP)
-                                status = NWKinactive;
-                                break;
-                            case 2: //Active (OTAA)
-                                status = NODEidleActive;
-                                break;
-                            case 3: //Accediendo (OTAA)
-                                status = NWKjoining;
-                                break;
-                            default:
-                                break;
-                        }
-                        
-                    }
-                }
-                break;
-            case NWKinactive:
-                WiMOD_LoRaWAN_JoinNetworkRequest();
-                //Wait for TimeOut or HCI message and identify the situation:
-                StartTimerDelayMs(20);
-                while (TMR1ON && !pendingmsg); //Escapes at timeout or HCI received.
-                if (pendingmsg) {
-                    timeouts=0;
-                    if ((RxMessage.SapID == LORAWAN_ID) && (RxMessage.MsgID == LORAWAN_MSG_JOIN_NETWORK_RSP)) {
-                        //The incoming HCI message is a response of NWK STATUS
-                        if (RxMessage.Payload[0] == LORAWAN_STATUS_OK) {
-                            pendingmsg = false;
-                            status = NWKjoining;
-                        }
-                    }
-                }
-                break;
-            case NWKjoining:
-                //Wait for TimeOut or HCI message and identify the situation:
-                StartTimerDelayMs(20);
-                while (TMR1ON && !pendingmsg); //Escapes at timeout or HCI received.
-                if (pendingmsg) {
-                    timeouts=0;
-                    if ((RxMessage.SapID == LORAWAN_ID) && (RxMessage.MsgID == LORAWAN_MSG_JOIN_NETWORK_IND)) {
-                        //The incoming HCI message is a join event
-                        switch (RxMessage.Payload[0]) {
-                            case 0x00:  //device successfully activated
-                            case 0x01:  //device successfully activated, Rx Channel Info attached
-                                status = NWKaccept;
-                            default:
-                                break;
-                        }
-                    }
-                }
-                break;
-            case NWKaccept:
-                //Wait for TimeOut or HCI message and identify the situation:
-                StartTimerDelayMs(20);
-                while (TMR1ON && !pendingmsg); //Escapes at timeout or HCI received.
-                if (pendingmsg) {
-                    timeouts=0;
-                    if ((RxMessage.SapID == LORAWAN_ID) && (RxMessage.MsgID == LORAWAN_MSG_RECV_NO_DATA_IND)) {
-                        //The incoming HCI message is an indication of reception with no data
-                        if (RxMessage.Payload[0] == LORAWAN_STATUS_OK) {
-                            pendingmsg = false;
-                            status = NODEidleActive;
-                        }
-                    }
-                }
-                break;
-            case NODEidleActive:
-                //Create more states to attend other HCI messages or modify this state
-                ms100(49);//Espera ~5 segundos
-                status = SENSprocess;
-                break;
-            case SENSprocess:
-                LED=true;
-                //Starts an I2C reading and decides upon the response.
-                respuesta=T67xx_C02();
-                if (respuesta)
-                    AppendMeasure(PY_CO2,respuesta);
-                AppendMeasure(PY_GAS,short2charp(valorPropano()));
-                SendMeasures();
-                status = NODEidleActive;
-                ms100(1);   //Completa los 5 segundos...
-                LED=false;
-                break;
-            default:
-                break;
+
+        LED=true;
+        initLoraApp();
+        LED=false;
+        registerDelayFunction(StartTimerDelayMs,&delrun);
+        for (char cnt=0;cnt<60;cnt++) {
+        LED=true;
+
+        //T6713 reading though I2C
+        //* 
+        unsigned short rsp;
+        if (T67xx_CO2(&rsp))
+            AppendMeasure(PY_CO2,short2charp(rsp));
+        // */
+        //AppendMeasure(PY_GAS,short2charp(valorPropano()));
+        SendMeasures(false);
+        ms100(1);
+        LED=false;
+        ms100(49);  //Approx. each 5 sec ((49+1)x100ms)
         }
         #endif
 
         //Prueba 1: Verificacion UART y Reloj ~ 1 Hz
         #ifdef TEST_1
         LED = true;
-        enviaMsgSerie("estoy vivo\n\r",0);
+        enviaMsgSerie((char *)"estoy vivo\r\n",0);
         ms100(5);
         LED = false;
         ms100(5);
@@ -346,17 +248,20 @@ void main(void)
 
         //Pruebas con sensor T6713
         /*
-        respuesta=T67XX_Read(T67XX_GASPPM_FC,T67XX_GASPPM,4);
-        unsigned char phrase[30],phlen;
+        unsigned short rsp;
+        char phrase[30];
+        unsigned char phlen;
 
-        if (respuesta) {
-            unsigned short valor=(unsigned short)((respuesta[2]<<8)|(respuesta[3]));
-            phlen=sprintf(phrase,"CO2: %u PPM\n\r",valor);
-            enviaMsgSerie((unsigned const char *)phrase,phlen);
+        if (T67xx_CO2(&rsp)) {
+            phlen=sprintf(phrase,"CO2: %u PPM\r\n",rsp);
+            enviaMsgSerie(phrase,phlen);
         } else {
-            enviaMsgSerie("No hubo lectura\n\r",0);
+            enviaMsgSerie((char *)"No hubo lectura\r\n",0);
         }
         // */
+
+        //Pruebas con HDC1010
+        //*
         unsigned char phrase[40],phlen;
 
         if (HDCboth()) {
@@ -365,41 +270,36 @@ void main(void)
         } else {
             enviaMsgSerie("No hubo lectura\n\r",0);
         }
+        // */
 
         LED=true;
         ms100(5);
         LED=false;
-        ms100(5);
+        ms100(45);
         #endif
 
         //Prueba 4: Medicion ADC y envio por UART
         #ifdef TEST_4
         unsigned char phrase[15],phlen;
-        phlen=sprintf(phrase,"Propano:%u\n\r",valorPropano());
+        phlen=sprintf(phrase,"Propano:%u\r\n",valorPropano());
         enviaMsgSerie(phrase,phlen);
         ms100(10);
-        #endif
-
-        #ifdef TEST_5
-        
         #endif
     }
 }
 
 void __interrupt ISR (void) {
-    #ifdef MINIFIED_HCI_H
     if (RCIE && RCIF) {
         //Error reading
         rx_err=RCSTA;
         //As RCREG is argument, their reading implies the RCIF erasing
-        IncomingHCIpacker(RCREG);
+        pylatexRx(RCREG);
     } else
-    #endif
     if (CCP1IE && CCP1IF) {
         //TimeOut
         CCP1IF = false;
         TMR1ON = false;
-        timeouts++;
+        delrun = false;
         #ifdef TEST_2
         LED=false;
         #endif
@@ -443,7 +343,7 @@ void ProcesaHCI() {
 #endif
 
 #ifdef SERIAL_DEVICE_H
-void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo) {
+void enviaMsgSerie(char *arreglo,unsigned char largo) {
     unsigned char aux=0;
     if (!largo)
         largo=strlen(arreglo);
@@ -452,4 +352,3 @@ void enviaMsgSerie(const unsigned char *arreglo,unsigned char largo) {
         EUSART_Write(*(arreglo+(aux++)));
 }
 #endif
-

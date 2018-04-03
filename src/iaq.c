@@ -18,9 +18,8 @@
 //  Function Implementations
 //------------------------------------------------------------------------------
 
-IAQ_T *iaq_read(void)
+bool iaq_read(IAQ_T *obj)
 {
-    static IAQ_T        IAQ;
     I2C_MESSAGE_STATUS  status;
     unsigned char       attempts;
     
@@ -30,7 +29,7 @@ IAQ_T *iaq_read(void)
     // this portion will read the byte from the memory location.
     for (attempts = 0;(status != I2C_MESSAGE_FAIL) && (attempts<I2C_MAX_ATTEMPTS);attempts++) {
         // write one byte to EEPROM (2 is the count of bytes to write)
-        I2C_MasterRead(IAQ.raw, 9, IAQ_ADDR, &status);
+        I2C_MasterRead((unsigned char *)obj->raw, 9, IAQ_ADDR, &status);
 
         // wait for the message to be sent or status has changed.
         while(status == I2C_MESSAGE_PENDING);
@@ -43,28 +42,16 @@ IAQ_T *iaq_read(void)
         // The device may be busy and needs more time for the last
         // write so we can retry writing the data, this is why we
         // use a while loop here
-
     }
 
     if (status == I2C_MESSAGE_COMPLETE) {
-        unsigned char aux;
-
         //CO2 endianness fitting
-        aux=IAQ.CO2P_0;
-        IAQ.CO2P_1=IAQ.CO2P_0;
-        IAQ.CO2P_0=aux;
+        obj->pred = (unsigned short)obj->raw[0]<<8 | (unsigned short)obj->raw[1];
         //resistance endianness fitting
-        aux=IAQ.RES_0;
-        IAQ.RES_0=IAQ.RES_3;
-        IAQ.RES_3=aux;
-        aux=IAQ.RES_1;
-        IAQ.RES_1=IAQ.RES_2;
-        IAQ.RES_2=aux;
+        obj->resistance = (unsigned long)obj->raw[4]<<16 | (unsigned long)obj->raw[5]<<8 | (unsigned long)obj->raw[6];
         //TVOC endianness fitting
-        aux=IAQ.TVOCe_0;
-        IAQ.TVOCe_0=IAQ.TVOCe_1;
-        IAQ.TVOCe_1=aux;
-
-        return &IAQ;
-    } else return 0;   //null pointer
+        obj->tvoc = (unsigned short)obj->raw[7]<<8 | (unsigned short)obj->raw[8];
+        return true;
+    }
+    return false;
 }
