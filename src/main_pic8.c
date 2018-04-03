@@ -36,6 +36,7 @@ volatile unsigned bool pendingmsg;
 #include "T67xx.h"
 #include "hdc1010.h"
 #include "iaq.h"
+#include "bh1750fvi.h"
 #endif
 #if defined SMACH || defined TEST_4
 #include "ADC.h"
@@ -68,6 +69,7 @@ volatile unsigned bool pendingmsg;
 
 #define LED LATC0   //Para las pruebas de parpadeo y ping
 //#define PIN RB5     //Para probar en un loop con LED=PIN
+#define DVI LATC1   //Pin DVI del sensor BH1750FVI
 #endif
 
 #ifdef SERIAL_DEVICE_H
@@ -203,6 +205,13 @@ void main(void)
     HDCinit (&temp,&hum,msdelay);
     #endif
 
+    #ifdef BH1750FVI_H
+    DVI=false;
+    __delay_us(5);
+    DVI=true;
+    BHinit(false);
+    #endif
+
     while (true) {
         //State Machine Description
         #ifdef SMACH
@@ -261,7 +270,7 @@ void main(void)
         // */
 
         //Pruebas con HDC1010
-        //*
+        /*
         unsigned char phrase[40],phlen;
 
         if (HDCboth()) {
@@ -269,6 +278,19 @@ void main(void)
             enviaMsgSerie((unsigned const char *)phrase,phlen);
         } else {
             enviaMsgSerie("No hubo lectura\n\r",0);
+        }
+        // */
+
+        //Pruebas con BH1750FVI
+        //*
+        char buff[40],phlen;
+        unsigned short light;
+
+        if (BHread(&light)) {
+            phlen=(char) sprintf(buff,"Lectura BH: %u\n\r",light);
+            enviaMsgSerie(buff,phlen);
+        } else {
+            enviaMsgSerie((char *)"No hubo lectura\n\r",0);
         }
         // */
 
