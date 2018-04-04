@@ -20,8 +20,9 @@ extern "C" {
     #define PY_PM100    4   //PM 10     A
     #define PY_RH1      5   //RH        A --> B
     #define PY_TEMP1    6   //TEMP      A --> B
-    #define PY_ILUM     7   //LUX       ??
+    #define PY_ILUM1    7   //LUX       A/1.2
     #define PY_GAS      8   //GAS       A
+    #define PY_ILUM2    9   //LUX       A/2.4
 
     typedef void (*delayHandlerFunction)(unsigned char mscant);
 
