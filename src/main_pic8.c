@@ -286,9 +286,11 @@ void main(void)
         char buff[40],phlen;
         unsigned short light;
 
-        if (BHread(&light)) {
-            phlen=(char) sprintf(buff,"Lectura BH: %u\n\r",light);
-            enviaMsgSerie(buff,phlen);
+        if (BHwrite(BH1750_CONTINOUS | BH1750_LR)) {
+            if (BHread(&light)) {
+                phlen=(char) sprintf(buff,"Lectura BH: %u\n\r",light);
+                enviaMsgSerie(buff,phlen);
+            }
         } else {
             enviaMsgSerie((char *)"No hubo lectura\n\r",0);
         }

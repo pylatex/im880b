@@ -19,16 +19,40 @@ extern "C" {
     #define BH1750_PWR_ON       1
     #define BH1750_RESET        7
 
-    #define BH1750_HR           0       //Resolution: 1 lx
-    #define BH1750_HR2          1       //Resolution: 0.5 lx
-    #define BH1750_LR           3       //Resolution: 4 lx
+    //Resolutions                           Resolution  Divider (for real lux value)
+    #define BH1750_HR           0       //  1 lx.       1.2
+    #define BH1750_HR2          1       //  0.5 lx      2.4
+    #define BH1750_LR           3       //  4 lx        1.2
+    //Modes
     #define BH1750_CONTINOUS    0x10
     #define BH1750_SINGLE       0x20
 
     typedef void (*IOWriter)(bool IOstate);
 
-    void BHinit(bool ADDRpinstatus);
-    bool BHread (unsigned short *result);
+    /**
+     * Saves the address to be used with the sensor. Use the respective constant,
+     * depending on the level present on the ADDR pin.
+     * @param BHaddress: BH1750_ADDR_H or BH1750_ADDR_L consts
+     */
+    void BHinit(char BHaddress);
+
+    /**
+     * Writes a command to the sensor.
+     * @param command:
+     * A bitwise OR (|) between a resolution and a mode. Example:
+     * High Resolution, Mode 2: BHwrite(BH1750_CONTINOUS | BH1750_HR)
+     * @return true on success write
+     */
+    bool BHwrite (char command);
+
+    /**
+     * Reads the last value, always depending on the BH1750 power state and last
+     * configuration setup sent.
+     * @param resultAddr: Divided by the quantity associated to the configured
+     * resolution, gives the illuminance reading in lux.
+     * @return true on success read
+     */
+    bool BHread (unsigned short *resultAddr);
 
 #ifdef	__cplusplus
 }
