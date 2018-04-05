@@ -16,6 +16,7 @@
         <itemPath>src/hpm.h</itemPath>
         <itemPath>src/iaq.h</itemPath>
         <itemPath>src/hdc1010.h</itemPath>
+        <itemPath>src/bmp280.h</itemPath>
       </logicalFolder>
       <itemPath>src/CRC16.h</itemPath>
       <itemPath>src/SerialDevice.h</itemPath>
@@ -43,6 +44,7 @@
         <itemPath>src/T67xx.c</itemPath>
         <itemPath>src/iaq.c</itemPath>
         <itemPath>src/hdc1010.c</itemPath>
+        <itemPath>src/bmp280.c</itemPath>
       </logicalFolder>
       <itemPath>src/CRC16.c</itemPath>
       <itemPath>src/i2c.c</itemPath>

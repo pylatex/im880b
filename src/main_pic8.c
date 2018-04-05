@@ -36,6 +36,7 @@ volatile unsigned bool pendingmsg;
 #include "T67xx.h"
 #include "hdc1010.h"
 #include "iaq.h"
+#include "bmp280.h"
 #endif
 #if defined SMACH || defined TEST_4
 #include "ADC.h"
@@ -203,6 +204,10 @@ void main(void)
     HDCinit (&temp,&hum,msdelay);
     #endif
 
+    #ifdef BMP280_H
+    BMP280init(true);
+    #endif
+
     while (true) {
         //State Machine Description
         #ifdef SMACH
@@ -261,7 +266,7 @@ void main(void)
         // */
 
         //Pruebas con HDC1010
-        //*
+        /*
         unsigned char phrase[40],phlen;
 
         if (HDCboth()) {
@@ -269,6 +274,23 @@ void main(void)
             enviaMsgSerie((unsigned const char *)phrase,phlen);
         } else {
             enviaMsgSerie("No hubo lectura\n\r",0);
+        }
+        // */
+
+        //Pruebas con BMP280
+        //*
+        char buff[40],phlen;
+        unsigned long val;
+
+        if (BMP280updateTemp(&val)) {
+            phlen=(char)sprintf(buff,"BMP - TEMP: %lu, ",val);
+            enviaMsgSerie(buff,phlen);
+            if (BMP280updateHumidity(&val)) {
+                phlen=(char)sprintf(buff,"HUM: %lu\n\r",val);
+                enviaMsgSerie(buff,phlen);
+            }
+        } else {
+            enviaMsgSerie((char *)"BMP - No hubo lectura\n\r",0);
         }
         // */
 
