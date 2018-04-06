@@ -279,14 +279,23 @@ void main(void)
 
         //Pruebas con BMP280
         //*
-        char buff[40],phlen;
-        unsigned long val;
-
-        if (BMP280updateTemp(&val)) {
-            phlen=(char)sprintf(buff,"BMP - TEMP: %lu, ",val);
-            enviaMsgSerie(buff,phlen);
-            if (BMP280updateHumidity(&val)) {
-                phlen=(char)sprintf(buff,"HUM: %lu\n\r",val);
+        char buff[10],phlen,mem[30],i=0;
+        unsigned short val;
+        unsigned long val2;
+        if (BMP280updateTrim(&mem[0]) && BMP280updateValues(&mem[24])){
+            while (i<24) {
+                enviaMsgSerie((char *)"BMP - TRIM VALUES (T1 T2 T3 P1 ... P9):\n\r",0);
+                val = mem[i++] << 8;
+                val += mem[i++];
+                phlen=(char)sprintf(buff,(i==2 || i==8)?"%u ":"%i ",val);
+                enviaMsgSerie(buff,phlen);
+            }
+            enviaMsgSerie((char *)"\n\rBMP - SENS VALUES (TEMP PRESS):\n\r",0);
+            while (i<30) {
+                val2 = mem[i++] << 12;
+                val2 += mem[i++] << 4;
+                val2 += mem[i++] >> 4;
+                phlen=(char)sprintf(buff,"%li ",val2);
                 enviaMsgSerie(buff,phlen);
             }
         } else {

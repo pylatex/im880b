@@ -60,10 +60,10 @@ extern "C" {
 
     void BMP280init(bool SDOstate);
 
-    bool BMP280updateTemp(unsigned long *value);
-    bool BMP280updateHumidity(unsigned long *value);
+    bool BMP280updateTrim(char *value);
+    bool BMP280updateValues(char *value);
 
-    bool BMP280write(char address,char value);
+    bool BMP280write(char address,char *value);
     bool BMP280read(char address,char length,char *buffer);
 
 #ifdef	__cplusplus
