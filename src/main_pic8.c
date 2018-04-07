@@ -259,73 +259,119 @@ void main(void)
 
         //Prueba 3: I2C hacia sensor CO2 Telaire T6713.
         #ifdef TEST_3
+        char buff[30],phlen;
 
         //Pruebas con sensor T6713
-        /*
+        #ifdef T6700_H
+        enviaMsgSerie((char *)"T6713 - ",0);
         unsigned short rsp;
-        char phrase[30];
-        unsigned char phlen;
-
         if (T67xx_CO2(&rsp)) {
-            phlen=sprintf(phrase,"CO2: %u PPM\r\n",rsp);
-            enviaMsgSerie(phrase,phlen);
+            phlen=(char)sprintf(buff,"CO2: %u PPM\r\n",rsp);
+            enviaMsgSerie(buff,phlen);
         } else {
             enviaMsgSerie((char *)"No hubo lectura\r\n",0);
         }
-        // */
+        #endif
+
+        //Pruebas con iAQ-Core
+        #ifdef IAQ_H
+        const char e_ok[]= "OK";
+        const char e_run[]="RUNIN";
+        const char e_busy[]="BUSY";
+        const char e_rr[]="ERROR";
+        char const *rspsens;
+        IAQ_T iaq;
+
+        enviaMsgSerie((char *)"iAQ Core - ",0);
+        if (iaq_read(&iaq)) {
+            /*
+            for (char i=0;i<9;i++){
+                phlen=(char) sprintf(phrase,"%#02X ",iaq.raw[i]);
+                enviaMsgSerie(phrase,(unsigned char)phlen);
+            }
+            EUSART_Write('\n');
+            EUSART_Write('\r');
+            // */
+            switch (iaq.status) {
+                case IAQ_OK:
+                    rspsens=e_ok;
+                    break;
+                case IAQ_RUNIN:
+                    rspsens=e_run;
+                    break;
+                case IAQ_BUSY:
+                    rspsens=e_busy;
+                    break;
+                default:
+                case IAQ_ERROR:
+                    rspsens=e_rr;
+                    break;
+            }
+            phlen=(char)sprintf(buff,"CO2: %u PPM, ",iaq.pred);
+            enviaMsgSerie(buff,phlen);
+            phlen=(char)sprintf(buff,"Estado: %s, ",rspsens);
+            enviaMsgSerie(buff,phlen);
+            phlen=(char)sprintf(buff,"Resistencia: %lu, ",iaq.resistance);
+            enviaMsgSerie(buff,phlen);
+            phlen=(char)sprintf(buff,"TVOC: %u PPB\n\r",iaq.tvoc);
+            enviaMsgSerie(buff,phlen);
+        } else {
+            enviaMsgSerie((char *)"No hubo lectura\r\n",0);
+        }
+        #endif
 
         //Pruebas con HDC1010
-        /*
-        unsigned char phrase[40],phlen;
-
+        #ifdef HDC1010_H
+        enviaMsgSerie((char *)"HDC1010 - ",0);
         if (HDCboth()) {
-            phlen=sprintf(phrase,"Temperatura: %u, Humedad: %u\n\r",temp,hum);
-            enviaMsgSerie((unsigned const char *)phrase,phlen);
+            phlen=(char)sprintf(buff,"Temperatura: %u, Humedad: %u\n\r",temp,hum);
+            enviaMsgSerie(buff,phlen);
         } else {
-            enviaMsgSerie("No hubo lectura\n\r",0);
+            enviaMsgSerie((char *)"No hubo lectura\n\r",0);
         }
-        // */
+        #endif
 
         //Pruebas con BH1750FVI
-        //*
-        char buff[40],phlen;
+        #ifdef BH1750FVI_H
         unsigned short light;
 
+        enviaMsgSerie((char *)"BH1750 - ",0);
         if (BHwrite(BH1750_CONTINOUS | BH1750_LR)) {
             if (BHread(&light)) {
-                phlen=(char) sprintf(buff,"Lectura BH: %u\n\r",light);
+                phlen=(char) sprintf(buff,"Luz: %u\n\r",light);
                 enviaMsgSerie(buff,phlen);
             }
         } else {
             enviaMsgSerie((char *)"No hubo lectura\n\r",0);
         }
-        // */
+        #endif
 
         //Pruebas con BMP280
-        //*
-        char buff[10],phlen,mem[30],i=0;
+        #ifdef BMP280_H
+        char mem[30],i=0;
         unsigned short val;
         unsigned long val2;
+
         if (BMP280updateTrim(&mem[0]) && BMP280updateValues(&mem[24])){
             while (i<24) {
                 enviaMsgSerie((char *)"BMP - TRIM VALUES (T1 T2 T3 P1 ... P9):\n\r",0);
-                val = mem[i++] << 8;
+                val = (short)mem[i++] << 8;
                 val += mem[i++];
                 phlen=(char)sprintf(buff,(i==2 || i==8)?"%u ":"%i ",val);
                 enviaMsgSerie(buff,phlen);
             }
             enviaMsgSerie((char *)"\n\rBMP - SENS VALUES (TEMP PRESS):\n\r",0);
             while (i<30) {
-                val2 = mem[i++] << 12;
-                val2 += mem[i++] << 4;
-                val2 += mem[i++] >> 4;
+                val2 = (short)mem[i++] << 12;
+                val2 += (short)mem[i++] << 4;
+                val2 += (short)mem[i++] >> 4;
                 phlen=(char)sprintf(buff,"%li ",val2);
                 enviaMsgSerie(buff,phlen);
             }
         } else {
             enviaMsgSerie((char *)"BMP - No hubo lectura\n\r",0);
         }
-        // */
+        #endif
 
         LED=true;
         ms100(5);
