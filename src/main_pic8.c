@@ -62,6 +62,7 @@ volatile unsigned bool pendingmsg;
 
 #define LED LATA1 //Para las pruebas de parpadeo y ping
 //#define PIN RC0   //Para probar en un loop con LED=PIN
+#define DVI LATA2   //Pin DVI del sensor BH1750FVI
 #endif
 
 #ifdef _16F1769
@@ -137,7 +138,8 @@ void setup (void) {
     LATC=0;
     ANSELA=0;       //All pins as digital
     ANSELC=0;       //All pins as digital
-    TRISC=0xFE; //RC0 as output
+    ODCONC = 2;    //Enable Open Drain to drive DVI
+    TRISC=0xFC; //RC0 and RC1 as outputs
 #endif
 #ifdef _18F2550
     PORTA=0;

@@ -8,6 +8,8 @@
 #ifndef BH1750FVI_H
 #define	BH1750FVI_H
 
+#include <stdbool.h>
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -30,11 +32,10 @@ extern "C" {
     typedef void (*IOWriter)(bool IOstate);
 
     /**
-     * Saves the address to be used with the sensor. Use the respective constant,
-     * depending on the level present on the ADDR pin.
-     * @param BHaddress: BH1750_ADDR_H or BH1750_ADDR_L consts
+     * Loads the address to be used with the sensor.
+     * @param ADDRstat: the logic state of ADDR pin
      */
-    void BHinit(char BHaddress);
+    void BHinit(bool ADDRstat);
 
     /**
      * Writes a command to the sensor.

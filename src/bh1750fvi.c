@@ -7,8 +7,8 @@
 I2C_MESSAGE_STATUS  status;
 char                attempts,buff[6],addr;
 
-void BHinit(char BHaddress) {
-    addr = BHaddress;
+void BHinit(bool ADDRstat) {
+    addr = ADDRstat?BH1750_ADDR_H:BH1750_ADDR_L;
 }
 
 bool BHwrite (char command) {
