@@ -5,7 +5,7 @@
 #define I2C_MAX_ATTEMPTS 50
 
 I2C_MESSAGE_STATUS  status;
-char                attempts,buff[6],addr;
+static char         attempts,buff[6],addr;
 
 void BHinit(bool ADDRstat) {
     addr = ADDRstat?BH1750_ADDR_H:BH1750_ADDR_L;

@@ -213,10 +213,13 @@ void main(void)
     __delay_us(5);
     DVI=true;
     BHinit(false);
+    BHwrite(BH1750_RESET);
+    BHwrite(BH1750_PWR_ON);
+    BHwrite(BH1750_CONTINOUS | BH1750_LR);
     #endif
 
     #ifdef BMP280_H
-    BMP280init(true);
+    BMP280init(false);
     #endif
 
     while (true) {
@@ -338,11 +341,9 @@ void main(void)
         unsigned short light;
 
         enviaMsgSerie((char *)"BH1750 - ",0);
-        if (BHwrite(BH1750_CONTINOUS | BH1750_LR)) {
-            if (BHread(&light)) {
-                phlen=(char) sprintf(buff,"Luz: %u\n\r",light);
-                enviaMsgSerie(buff,phlen);
-            }
+        if (BHread(&light)) {
+            phlen=(char) sprintf(buff,"Luz: %u\n\r",light);
+            enviaMsgSerie(buff,phlen);
         } else {
             enviaMsgSerie((char *)"No hubo lectura\n\r",0);
         }
