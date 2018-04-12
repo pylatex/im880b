@@ -220,6 +220,15 @@ void main(void)
 
     #ifdef BMP280_H
     BMP280init(false);
+    BMP280writeCtlMeas(BMPnormalMode | BMPostX1 | BMPospX1);
+    /*
+    BMPctrl_meas_t mode;
+    mode.ctrl_meas=0;
+    mode.mode=BMPnormalMode;
+    mode.osrs_p=BMPosX1;
+    mode.osrs_t=BMPosX1;
+    BMP280writeMode(&mode);
+    // */
     #endif
 
     while (true) {
@@ -355,22 +364,23 @@ void main(void)
         unsigned short val;
         unsigned long val2;
 
-        if (BMP280updateTrim(&mem[0]) && BMP280updateValues(&mem[24])){
+        if (BMP280readTrimming(&mem[0]) && BMP280readValues(&mem[24])){
+            enviaMsgSerie((char *)"BMP - TRIM VALUES (T1 T2 T3 P1 ... P9):\n\r",0);
             while (i<24) {
-                enviaMsgSerie((char *)"BMP - TRIM VALUES (T1 T2 T3 P1 ... P9):\n\r",0);
-                val = (short)mem[i++] << 8;
+                val  = (unsigned short)mem[i++] << 8;
                 val += mem[i++];
                 phlen=(char)sprintf(buff,(i==2 || i==8)?"%u ":"%i ",val);
                 enviaMsgSerie(buff,phlen);
             }
-            enviaMsgSerie((char *)"\n\rBMP - SENS VALUES (TEMP PRESS):\n\r",0);
+            enviaMsgSerie((char *)"\n\rBMP - SENS VALUES (PRESS TEMP):\n\r",0);
             while (i<30) {
-                val2 = (short)mem[i++] << 12;
-                val2 += (short)mem[i++] << 4;
-                val2 += (short)mem[i++] >> 4;
-                phlen=(char)sprintf(buff,"%li ",val2);
+                val2  = (unsigned long)mem[i++] << 12;
+                val2 += (unsigned long)mem[i++] << 4;
+                val2 += (unsigned long)mem[i++] >> 4;
+                phlen = (char)sprintf(buff,"%lu ",val2);
                 enviaMsgSerie(buff,phlen);
             }
+            enviaMsgSerie((char *)"\n\r",0);
         } else {
             enviaMsgSerie((char *)"BMP - No hubo lectura\n\r",0);
         }

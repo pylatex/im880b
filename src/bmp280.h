@@ -13,7 +13,7 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-                                    //RESET STATE (reading)
+    // REGISTERS                      RESET STATE (reading)
     #define BMPtemp_xlsb    0xFC            //0
     #define BMPtemp_lsb     0xFB            //0
     #define BMPtemp_msb     0xFA            //0x80
@@ -39,6 +39,24 @@ extern "C" {
         };
     } BMPstatus_t;  //Use with BMPstatus register - See 4.3.3
 
+    #define BMPostSkip  (0<<5)
+    #define BMPostX1    (1<<5)
+    #define BMPostX2    (2<<5)
+    #define BMPostX4    (3<<5)
+    #define BMPostX8    (4<<5)
+    #define BMPostX16   (5<<5)
+
+    #define BMPospSkip  (0<<2)
+    #define BMPospX1    (1<<2)
+    #define BMPospX2    (2<<2)
+    #define BMPospX4    (3<<2)
+    #define BMPospX8    (4<<2)
+    #define BMPospX16   (5<<2)
+
+    #define BMPsleepMode    0
+    #define BMPforcedMode   1
+    #define BMPnormalMode   3
+
     typedef union {
         char    ctrl_meas;
         struct {
@@ -58,12 +76,14 @@ extern "C" {
         };
     } BMPconfig_t;  //Use with BMPconfig - See 4.3.5
 
+    #define BMP280readTrimming(arr)     BMP280read(BMPcalib(0),24,arr)
+    #define BMP280readValues(arr)       BMP280read(BMPpress_msb,6,arr)
+    #define BMP280writeCtlMeas(mode)    BMP280write(BMPctrl_meas,(mode))
+
     void BMP280init(bool SDOstate);
 
-    bool BMP280updateTrim(char *value);
-    bool BMP280updateValues(char *value);
-
-    bool BMP280write(char address,char *value);
+    bool BMP280addr(char address);
+    bool BMP280write(char address,char value);
     bool BMP280read(char address,char length,char *buffer);
 
 #ifdef	__cplusplus
