@@ -23,6 +23,7 @@ extern "C" {
     #define PY_ILUM1    7   //LUX       A/1.2
     #define PY_GAS      8   //GAS       A
     #define PY_ILUM2    9   //LUX       A/2.4
+    #define PY_PRESS1   10  //PRESSURE  E
 
     typedef void (*delayHandlerFunction)(unsigned char mscant);
 

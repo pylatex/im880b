@@ -219,6 +219,9 @@ void main(void)
     #endif
 
     #ifdef BMP280_H
+    char mem[30],i=0;
+    unsigned short val;
+    unsigned long val2;
     BMP280init(false);
     BMP280writeCtlMeas(BMPnormalMode | BMPostX1 | BMPospX1);
     /*
@@ -249,6 +252,11 @@ void main(void)
             AppendMeasure(PY_CO2,short2charp(rsp));
         // */
         //AppendMeasure(PY_GAS,short2charp(valorPropano()));
+        #ifdef BMP280_H //Pruebas con BMP280
+        if (BMP280readTrimming(&mem[0]) && BMP280readValues(&mem[24])){
+            AppendMeasure(PY_PRESS1,mem);
+        }
+        #endif
         SendMeasures(false);
         ms100(1);
         LED=false;
@@ -360,10 +368,6 @@ void main(void)
 
         //Pruebas con BMP280
         #ifdef BMP280_H
-        char mem[30],i=0;
-        unsigned short val;
-        unsigned long val2;
-
         if (BMP280readTrimming(&mem[0]) && BMP280readValues(&mem[24])){
             enviaMsgSerie((char *)"BMP - TRIM VALUES (T1 T2 T3 P1 ... P9):\n\r",0);
             while (i<24) {
