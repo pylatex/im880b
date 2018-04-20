@@ -209,6 +209,7 @@ void main(void)
     #endif
 
     #ifdef BH1750FVI_H
+    unsigned short light;
     DVI=false;
     __delay_us(5);
     DVI=true;
@@ -245,16 +246,20 @@ void main(void)
         for (char cnt=0;cnt<60;cnt++) {
         LED=true;
 
-        //T6713 reading though I2C
-        //* 
+        #ifdef T6700_H //T6713 reading though I2C
         unsigned short rsp;
         if (T67xx_CO2(&rsp))
             AppendMeasure(PY_CO2,short2charp(rsp));
-        // */
+        #endif
         //AppendMeasure(PY_GAS,short2charp(valorPropano()));
         #ifdef BMP280_H //Pruebas con BMP280
         if (BMP280readTrimming(&mem[0]) && BMP280readValues(&mem[24])){
             AppendMeasure(PY_PRESS1,mem);
+        }
+        #endif
+        #ifdef BH1750FVI_H
+        if (BHread(&light)) {
+            AppendMeasure(PY_ILUM1,short2charp(light));
         }
         #endif
         SendMeasures(false);
@@ -355,7 +360,6 @@ void main(void)
 
         //Pruebas con BH1750FVI
         #ifdef BH1750FVI_H
-        unsigned short light;
 
         enviaMsgSerie((char *)"BH1750 - ",0);
         if (BHread(&light)) {
