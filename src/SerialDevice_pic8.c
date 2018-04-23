@@ -15,7 +15,7 @@
 #include <xc.h>
 #include "SerialDevice.h"
 
-#define SerialSentIsOpen() SPEN && TXEN
+#define SerialSentIsOpen() (bool)(SPEN && TXEN)
 
 //------------------------------------------------------------------------------
 //  Section RAM and Function Prototypes

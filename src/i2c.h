@@ -62,13 +62,13 @@
 
 #ifdef _18F2550
 #define I2C_SSPIF_FLAG  PIR1bits.SSPIF
-#define I2C_ISR_COLLISION_CONDITION()   INTCONbits.PEIE == 1 && PIE2bits.BCLIE == 1 && PIR2bits.BCLIF == 1
-#define I2C_ISR_EVENT_CONDITION()       INTCONbits.PEIE == 1 && PIE1bits.SSPIE == 1 && I2C_SSPIF_FLAG == 1
+#define I2C_ISR_COLLISION_CONDITION()   (bool)(INTCONbits.PEIE == 1 && PIE2bits.BCLIE == 1 && PIR2bits.BCLIF == 1)
+#define I2C_ISR_EVENT_CONDITION()       (bool)(INTCONbits.PEIE == 1 && PIE1bits.SSPIE == 1 && I2C_SSPIF_FLAG == 1)
 #endif
 #ifdef _16F1769
 #define I2C_SSPIF_FLAG  PIR1bits.SSP1IF
-#define I2C_ISR_COLLISION_CONDITION()   INTCONbits.PEIE == 1 && PIE2bits.BCL1IE == 1 && PIR2bits.BCL1IF == 1
-#define I2C_ISR_EVENT_CONDITION()       INTCONbits.PEIE == 1 && PIE1bits.SSP1IE == 1 && I2C_SSPIF_FLAG == 1
+#define I2C_ISR_COLLISION_CONDITION()   (bool)(INTCONbits.PEIE == 1 && PIE2bits.BCL1IE == 1 && PIR2bits.BCL1IF == 1)
+#define I2C_ISR_EVENT_CONDITION()       (bool)(INTCONbits.PEIE == 1 && PIE1bits.SSP1IE == 1 && I2C_SSPIF_FLAG == 1)
 #endif
 /**
  Section: Data Type Definitions

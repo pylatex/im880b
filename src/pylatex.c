@@ -94,9 +94,9 @@ bool AppendMeasure (char variable,char *medida) {
 void SendMeasures (bool confirmed) {
     if (PY.cnt) {
         if (confirmed)
-            WiMOD_LoRaWAN_SendCRadioData(5, PY.carga, PY.cnt);
+            WiMOD_LoRaWAN_SendCRadioData(PUERTO, PY.carga, PY.cnt);
         else
-            WiMOD_LoRaWAN_SendURadioData(5, PY.carga, PY.cnt);
+            WiMOD_LoRaWAN_SendURadioData(PUERTO, PY.carga, PY.cnt);
         initAppPayload();
     }
 }
