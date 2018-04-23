@@ -29,17 +29,16 @@ typedef enum {
     NWKjoining
 } status_t;
 
-typedef struct {
+static struct {
     char                    carga[LARGO];
     char                    cnt;
     delayHandlerFunction    delfun;
     volatile bool          *tmrrun;
     volatile status_t       status;
-} PY_T;
+} PY;
 
 #define initAppPayload() PY.cnt=0
 
-static PY_T PY;
 volatile unsigned char timeouts;
 volatile static HCIMessage_t RxMessage;
 static void ProcesaHCI(); //Procesamiento de HCI entrante
@@ -48,10 +47,10 @@ static void ProcesaHCI(); //Procesamiento de HCI entrante
 //  Function Implementations
 //------------------------------------------------------------------------------
 
-void initLoraApp (void) {
+void initLoraApp (serialTransmitHandler transmitter) {
     PY.delfun=0;    //No delay function at startup
     initAppPayload();
-    InitHCI(ProcesaHCI,(HCIMessage_t *) &RxMessage);
+    InitHCI(ProcesaHCI,(HCIMessage_t *) &RxMessage,transmitter);
     PY.status = WaitingUART;    //Initial State
     WiMOD_LoRaWAN_SendPing();
     while (PY.status == WaitingUART);      //Espera hasta que haya respuesta del iM880
@@ -91,7 +90,7 @@ bool AppendMeasure (char variable,char *medida) {
 }
 
 
-void SendMeasures (bool confirmed) {
+void SendMeasures (pyModeType confirmed) {
     if (PY.cnt) {
         if (confirmed)
             WiMOD_LoRaWAN_SendCRadioData(PUERTO, PY.carga, PY.cnt);

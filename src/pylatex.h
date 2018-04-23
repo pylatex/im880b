@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
     #include <stdbool.h>
+    #include "hci_stack.h"
                             //MEDIDA    FORMATO
     #define PY_CO2      1   //CO2       A
     #define PY_TVOC     2   //TVOC      A
@@ -24,10 +25,11 @@ extern "C" {
     #define PY_GAS      8   //GAS       A
 
     typedef void (*delayHandlerFunction)(unsigned char mscant);
+    typedef enum {PY_UNCONFIRMED=0,PY_CONFIRMED} pyModeType;
 
-    void initLoraApp (void);
+    void initLoraApp (serialTransmitHandler transmitter);
     bool AppendMeasure (char variable,char *medida);
-    void SendMeasures (bool confirmed);
+    void SendMeasures (pyModeType mode);
     char *short2charp (unsigned short in);
     void registerDelayFunction(delayHandlerFunction delfun,volatile bool *flag);
 

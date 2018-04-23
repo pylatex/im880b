@@ -69,6 +69,7 @@ extern "C" {
     } HCIMessage_t;
 
     typedef void (*WMHCIuserProc)();
+    typedef bool (*serialTransmitHandler)(char *buffer,char length);
     
     //--------------------------------------------------------------------------
     //  Function Prototypes
@@ -81,9 +82,10 @@ extern "C" {
      * @param UserHandlerRx Call to user function that process a formed HCI message
      * @return true on success
      */
-    bool InitHCI (
-        WMHCIuserProc   HCIRxHandler,   //Handler for processing of Rx HCI messages
-        HCIMessage_t   *RxMessage       //HCI message for reception.
+    void InitHCI (
+        WMHCIuserProc           HCIRxHandler,   //Handler for processing of Rx HCI messages
+        HCIMessage_t           *RxMessage,      //HCI message for reception.
+        serialTransmitHandler   TxFunction      //Handler of function that send messages over UART
     );
 
     /**

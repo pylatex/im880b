@@ -43,6 +43,8 @@ volatile unsigned bool pendingmsg;
 #include "iaq.h"
 #endif
 
+#include <string.h>
+#include "SerialDevice.h"
 #include "pylatex.h"
 
 #define _XTAL_FREQ 8000000  //May be either Internal RC or external oscillator.
@@ -75,6 +77,10 @@ volatile unsigned bool pendingmsg;
 #ifdef SERIAL_DEVICE_H
 #define EUSART_Write(x) SerialDevice_SendByte(x)
 #endif
+
+static enum {
+    hci,nmea
+} modoSerial = hci;
 
 //------------------------------------------------------------------------------
 //  Declarations, Function Prototypes and Variables
@@ -173,9 +179,6 @@ void setup (void) {
     #ifdef SERIAL_DEVICE_H
     SerialDevice_Open("",115200,8,0);
     #endif
-    #ifdef MINIFIED_HCI_H
-    InitHCI(ProcesaHCI,(HCIMessage_t *) &RxMessage);
-    #endif
 }
 
 void enableInterrupts (void) {
@@ -200,7 +203,7 @@ void main(void)
         #ifdef SMACH
 
         LED=true;
-        initLoraApp();
+        initLoraApp((serialTransmitHandler)SerialDevice_SendData);
         LED=false;
         registerDelayFunction(StartTimerDelayMs,&delrun);
         for (char cnt=0;cnt<60;cnt++) {
@@ -211,7 +214,7 @@ void main(void)
             AppendMeasure(PY_CO2,short2charp(rsp));
         // */
         //AppendMeasure(PY_GAS,short2charp(valorPropano()));
-        SendMeasures(false);
+        SendMeasures(PY_UNCONFIRMED);
         ms100(1);
         LED=false;
         ms100(49);  //Approx. each 5 sec ((49+1)x100ms)
@@ -271,7 +274,15 @@ void __interrupt ISR (void) {
         //Error reading
         rx_err=RCSTA;
         //As RCREG is argument, their reading implies the RCIF erasing
-        pylatexRx(RCREG);
+        switch (modoSerial) {
+            case hci:
+                pylatexRx(RCREG);
+                break;
+            case nmea:
+                break;
+            default:
+                break;
+        }
     } else
     if (CCP1IE && CCP1IF) {
         //TimeOut
@@ -302,23 +313,6 @@ void ms100 (unsigned char q) {
     while (q--)
         __delay_ms(100);    //XC8 compiler
 }
-
-#ifdef MINIFIED_HCI_H
-/**
- * Handler for (pre)processing of an incoming HCI message. Once the user exits
- * from this handler function, the RxMessage.size variable gets cleared!
- */
-void ProcesaHCI() {
-    if (RxMessage.check) {
-        pendingmsg = true;
-        lengthrx = RxMessage.size;
-        #ifdef TEST_2
-        LED=true;
-        StartTimerDelayMs(100);
-        #endif
-    }
-}
-#endif
 
 #ifdef SERIAL_DEVICE_H
 void enviaMsgSerie(char *arreglo,unsigned char largo) {

@@ -12,40 +12,40 @@
 
 #include "hci_stack.h"      //WiMOD LoRaWAN HCI Constants
 #include "CRC16.h"          //CRC16 Calculation and Checking functions
-#include "SerialDevice.h"   //UART interface
 
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
 
-typedef struct {
+static struct {
     WMHCIuserProc   RxHandler;
     HCIMessage_t   *rxmsg;
-} HCIsetup_t;
+    serialTransmitHandler   tx;
+} WMHCIsetup;
 
-volatile static HCIsetup_t              WMHCIsetup;
 volatile static HCIMessage_t            HCIrxMessage;
 //------------------------------------------------------------------------------
 // Section Source
 //------------------------------------------------------------------------------
 
 //HCI Initialization
-bool InitHCI (
-    WMHCIuserProc   HCI_RxHandler,    //a function that returns a bool, and receives a HCIMessage_t
-    HCIMessage_t   *RxMessage       //HCI message for reception.
+void InitHCI (
+    WMHCIuserProc           HCI_RxHandler,  //a function that returns a bool, and receives a HCIMessage_t
+    HCIMessage_t           *RxMessage,      //HCI message for reception.
+    serialTransmitHandler   TxFunction      //Handler of function that send messages over UART
 )
 {
+    WMHCIsetup.tx=TxFunction;
     WMHCIsetup.RxHandler=HCI_RxHandler;  //Saves the User Function for Processing of HCI messages
     WMHCIsetup.rxmsg=RxMessage;
     WMHCIsetup.rxmsg->size=0;
     WMHCIsetup.rxmsg->check=false;
-    return SerialDevice_Open("",115200,8,0);   //Enables UART, and from it: RX, TX and interrupts by RX
 }
 
 //Envio de un comando HCI
 bool SendHCI (HCIMessage_t *TxMessage)
 {
-    unsigned short aux=HCI_WKUPCHARS;
+    char aux=HCI_WKUPCHARS,aux2[2];
     unsigned short crc,size=TxMessage->size;
     size+=2;    //Including the header
     //SERIAL WRAPPING LAYER
@@ -53,11 +53,12 @@ bool SendHCI (HCIMessage_t *TxMessage)
     crc= ~(CRC16_Calc(TxMessage->HCI,size,CRC16_INIT_VALUE));
     size+=2;    //Including the final 16 bit CRC
 
+    *aux2=SLIP_END;
     while(aux--)
-        SerialDevice_SendByte(SLIP_END);
+        WMHCIsetup.tx(aux2,1);
 
     //UART LAYER + SLIP ENCODING
-    SerialDevice_SendByte(SLIP_END);
+    WMHCIsetup.tx(aux2,1);
     for (unsigned char i=0;i < size ;i++) {
         if (i < size-2) {
             aux=TxMessage->HCI[i];   //Recycling of unused variable
@@ -67,21 +68,23 @@ bool SendHCI (HCIMessage_t *TxMessage)
             aux=HIBYTE(crc);
         }
         //SLIP coding
+        *aux2=SLIP_ESC;
         switch (aux) {
             case SLIP_END:
-                SerialDevice_SendByte(SLIP_ESC);
-                SerialDevice_SendByte(SLIP_ESC_END);
+                aux2[1]=SLIP_ESC_END;
+                WMHCIsetup.tx(aux2,2);
                 break;
             case SLIP_ESC:
-                SerialDevice_SendByte(SLIP_ESC);
-                SerialDevice_SendByte(SLIP_ESC_ESC);
+                aux2[1]=SLIP_ESC_ESC;
+                WMHCIsetup.tx(aux2,2);
                 break;
             default:
-                SerialDevice_SendByte(aux);
+                WMHCIsetup.tx(&aux,1);
                 break;
         }
     }
-    return (bool) SerialDevice_SendByte(SLIP_END);
+    *aux2=SLIP_END;
+    return (bool) WMHCIsetup.tx(aux2,1);
 }
 
 //Procesamiento de HCI entrante.
