@@ -62,6 +62,10 @@
 		</Unit>
 		<Unit filename="src/hpm.h" />
 		<Unit filename="src/main_pc.cpp" />
+		<Unit filename="src/nmea.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/nmea.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

@@ -41,6 +41,8 @@
         <itemPath>src/hpm.c</itemPath>
         <itemPath>src/T67xx.c</itemPath>
         <itemPath>src/iaq.c</itemPath>
+        <itemPath>src/nmea.c</itemPath>
+        <itemPath>src/nmea.h</itemPath>
       </logicalFolder>
       <itemPath>src/CRC16.c</itemPath>
       <itemPath>src/i2c.c</itemPath>
