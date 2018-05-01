@@ -8,12 +8,11 @@
  */
 
 //MODOS DE COMPILACION. Descomentar el que se quiera probar:
-#define SMACH       //Maquina de estados (principal)
+//#define SMACH       //Maquina de estados (principal)
 //#define TEST_1      //Verificacion UART/Reloj
 //#define TEST_2      //Verificacion comunicacion PIC-WiMOD
-//#define TEST_3      //Verificacion I2C(con sensor CO2 de Telaire)/UART
+#define TEST_3      //Verificacion I2C/UART
 //#define TEST_4      //Medicion ADC y envio por UART
-//#define TEST_5      //Pruebas Sensor iAQ-CORE
 
 //------------------------------------------------------------------------------
 //  Definitions and Setup
@@ -35,12 +34,13 @@ volatile unsigned bool pendingmsg;
 #if defined SMACH || defined TEST_3
 #include "i2c.h"
 #include "T67xx.h"
+#include "hdc1010.h"
+#include "iaq.h"
+#include "bh1750fvi.h"
+#include "bmp280.h"
 #endif
 #if defined SMACH || defined TEST_4
 #include "ADC.h"
-#endif
-#ifdef TEST_5
-#include "iaq.h"
 #endif
 
 #include <string.h>
@@ -64,6 +64,7 @@ volatile unsigned bool pendingmsg;
 
 #define LED LATA1 //Para las pruebas de parpadeo y ping
 //#define PIN RC0   //Para probar en un loop con LED=PIN
+#define DVI LATA2   //Pin DVI del sensor BH1750FVI
 #endif
 
 #ifdef _16F1769
@@ -72,6 +73,7 @@ volatile unsigned bool pendingmsg;
 
 #define LED LATC0   //Para las pruebas de parpadeo y ping
 //#define PIN RB5     //Para probar en un loop con LED=PIN
+#define DVI LATC1   //Pin DVI del sensor BH1750FVI
 #endif
 
 #ifdef SERIAL_DEVICE_H
@@ -142,7 +144,8 @@ void setup (void) {
     LATC=0;
     ANSELA=0;       //All pins as digital
     ANSELC=0;       //All pins as digital
-    TRISC=0xFE; //RC0 as output
+    ODCONC = 2;    //Enable Open Drain to drive DVI
+    TRISC=0xFC; //RC0 and RC1 as outputs
 #endif
 #ifdef _18F2550
     PORTA=0;
@@ -187,6 +190,11 @@ void enableInterrupts (void) {
     GIE = true; //Global Interrupts Enable
 }
 
+void msdelay (unsigned char cantidad) {
+    StartTimerDelayMs(cantidad);
+    while (TMR1ON);
+}
+
 /**
  * Main
  */
@@ -196,6 +204,38 @@ void main(void)
 
     #ifndef TEST_4
     enableInterrupts();
+    #endif
+
+    #ifdef HDC1010_H
+    unsigned short temp,hum;
+    HDCinit (&temp,&hum,msdelay);
+    #endif
+
+    #ifdef BH1750FVI_H
+    unsigned short light;
+    DVI=false;
+    __delay_us(5);
+    DVI=true;
+    BHinit(false);
+    BHwrite(BH1750_RESET);
+    BHwrite(BH1750_PWR_ON);
+    BHwrite(BH1750_CONTINOUS | BH1750_LR);
+    #endif
+
+    #ifdef BMP280_H
+    char mem[30],i=0;
+    unsigned short val;
+    unsigned long val2;
+    BMP280init(false);
+    BMP280writeCtlMeas(BMPnormalMode | BMPostX1 | BMPospX1);
+    /*
+    BMPctrl_meas_t mode;
+    mode.ctrl_meas=0;
+    mode.mode=BMPnormalMode;
+    mode.osrs_p=BMPosX1;
+    mode.osrs_t=BMPosX1;
+    BMP280writeMode(&mode);
+    // */
     #endif
 
     while (true) {
@@ -208,13 +248,24 @@ void main(void)
         registerDelayFunction(StartTimerDelayMs,&delrun);
         for (char cnt=0;cnt<60;cnt++) {
         LED=true;
-        //* Reading of T6713 though I2C
+
+        #ifdef T6700_H //T6713 reading though I2C
         unsigned short rsp;
         if (T67xx_CO2(&rsp))
             AppendMeasure(PY_CO2,short2charp(rsp));
-        // */
+        #endif
         //AppendMeasure(PY_GAS,short2charp(valorPropano()));
-        SendMeasures(PY_UNCONFIRMED);
+        #ifdef BMP280_H //Pruebas con BMP280
+        if (BMP280readTrimming(&mem[0]) && BMP280readValues(&mem[24])){
+            AppendMeasure(PY_PRESS1,mem);
+        }
+        #endif
+        #ifdef BH1750FVI_H
+        if (BHread(&light)) {
+            AppendMeasure(PY_ILUM1,short2charp(light));
+        }
+        #endif
+        SendMeasures(false);
         ms100(1);
         LED=false;
         ms100(49);  //Approx. each 5 sec ((49+1)x100ms)
@@ -238,16 +289,113 @@ void main(void)
 
         //Prueba 3: I2C hacia sensor CO2 Telaire T6713.
         #ifdef TEST_3
-        unsigned short rsp;
-        char phrase[30];
-        unsigned char phlen;
+        char buff[30],phlen;
 
+        //Pruebas con sensor T6713
+        #ifdef T6700_H
+        enviaMsgSerie((char *)"T6713 - ",0);
+        unsigned short rsp;
         if (T67xx_CO2(&rsp)) {
-            phlen=sprintf(phrase,"CO2: %u PPM\r\n",rsp);
-            enviaMsgSerie(phrase,phlen);
+            phlen=(char)sprintf(buff,"CO2: %u PPM\r\n",rsp);
+            enviaMsgSerie(buff,phlen);
         } else {
             enviaMsgSerie((char *)"No hubo lectura\r\n",0);
         }
+        #endif
+
+        //Pruebas con iAQ-Core
+        #ifdef IAQ_H
+        const char e_ok[]= "OK";
+        const char e_run[]="RUNIN";
+        const char e_busy[]="BUSY";
+        const char e_rr[]="ERROR";
+        char const *rspsens;
+        IAQ_T iaq;
+
+        enviaMsgSerie((char *)"iAQ Core - ",0);
+        if (iaq_read(&iaq)) {
+            /*
+            for (char i=0;i<9;i++){
+                phlen=(char) sprintf(phrase,"%#02X ",iaq.raw[i]);
+                enviaMsgSerie(phrase,(unsigned char)phlen);
+            }
+            EUSART_Write('\n');
+            EUSART_Write('\r');
+            // */
+            switch (iaq.status) {
+                case IAQ_OK:
+                    rspsens=e_ok;
+                    break;
+                case IAQ_RUNIN:
+                    rspsens=e_run;
+                    break;
+                case IAQ_BUSY:
+                    rspsens=e_busy;
+                    break;
+                default:
+                case IAQ_ERROR:
+                    rspsens=e_rr;
+                    break;
+            }
+            phlen=(char)sprintf(buff,"CO2: %u PPM, ",iaq.pred);
+            enviaMsgSerie(buff,phlen);
+            phlen=(char)sprintf(buff,"Estado: %s, ",rspsens);
+            enviaMsgSerie(buff,phlen);
+            phlen=(char)sprintf(buff,"Resistencia: %lu, ",iaq.resistance);
+            enviaMsgSerie(buff,phlen);
+            phlen=(char)sprintf(buff,"TVOC: %u PPB\n\r",iaq.tvoc);
+            enviaMsgSerie(buff,phlen);
+        } else {
+            enviaMsgSerie((char *)"No hubo lectura\r\n",0);
+        }
+        #endif
+
+        //Pruebas con HDC1010
+        #ifdef HDC1010_H
+        enviaMsgSerie((char *)"HDC1010 - ",0);
+        if (HDCboth()) {
+            phlen=(char)sprintf(buff,"Temperatura: %u, Humedad: %u\n\r",temp,hum);
+            enviaMsgSerie(buff,phlen);
+        } else {
+            enviaMsgSerie((char *)"No hubo lectura\n\r",0);
+        }
+        #endif
+
+        //Pruebas con BH1750FVI
+        #ifdef BH1750FVI_H
+
+        enviaMsgSerie((char *)"BH1750 - ",0);
+        if (BHread(&light)) {
+            phlen=(char) sprintf(buff,"Luz: %u\n\r",light);
+            enviaMsgSerie(buff,phlen);
+        } else {
+            enviaMsgSerie((char *)"No hubo lectura\n\r",0);
+        }
+        #endif
+
+        //Pruebas con BMP280
+        #ifdef BMP280_H
+        if (BMP280readTrimming(&mem[0]) && BMP280readValues(&mem[24])){
+            enviaMsgSerie((char *)"BMP - TRIM VALUES (T1 T2 T3 P1 ... P9):\n\r",0);
+            while (i<24) {
+                val  = (unsigned short)mem[i++] << 8;
+                val += mem[i++];
+                phlen=(char)sprintf(buff,(i==2 || i==8)?"%u ":"%i ",val);
+                enviaMsgSerie(buff,phlen);
+            }
+            enviaMsgSerie((char *)"\n\rBMP - SENS VALUES (PRESS TEMP):\n\r",0);
+            while (i<30) {
+                val2  = (unsigned long)mem[i++] << 12;
+                val2 += (unsigned long)mem[i++] << 4;
+                val2 += (unsigned long)mem[i++] >> 4;
+                phlen = (char)sprintf(buff,"%lu ",val2);
+                enviaMsgSerie(buff,phlen);
+            }
+            enviaMsgSerie((char *)"\n\r",0);
+        } else {
+            enviaMsgSerie((char *)"BMP - No hubo lectura\n\r",0);
+        }
+        #endif
 
         LED=true;
         ms100(5);
@@ -261,10 +409,6 @@ void main(void)
         phlen=sprintf(phrase,"Propano:%u\r\n",valorPropano());
         enviaMsgSerie(phrase,phlen);
         ms100(10);
-        #endif
-
-        #ifdef TEST_5
-        
         #endif
     }
 }

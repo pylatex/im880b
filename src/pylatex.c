@@ -12,12 +12,13 @@
 #include "WiMOD_LoRaWAN_API.h"
 #include "hci_stack.h"
 #include "pylatex.h"
+#include <string.h>
 
 //------------------------------------------------------------------------------
 //  Definitions, Declarations and Variables
 //------------------------------------------------------------------------------
 
-#define LARGO   20
+#define LARGO   50
 #define PUERTO  5
 
 typedef enum {
@@ -76,6 +77,8 @@ bool AppendMeasure (char variable,char *medida) {
             case PY_PM025:
             case PY_PM100:
             case PY_GAS:
+            case PY_ILUM1:
+            case PY_ILUM2:
                 //FORMATO A
                 if (PY.cnt < (LARGO - 3)) {
                     PY.carga[PY.cnt++]=variable;   //Identificador
@@ -83,6 +86,16 @@ bool AppendMeasure (char variable,char *medida) {
                     PY.carga[PY.cnt++]=medida[1];  //LSB
                     return true;
                 }
+                break;
+            case PY_PRESS1:
+                //FORMATO E
+                if (PY.cnt < (LARGO - 31)) {
+                    PY.carga[PY.cnt++]=variable;   //Identificador
+                    memcpy(&PY.carga[PY.cnt], medida, 30 );
+                    PY.cnt+=30;
+                }
+                break;
+            default:
                 break;
         }
     }
