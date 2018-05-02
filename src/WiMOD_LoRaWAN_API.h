@@ -1,13 +1,11 @@
-//------------------------------------------------------------------------------
-//
-//	File:		WiMOD_LoRaWAN_API.h
-//	Abstract:	API Layer of LoRaWAN Host Controller Interface
-//	Version:	0.1
-//	Date:		18.05.2016
-//	Disclaimer:	This example code is provided by IMST GmbH on an "AS IS"
-//              basis without any warranties.
-//
-//------------------------------------------------------------------------------
+/*
+ * File:        WiMOD_LoRaWAN_API.h
+ * Abstract:    API Layer of LoRaWAN Host Controller Interface
+ * Version:     0.1
+ * Date:        18.05.2016
+ * Disclaimer:  This example code is provided by IMST GmbH on an "AS IS"
+ *              basis without any warranties.
+ */
 
 #ifndef WIMOD_LORAWAN_API_H
 #define WIMOD_LORAWAN_API_H
@@ -46,6 +44,8 @@ extern "C" {
     /**
      * Init
      * @brief: init complete interface
+     * @param comPort
+     * @return true on success
      */
     bool
     WiMOD_LoRaWAN_Init(const char *comPort);

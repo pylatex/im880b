@@ -29,12 +29,44 @@ extern "C" {
     typedef void (*delayHandlerFunction)(unsigned char mscant);
     typedef enum {PY_UNCONFIRMED=0,PY_CONFIRMED} pyModeType;
 
+    /**
+     * Inicializa la aplicacion LoRaWAN para el envio de datos de sensores.
+     * @param transmitter: Funcion que transmite un byte por UART
+     */
     void initLoraApp (serialTransmitHandler transmitter);
+
+    /**
+     * Agrega una medida a la cola de envio.
+     * @param variable: El tipo de medida que se esta enviando
+     * @param medida: Posicion en memoria en que inicia la carga util a enviar
+     * @return true o false dependiendo de si se pudo o no enviar el mensaje.
+     */
     bool AppendMeasure (char variable,char *medida);
+
+    /**
+     * Envia los datos de los sensores anexados.
+     * @param mode: Modo de envio del mensaje, confirmado o no.
+     */
     void SendMeasures (pyModeType mode);
+
+    /**
+     * Convierte un short (uint16) a un arreglo de sus octetos.
+     * @param in: El entero a ser desglosado
+     * @return : Puntero a un arreglo de los octetos, MSB primero.
+     */
     char *short2charp (unsigned short in);
+
+    /**
+     * Usar despues de la inicializacion para registrar una funcion de demora.
+     * @param delfun: Funcion de demora
+     * @param flag: Puntero a la bandera a leer para saber que la demora esta en curso.
+     */
     void registerDelayFunction(delayHandlerFunction delfun,volatile bool *flag);
 
+    /**
+     * Llamar en cada octeto a la entrada del UART, cuando provenga del iM880B
+     * @param RxByteUART: El octeto recibido por UART
+     */
     void pylatexRx (char RxByteUART);
 
 #ifdef	__cplusplus
