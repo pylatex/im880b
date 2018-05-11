@@ -38,8 +38,6 @@ static struct {
     volatile status_t       status;
 } PY;
 
-#define initAppPayload() PY.cnt=0
-
 volatile unsigned char timeouts;
 volatile static HCIMessage_t RxMessage;
 static void ProcesaHCI(); //Procesamiento de HCI entrante
@@ -50,7 +48,7 @@ static void ProcesaHCI(); //Procesamiento de HCI entrante
 
 void initLoraApp (serialTransmitHandler transmitter) {
     PY.delfun=0;    //No delay function at startup
-    initAppPayload();
+    clearAppPayload();
     InitHCI(ProcesaHCI,(HCIMessage_t *) &RxMessage,transmitter);
     PY.status = WaitingUART;    //Initial State
     WiMOD_LoRaWAN_SendPing();
@@ -109,7 +107,7 @@ void SendMeasures (pyModeType confirmed) {
             WiMOD_LoRaWAN_SendCRadioData(PUERTO, PY.carga, PY.cnt);
         else
             WiMOD_LoRaWAN_SendURadioData(PUERTO, PY.carga, PY.cnt);
-        initAppPayload();
+        clearAppPayload();
     }
 }
 
@@ -180,4 +178,8 @@ static void ProcesaHCI() {
                 break;
         }
     }
+}
+
+void clearAppPayload(void){
+    PY.cnt=0;
 }

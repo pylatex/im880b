@@ -68,6 +68,12 @@ extern "C" {
      * @param RxByteUART: El octeto recibido por UART
      */
     void pylatexRx (char RxByteUART);
+    
+    /**
+     * Vacia las mediciones a enviar por LoRaWAN. Automaticamente llamado por
+     * initLoraApp() y SendMeasures().
+     */
+    void clearAppPayload(void);
 
 #ifdef	__cplusplus
 }
