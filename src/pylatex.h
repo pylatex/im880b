@@ -36,10 +36,10 @@ extern "C" {
     void initLoraApp (serialTransmitHandler transmitter);
 
     /**
-     * Agrega una medida a la cola de envio.
-     * @param variable: El tipo de medida que se esta enviando
+     * Intenta agregar una medida a la cola de envio.
+     * @param variable: Constante que indica el tipo de medida
      * @param medida: Posicion en memoria en que inicia la carga util a enviar
-     * @return true o false dependiendo de si se pudo o no enviar el mensaje.
+     * @return true o false dependiendo de si hubo o no, espacio para la medida.
      */
     bool AppendMeasure (char variable,char *medida);
 

@@ -81,8 +81,8 @@ volatile unsigned bool pendingmsg;
 #endif
 
 static enum {
-    hci,nmea
-} modoSerial = hci;
+    HCI,NMEA,HPM
+} modoSerial = HCI;
 
 //------------------------------------------------------------------------------
 //  Declarations, Function Prototypes and Variables
@@ -265,7 +265,7 @@ void main(void)
             AppendMeasure(PY_ILUM1,short2charp(light));
         }
         #endif
-        SendMeasures(false);
+        SendMeasures(PY_UNCONFIRMED);
         ms100(1);
         LED=false;
         ms100(49);  //Approx. each 5 sec ((49+1)x100ms)
@@ -413,17 +413,24 @@ void main(void)
     }
 }
 
+volatile bool libre = true;
+volatile bool lleno = false;
+char minibuff,HCIbuff[20],rxcnt;
+
 void __interrupt ISR (void) {
     if (RCIE && RCIF) {
         //Error reading
         rx_err=RCSTA;
         //As RCREG is argument, their reading implies the RCIF erasing
         switch (modoSerial) {
-            case hci:
+            case HCI:
                 pylatexRx(RCREG);
                 break;
-            case nmea:
+            case NMEA:
                 break;
+            case HPM:
+                libre = false;
+                minibuff = RCREG;
             default:
                 break;
         }
@@ -468,3 +475,15 @@ void enviaMsgSerie(char *arreglo,unsigned char largo) {
         EUSART_Write(*(arreglo+(aux++)));
 }
 #endif
+
+int SerialDevice_ReadData(UINT8 *rxBuffer, int rxBufferSize) {
+    while (1) {
+        StartTimerDelayMs(5);
+        while (TMR1ON || libre);
+        if (!libre) {
+            rxBuffer[rxcnt++] = minibuff;
+            if (rxcnt >= rxBufferSize)
+                lleno=true;
+        } else break;
+    }
+}

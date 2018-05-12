@@ -32,8 +32,10 @@ extern "C" {
     } IAQ_T;
 
     /**
-     * Performs the iAQ sensor reading
-     * @return a pointer to an object with the measures, on a sucessful reading
+     * Reads the iAQ Core
+     * @param obj: A pointer to an IAQ_T object, to write the results
+     * @return true if the sensor was read successfully, so the IAQ_T pointed
+     * struct has coherent results.
      */
     bool iaq_read(IAQ_T *obj);
 

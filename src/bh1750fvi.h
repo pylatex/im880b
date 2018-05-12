@@ -29,8 +29,6 @@ extern "C" {
     #define BH1750_CONTINOUS    0x10
     #define BH1750_SINGLE       0x20
 
-    typedef void (*IOWriter)(bool IOstate);
-
     /**
      * Loads the address to be used with the sensor.
      * @param ADDRstat: the logic state of ADDR pin

@@ -64,7 +64,7 @@ void NMEAinput (char incomingByte) {
                 NMEA.CScalc ^= incomingByte;
                 if (incomingByte==','){
                     NMEA.buffer[count] = 0;
-                    pers[NMEA.fields++] = count+1;
+                    pers[NMEA.fields++] = count+1u;
                 } else {
                     NMEA.buffer[count] = incomingByte;
                 }

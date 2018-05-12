@@ -5,7 +5,9 @@
 extern "C" {
 #endif
 
-    typedef int (*hpm_enviaSerie_t)(unsigned char *carga,char largo);
+    #include <stdbool.h>
+
+    typedef int (*hpm_enviaSerie_t)(const char *carga,char largo);
 
     void InicializacionHPM(hpm_enviaSerie_t enviaSerie);
 
@@ -19,7 +21,9 @@ extern "C" {
     void PararMedicion(void);
 
     //
-    void RespuestaSensor(unsigned char *carga,unsigned char peso);
+    void RespuestaSensor(char *carga,char peso);
+    
+    typedef void (*hpm_timStarter)(int msdelay, bool *runningFlag);
 
 #ifdef	__cplusplus
 }

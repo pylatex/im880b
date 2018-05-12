@@ -1,10 +1,9 @@
 #include "i2c.h"
 #include "bh1750fvi.h"
-#include <xc.h>
 
 #define I2C_MAX_ATTEMPTS 50
 
-I2C_MESSAGE_STATUS  status;
+static I2C_MESSAGE_STATUS  status;
 static char         attempts,buff[6],addr;
 
 void BHinit(bool ADDRstat) {

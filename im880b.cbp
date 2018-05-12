@@ -35,6 +35,7 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
+			<Add directory="./src" />
 		</Compiler>
 		<Unit filename="src/CRC16.c">
 			<Option compilerVar="CC" />
@@ -48,7 +49,6 @@
 		<Unit filename="src/SerialDevice_pc.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/WMLW_API.h" />
 		<Unit filename="src/WiMOD_HCI_Layer.c">
 			<Option compilerVar="CC" />
 		</Unit>
