@@ -130,12 +130,12 @@ static void ProcesaHCI() {
                     //The incoming HCI message is a response of NWK STATUS
                     switch (RxMessage.Payload[1]) {
                         case 0: //Inactive
-                        case 1: //Active (ABP)
                             PY.status = NWKinactive;
                             break;
                         case 3: //Accediendo (OTAA)
                             PY.status = NWKjoining;
                             break;
+                        case 1: //Active (ABP)
                         case 2: //Active (OTAA)
                             PY.status = NWKactive;
                         default:
