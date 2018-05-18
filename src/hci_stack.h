@@ -61,9 +61,9 @@ extern "C" {
             struct {
             unsigned char   SapID;  // Service Access Point Identifier
             unsigned char   MsgID;  // Message Identifier
-            unsigned char   Payload[WIMOD_HCI_MSG_PAYLOAD_SIZE];    // Payload Field
+            unsigned char   Payload[WIMOD_HCI_MSG_PAYLOAD_SIZE-2];    // Payload Field
             };
-            unsigned char   HCI[2+WIMOD_HCI_MSG_PAYLOAD_SIZE];
+            unsigned char   HCI[WIMOD_HCI_MSG_PAYLOAD_SIZE];
         };
         unsigned char       CRC[WIMOD_HCI_MSG_FCS_SIZE];  // Frame Check Sequence Field
     } HCIMessage_t;
@@ -84,7 +84,6 @@ extern "C" {
      */
     void InitHCI (
         WMHCIuserProc           HCIRxHandler,   //Handler for processing of Rx HCI messages
-        HCIMessage_t           *RxMessage,      //HCI message for reception.
         serialTransmitHandler   TxFunction      //Handler of function that send messages over UART
     );
 

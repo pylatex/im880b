@@ -19,11 +19,10 @@
 
 static struct {
     WMHCIuserProc   RxHandler;
-    HCIMessage_t   *rxmsg;
     serialTransmitHandler   tx;
 } WMHCIsetup;
 
-volatile static HCIMessage_t            HCIrxMessage;
+volatile HCIMessage_t   HCIrxMessage;
 //------------------------------------------------------------------------------
 // Section Source
 //------------------------------------------------------------------------------
@@ -31,15 +30,13 @@ volatile static HCIMessage_t            HCIrxMessage;
 //HCI Initialization
 void InitHCI (
     WMHCIuserProc           HCI_RxHandler,  //a function that returns a bool, and receives a HCIMessage_t
-    HCIMessage_t           *RxMessage,      //HCI message for reception.
     serialTransmitHandler   TxFunction      //Handler of function that send messages over UART
 )
 {
     WMHCIsetup.tx=TxFunction;
     WMHCIsetup.RxHandler=HCI_RxHandler;  //Saves the User Function for Processing of HCI messages
-    WMHCIsetup.rxmsg=RxMessage;
-    WMHCIsetup.rxmsg->size=0;
-    WMHCIsetup.rxmsg->check=false;
+    HCIrxMessage.size=0;
+    HCIrxMessage.check=false;
 }
 
 //Envio de un comando HCI
@@ -93,14 +90,14 @@ void IncomingHCIpacker (unsigned char rxByte)
     static bool escape=false;
 
     if (rxByte==SLIP_END) {
-        if (WMHCIsetup.rxmsg->size >=  2+WIMOD_HCI_MSG_FCS_SIZE) {
-            WMHCIsetup.rxmsg->check=CRC16_Check(WMHCIsetup.rxmsg->HCI, WMHCIsetup.rxmsg->size, CRC16_INIT_VALUE);
-            WMHCIsetup.rxmsg->size -= (2+WIMOD_HCI_MSG_FCS_SIZE);   //Net payload size
+        if (HCIrxMessage.size >=  2+WIMOD_HCI_MSG_FCS_SIZE) {
+            HCIrxMessage.check=CRC16_Check(HCIrxMessage.HCI, HCIrxMessage.size, CRC16_INIT_VALUE);
+            HCIrxMessage.size -= (2+WIMOD_HCI_MSG_FCS_SIZE);   //Net payload size
             WMHCIsetup.RxHandler();
         }
         escape=false;
-        WMHCIsetup.rxmsg->size=0;
-        WMHCIsetup.rxmsg->check=false;
+        HCIrxMessage.size=0;
+        HCIrxMessage.check=false;
     } else {
         if (rxByte==SLIP_ESC) {
             escape=true;
@@ -113,7 +110,7 @@ void IncomingHCIpacker (unsigned char rxByte)
                 }
                 escape=false;
             }
-            WMHCIsetup.rxmsg->HCI[WMHCIsetup.rxmsg->size++]=rxByte;
+            HCIrxMessage.HCI[HCIrxMessage.size++]=rxByte;
         }
     }
 }
