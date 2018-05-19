@@ -29,14 +29,12 @@ static struct {
 
 volatile unsigned char timeouts;
 
-extern void initLoraApp (serialTransmitHandler transmitter);
-
 //------------------------------------------------------------------------------
 //  Function Implementations
 //------------------------------------------------------------------------------
 
 void initLW (serialTransmitHandler txfun) {
-    initLoraApp(txfun);
+    WiMOD_LoRaWAN_Init(txfun);
 }
 
 void registerDelayFunction(delayHandlerFunction delfun,volatile bool *flag) {

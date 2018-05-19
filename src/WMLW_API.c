@@ -8,7 +8,6 @@
 //------------------------------------------------------------------------------
 #include <string.h>
 #include "WiMOD_LoRaWAN_API.h"
-#include "hci_stack.h"
 
 typedef enum {
     WaitingUART,
@@ -32,7 +31,7 @@ volatile status_t   status;
 // FUNCTION IMPLEMENTATIONS
 //------------------------------------------------------------------------------
 
-void initLoraApp (serialTransmitHandler transmitter) {
+bool WiMOD_LoRaWAN_Init (serialTransmitHandler transmitter) {
     InitHCI(ProcesaHCI,transmitter);
     status = WaitingUART;    //Initial State
     WiMOD_LoRaWAN_SendPing();

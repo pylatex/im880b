@@ -23,6 +23,7 @@ extern "C" {
 
     #include <stdint.h>
     #include <stdbool.h>
+    #include "hci_stack.h"
 
     //--------------------------------------------------------------------------
     //  General Declarations
@@ -177,12 +178,12 @@ extern "C" {
 
     /**
      * Init
-     * @brief: init complete interface
-     * @param comPort
+     * @brief: initializes LoRaWAN Link, including network authentication
+     * @param transmitter: Function that writes to iM88xx (Serial Transmitter)
      * @return true on success
      */
     bool
-    WiMOD_LoRaWAN_Init(const char *comPort);
+    WiMOD_LoRaWAN_Init(serialTransmitHandler transmitter);
 
     /**
      * Ping
