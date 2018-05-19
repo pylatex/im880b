@@ -243,7 +243,7 @@ void main(void)
         #ifdef SMACH
 
         LED=true;
-        initLoraApp((serialTransmitHandler)SerialDevice_SendData);
+        initLW((serialTransmitHandler)SerialDevice_SendData);
         LED=false;
         registerDelayFunction(StartTimerDelayMs,&delrun);
         for (char cnt=0;cnt<60;cnt++) {
