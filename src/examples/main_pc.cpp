@@ -12,10 +12,12 @@
  */
 #define DEBUG
 
-//#define HPM     //Descomentar para hacer pruebas con el sensor HPM directamente
+#define HPM     //Descomentar para hacer pruebas con el sensor HPM directamente
 //------------------------------------------------------------------------------
 //  Include Files
 //------------------------------------------------------------------------------
+#include "SerialDevice.h"
+
 #ifdef  Q_OS_WIN
 #include <conio.h>
 #endif  //Q_OS_WIN
@@ -121,12 +123,13 @@ int main(int argc, char *argv[])
     if(!WiMOD_LoRaWAN_Init(comPort))
     #endif // HPM
     {
+
         printf("error - couldn't open interface on comport %s\r\n",comPort);
         printf("try: WiMOD_LoRaWAN_HCI_C_ExampleCode COMxy to select another comport\n\r");
 
         return -1;
     }
-
+    //WiMOD_LoRaWAN_Init();   //Le entra la funcion que envia por serial
     // show menu
     ShowMenu(comPort);
 
@@ -140,9 +143,9 @@ int main(int argc, char *argv[])
     while(run) {
         // handle receiver process
         #ifdef HPM
-        unsigned char rxBuf[MAXIMO_SENSOR];
+        char rxBuf[MAXIMO_SENSOR];
         // read small chunk of data
-        int rxLength = SerialDevice_ReadData(rxBuf, MAXIMO_SENSOR);
+        int rxLength = SerialDevice_ReadData((UINT8 *)rxBuf, MAXIMO_SENSOR);
         if (rxLength) { // data available ?
             RespuestaSensor(rxBuf,MAXIMO_SENSOR);
         }

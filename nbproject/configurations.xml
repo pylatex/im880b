@@ -17,6 +17,7 @@
         <itemPath>src/hdc1010.h</itemPath>
         <itemPath>src/bh1750fvi.h</itemPath>
         <itemPath>src/bmp280.h</itemPath>
+        <itemPath>src/nmea.h</itemPath>
       </logicalFolder>
       <itemPath>src/CRC16.h</itemPath>
       <itemPath>src/SerialDevice.h</itemPath>
@@ -32,6 +33,9 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <logicalFolder name="f3" displayName="Examples" projectFiles="true">
+        <itemPath>src/examples/main_pic8.c</itemPath>
+      </logicalFolder>
       <logicalFolder name="f2" displayName="LoRaWAN" projectFiles="true">
         <itemPath>src/WiMOD_LoRaWAN_API.c</itemPath>
         <itemPath>src/WiMOD_HCI_Layer.c</itemPath>
@@ -44,14 +48,12 @@
         <itemPath>src/T67xx.c</itemPath>
         <itemPath>src/iaq.c</itemPath>
         <itemPath>src/nmea.c</itemPath>
-        <itemPath>src/nmea.h</itemPath>
         <itemPath>src/hdc1010.c</itemPath>
         <itemPath>src/bh1750fvi.c</itemPath>
         <itemPath>src/bmp280.c</itemPath>
       </logicalFolder>
       <itemPath>src/CRC16.c</itemPath>
       <itemPath>src/i2c.c</itemPath>
-      <itemPath>src/main_pic8.c</itemPath>
       <itemPath>src/SerialDevice_pic8.c</itemPath>
       <itemPath>src/crc16modbus.c</itemPath>
       <itemPath>src/pylatex.c</itemPath>
@@ -67,7 +69,6 @@
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
-    <Elem>src</Elem>
     <Elem>.</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
@@ -111,7 +112,7 @@
         <property key="asmlist" value="true"/>
         <property key="define-macros" value=""/>
         <property key="disable-optimizations" value="false"/>
-        <property key="extra-include-directories" value=""/>
+        <property key="extra-include-directories" value="src"/>
         <property key="favor-optimization-for" value="-speed,+space"/>
         <property key="identifier-length" value="255"/>
         <property key="local-generation" value="false"/>
@@ -182,7 +183,6 @@
         <property key="ToolFirmwareFilePath"
                   value="Press to browse for a specific firmware version"/>
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
-        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>
@@ -664,7 +664,7 @@
         <property key="asmlist" value="true"/>
         <property key="define-macros" value=""/>
         <property key="disable-optimizations" value="false"/>
-        <property key="extra-include-directories" value=""/>
+        <property key="extra-include-directories" value="src"/>
         <property key="favor-optimization-for" value="-speed,+space"/>
         <property key="identifier-length" value="255"/>
         <property key="local-generation" value="false"/>

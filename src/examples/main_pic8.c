@@ -223,9 +223,7 @@ void main(void)
     #endif
 
     #ifdef BMP280_H
-    char mem[30],i=0;
-    unsigned short val;
-    unsigned long val2;
+    char mem[30];
     BMP280init(false);
     BMP280writeCtlMeas(BMPnormalMode | BMPostX1 | BMPospX1);
     /*
@@ -375,6 +373,9 @@ void main(void)
 
         //Pruebas con BMP280
         #ifdef BMP280_H
+        unsigned short val;
+        unsigned long val2;
+        char i=0;
         if (BMP280readTrimming(&mem[0]) && BMP280readValues(&mem[24])){
             enviaMsgSerie((char *)"BMP - TRIM VALUES (T1 T2 T3 P1 ... P9):\n\r",0);
             while (i<24) {

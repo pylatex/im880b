@@ -1,10 +1,10 @@
 /*
  * File:    hci_stack.h
  * Author:  Alex F. Bustos
- * 
+ *
  * Headers for the implementation of the HCI+CRC16+SLIP+UART functions to be
  * used on WiMOD LoRaWAN EndNodes. Should be homonym of WiMOD_HCI_Layer.h
- * 
+ *
  * Here should be the SLIP+CRC
  */
 
@@ -37,6 +37,7 @@ extern "C" {
     #define HIBYTE(x)                       ((UINT16)(x) >> 8)
 
     //So sure about this typedefs
+    /*
     typedef union {
         struct {
         unsigned char   SapID;      // Service Access Point Identifier
@@ -52,6 +53,7 @@ extern "C" {
         unsigned char   CRC[WIMOD_HCI_MSG_FCS_SIZE];    // Frame Check Sequence Field
         HCImsg_t       *HCImsg;
     } HCIMessage_t2;
+    // */
 
     typedef struct
     {
@@ -70,7 +72,7 @@ extern "C" {
 
     typedef void (*WMHCIuserProc)();
     typedef bool (*serialTransmitHandler)(char *buffer,char length);
-    
+
     //--------------------------------------------------------------------------
     //  Function Prototypes
     //--------------------------------------------------------------------------
@@ -91,7 +93,7 @@ extern "C" {
      * @brief: Sends an HCI message
      * Calculates the CRC to the HCI message to be sent, stored in buffer, then
      * applies the SLIP wrapper to the result and sends it through the UART.
-     * 
+     *
      * @param buffer: HCI message. In 0 the DstID, in 1 the MsgID. Else the payload
      * @param size: Size of the payload of the HCI message
      */
@@ -101,7 +103,7 @@ extern "C" {
      * Groups every incoming UART octect in an HCI message. Additionally, when
      * the HCI message is complete, it calls the (handler) function given by
      * user at initialization, to process the received HCI message.
-     * 
+     *
      * @param rxByte: The byte received by the UART
      */
     void IncomingHCIpacker (unsigned char rxByte);

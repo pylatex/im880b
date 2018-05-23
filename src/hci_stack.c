@@ -91,7 +91,7 @@ void IncomingHCIpacker (unsigned char rxByte)
 
     if (rxByte==SLIP_END) {
         if (HCIrxMessage.size >=  2+WIMOD_HCI_MSG_FCS_SIZE) {
-            HCIrxMessage.check=CRC16_Check(HCIrxMessage.HCI, HCIrxMessage.size, CRC16_INIT_VALUE);
+            HCIrxMessage.check=CRC16_Check((unsigned char *)HCIrxMessage.HCI, HCIrxMessage.size, CRC16_INIT_VALUE);
             HCIrxMessage.size -= (2+WIMOD_HCI_MSG_FCS_SIZE);   //Net payload size
             WMHCIsetup.RxHandler();
         }

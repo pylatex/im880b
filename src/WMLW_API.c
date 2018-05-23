@@ -39,10 +39,11 @@ bool WiMOD_LoRaWAN_Init (serialTransmitHandler transmitter) {
     for (;;){
         WiMOD_LoRaWAN_GetNetworkStatus();
         while (status == WaitingNetStat);
-        if (status == NWKactive) break;
+        if (status == NWKactive) return true;
         if (status == NWKinactive) WiMOD_LoRaWAN_JoinNetworkRequest();
         while (status == NWKinactive || status == NWKjoining);
     }
+    return false;
 }
 
 // ping device

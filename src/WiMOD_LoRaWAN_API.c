@@ -119,10 +119,10 @@ static const TIDString WiMOD_LoRaWAN_StatusStrings[] =
 
 // init
 bool
-WiMOD_LoRaWAN_Init(const char *comPort)
+WiMOD_LoRaWAN_Init(serialTransmitHandler transmitter)
 {
     // init HCI layer
-    return WiMOD_HCI_Init(comPort,                  // comPort
+    return WiMOD_HCI_Init(transmitter,              // comPort
                    WiMOD_LoRaWAN_Process_RxMessage, // receiver callback
                    &RxMessage);                     // rx message
 }

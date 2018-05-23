@@ -57,11 +57,11 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/WiMOD_LoRaWAN_API.h" />
+		<Unit filename="src/examples/main_pc.cpp" />
 		<Unit filename="src/hpm.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/hpm.h" />
-		<Unit filename="src/main_pc.cpp" />
 		<Unit filename="src/nmea.c">
 			<Option compilerVar="CC" />
 		</Unit>

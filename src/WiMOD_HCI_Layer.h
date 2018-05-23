@@ -74,7 +74,7 @@ extern "C" {
      * @brief: Init HCI Message layer
      */
     bool
-    WiMOD_HCI_Init(const char              *comPort,
+    WiMOD_HCI_Init(serialTransmitHandler    transmitter,
                    TWiMOD_HCI_CbRxMessage   cbRxMessage,
                    TWiMOD_HCI_Message      *rxMessage);
 

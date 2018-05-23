@@ -10,6 +10,7 @@ build/*
 debug/*
 dist/*
 nbproject/*
+disassembly/*
 !nbproject/configurations.xml
 !nbproject/project.xml
 
