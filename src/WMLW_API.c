@@ -21,7 +21,7 @@ typedef enum {
 static HCIMessage_t TxMessage;
 extern volatile HCIMessage_t    HCIrxMessage;
 static void ProcesaHCI(); //Procesamiento de HCI entrante
-volatile status_t   status;
+volatile static status_t   status;
 
 //------------------------------------------------------------------------------
 // FUNCTION PROTOTYPES

@@ -35,6 +35,7 @@
                    projectFiles="true">
       <logicalFolder name="f3" displayName="Examples" projectFiles="true">
         <itemPath>src/examples/main_pic8.c</itemPath>
+        <itemPath>src/examples/I2Csensors.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="LoRaWAN" projectFiles="true">
         <itemPath>src/WiMOD_LoRaWAN_API.c</itemPath>
@@ -735,6 +736,7 @@
         <property key="ToolFirmwareFilePath"
                   value="Press to browse for a specific firmware version"/>
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
+        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>
@@ -1169,6 +1171,14 @@
         </XC8-config-global>
       </item>
       <item path="src/crc16modbus.c" ex="true" overriding="false">
+        <HI-TECH-COMP>
+        </HI-TECH-COMP>
+        <HI-TECH-LINK>
+        </HI-TECH-LINK>
+        <XC8-config-global>
+        </XC8-config-global>
+      </item>
+      <item path="src/examples/I2Csensors.c" ex="true" overriding="false">
         <HI-TECH-COMP>
         </HI-TECH-COMP>
         <HI-TECH-LINK>
