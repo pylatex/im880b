@@ -40,6 +40,8 @@ extern "C" {
         const char *String;
     }TIDString;
 
+    typedef enum {RESET,CONNECTING,ACTIVE} LWstat;
+
     ////Endpoint (SAP) Identifier
     #define DEVMGMT_ID  DEVMGMT_SAP_ID  //WiMOD LoraWAN HCI PDF ver 1.13
     #define DEVMGMT_SAP_ID  0x01

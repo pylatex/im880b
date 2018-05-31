@@ -9,6 +9,7 @@ im880b.*
 build/*
 debug/*
 dist/*
+html/*
 nbproject/*
 disassembly/*
 !nbproject/configurations.xml

@@ -17,13 +17,15 @@
 //  Definitions and Setup
 //------------------------------------------------------------------------------
 #include <xc.h>
+#include <string.h>
+#include "SerialDevice.h"
+#include "pylatex.h"
+
 #if defined TEST_1 || defined TEST_3 || defined TEST_4
 #include <string.h>
 #include <stdio.h>
 #endif
 #if defined TEST_2
-#include "WiMOD_LoRaWAN_API.h"
-#include "hci_stack.h"
 void ProcesaHCI();
 volatile unsigned bool pendingmsg;
 #endif
@@ -41,10 +43,6 @@ volatile unsigned bool pendingmsg;
 #if defined SMACH || defined TEST_4
 #include "ADC.h"
 #endif
-
-#include <string.h>
-#include "SerialDevice.h"
-#include "pylatex.h"
 
 #define _XTAL_FREQ 8000000  //May be either Internal RC or external oscillator.
 //#define _XTAL_FREQ 7372800  //External Quartz Crystal to derivate common UART speeds
@@ -75,10 +73,6 @@ volatile unsigned bool pendingmsg;
 #define DVI LATC1   //Pin DVI del sensor BH1750FVI
 #endif
 
-#ifdef SERIAL_DEVICE_H
-#define EUSART_Write(x) SerialDevice_SendByte(x)
-#endif
-
 typedef enum {MODEM_LW,GPS,HPM,DEBUG1,DEBUG2} serial_t;
 
 //------------------------------------------------------------------------------
@@ -96,9 +90,8 @@ void blink (unsigned char cant,unsigned char high,unsigned char low); //Parpadeo
 
 //Utiidades Serial
 void cambiaSerial (serial_t serial);    //Para cambiar el elemento a controlar
-#ifdef SERIAL_DEVICE_H
-void enviaMsgSerie(char *arreglo,unsigned char largo);  //Para enviar un arreglo por serial
-#endif
+void enviaIMST(char *arreglo,unsigned char largo);
+void enviaGPS(char *arreglo,unsigned char largo);
 
 //Utilidades Sistema
 void ppsLock (bool state);      //Especifica el estado de bloqueo de PPS
@@ -200,7 +193,7 @@ void main(void)
         #ifdef SMACH
 
         LED=true;
-        initLW((serialTransmitHandler)SerialDevice_SendData);
+        initLW((serialTransmitHandler)enviaIMST);
         LED=false;
         registerDelayFunction(StartTimerDelayMs,&delrun);
         for (char cnt=0;cnt<60;cnt++) {
@@ -226,13 +219,15 @@ void main(void)
         ms100(1);
         LED=false;
         ms100(49);  //Approx. each 5 sec ((49+1)x100ms)
+        const char largo=14,test[]="Terminal GPS\n\r";
+        enviaGPS((char *)test,largo);
         }
         #endif
 
         //Prueba 1: Verificacion UART y Reloj ~ 1 Hz
         #ifdef TEST_1
         LED = true;
-        enviaMsgSerie((char *)"estoy vivo\r\n",0);
+        SerialDevice_SendData((char *)"estoy vivo\r\n",0);
         ms100(5);
         LED = false;
         ms100(5);
@@ -248,7 +243,7 @@ void main(void)
         #ifdef TEST_4
         unsigned char phrase[15],phlen;
         phlen=sprintf(phrase,"Propano:%u\r\n",valorPropano());
-        enviaMsgSerie(phrase,phlen);
+        SerialDevice_SendData(phrase,phlen);
         ms100(10);
         #endif
     }
@@ -261,21 +256,56 @@ void main(void)
 void cambiaSerial (serial_t serial){
     SerialDevice_Close();
     #ifdef _16F1769
-    modoSerial=serial;
     ppsLock(false);
-    switch (serial) {
+
+    //Desligar las salidas del serial
+    switch (modoSerial) {
+        case MODEM_LW:
+            RC4PPS=0;    //RC4 recibe el Latch de su puerto
+            break;
+
+        case GPS:
+            //Entradas y salidas UART
+            RB5PPS=0;    //RB5 recibe el Latch de su puerto
+            break;
+
+        default:
+            break;
+    }
+
+    //Ligar las nuevas salidas y entradas al modulo UART
+    switch (modoSerial=serial) {
         case MODEM_LW:
             //Entradas y salidas UART
             RXPPS=0x15;     //Rx viene de RC5
             RC4PPS=0x16;    //Tx va hacia RC4
             break;
+
+        case GPS:
+            //Entradas y salidas UART
+            RXPPS=0x16;     //Rx viene de RC6
+            RB5PPS=0x16;    //Tx va hacia RB5
+            break;
+
         default:
             break;
     }
+
     ppsLock(true);
-    #elif defined _18F2550
     #endif
     SerialDevice_Open("",115200,8,0);
+}
+
+void enviaIMST(char *arreglo,unsigned char largo) {
+    if (modoSerial != MODEM_LW)
+        cambiaSerial(MODEM_LW);
+    SerialDevice_SendData(arreglo,largo);
+}
+
+void enviaGPS(char *arreglo,unsigned char largo) {
+    if (modoSerial != GPS)
+        cambiaSerial(GPS);
+    SerialDevice_SendData(arreglo,largo);
 }
 
 volatile bool libre = true;
@@ -294,12 +324,11 @@ void __interrupt ISR (void) {
             case MODEM_LW:
                 pylatexRx(RCREG);
                 break;
-            case GPS:
-                break;
             case HPM:
                 libre = false;
-                minibuff = RCREG;
+            case GPS:
             default:
+                minibuff = RCREG;
                 break;
         }
     } else
@@ -381,22 +410,6 @@ void ms100 (unsigned char q) {
     while (q--)
         __delay_ms(100);    //XC8 compiler
 }
-
-#ifdef SERIAL_DEVICE_H
-/**
- * Para enviar un mensaje por el serial activo
- * @param arreglo
- * @param largo
- */
-void enviaMsgSerie(char *arreglo,unsigned char largo) {
-    unsigned char aux=0;
-    if (!largo)
-        largo=strlen(arreglo);
-
-    while (aux<largo)
-        EUSART_Write(*(arreglo+(aux++)));
-}
-#endif
 
 /**
  * (Pendiente) Rutina para leer valores del UART

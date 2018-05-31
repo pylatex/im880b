@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
     #include <stdbool.h>
-    #include "hci_stack.h"
+    #include "WiMOD_LoRaWAN_API.h"
                             //MEDIDA    FORMATO
     #define PY_CO2      1   //CO2       A
     #define PY_TVOC     2   //TVOC      A
