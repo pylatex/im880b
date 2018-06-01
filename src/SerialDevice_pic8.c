@@ -15,11 +15,11 @@
 #include <xc.h>
 #include "SerialDevice.h"
 
-#define SerialSentIsOpen() (bool)(SPEN && TXEN)
-
 //------------------------------------------------------------------------------
 //  Section RAM and Function Prototypes
 //------------------------------------------------------------------------------
+#define SerialSentIsOpen() (bool)(SPEN && TXEN)
+static baudrate_t br;
 
 //------------------------------------------------------------------------------
 //  Section Code
@@ -28,22 +28,33 @@
 // open serial device
 bool
 SerialDevice_Open(const char   *comPort,
-                  UINT32        baudRate,   //115200, siempre.
-                  int           dataBits,   //8, siempre.
-                  UINT8         parity)     //Ninguna, siempre.
+                  baudrate_t    baudRate,
+                  int           dataBits,
+                  UINT8         parity)
 {
-    //UART, Ajustes comunes a Rx y Tx. Inicializado de acuerdo a datasheet 16F2550
+    //UART, Ajustes comunes a Rx y Tx. Inicializado de acuerdo a datasheet 18F2550
     //Se prueba con 8(interno) y 7.3728(externo) MHz
     ////1: (En reset,SPBRG=0). Usar BRG16=1 y BRGH=1. Velocidades despues de PLL (si lo hay)
-    SPBRG=16;   //Fosc=8 MHz (ejm,interno)
-    //SPBRG=15;   //Fosc=7.3728 MHz (externo)
-    //SPBRG=207;   //Fosc=8 MHz (ejm,interno), 9600 Baud
+
+    //* Para Fosc=8 MHz (ejm,interno)
+    switch (baudRate) {
+        case B9600:
+            SPBRG=207;
+            break;
+        case B19200:
+            SPBRG=103;
+            break;
+        case B115200:
+            SPBRG=16;
+            break;
+    } // */
+
     #ifdef _18F2550
     SYNC=false; //2. Modo Asincrono
-    #endif
-    #ifdef _16F1769
+    #elif defined _16F1769
     TX1STAbits.SYNC=false; //2. Modo Asincrono
     #endif
+
     BRG16=true;
     BRGH=true;
     SPEN=true; //2. Habilita Puerto Serie

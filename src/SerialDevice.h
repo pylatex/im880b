@@ -11,6 +11,10 @@ extern "C" {
     typedef uint8_t             UINT8;
     typedef uint32_t            UINT32;
 
+    typedef enum {
+        B9600,B19200,B115200
+    } baudrate_t;
+
     /**
      * Initializes the library to work with specified serial port
      * @param comPort
@@ -21,7 +25,7 @@ extern "C" {
      */
     bool
     SerialDevice_Open(const char   *comPort,
-                      UINT32        baudRate,   //115200, siempre.
+                      baudrate_t    baudRate,   //115200, siempre.
                       int           dataBits,   //8, siempre.
                       UINT8         parity);    //Ninguna, siempre.
 

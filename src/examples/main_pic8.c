@@ -206,14 +206,12 @@ void main(void)
         #endif
         //AppendMeasure(PY_GAS,short2charp(valorPropano()));
         #ifdef BMP280_H //Pruebas con BMP280
-        if (BMP280readTrimming(&mem[0]) && BMP280readValues(&mem[24])){
+        if (BMP280readTrimming(&mem[0]) && BMP280readValues(&mem[24]))
             AppendMeasure(PY_PRESS1,mem);
-        }
         #endif
         #ifdef BH1750FVI_H
-        if (BHread(&light)) {
+        if (BHread(&light))
             AppendMeasure(PY_ILUM1,short2charp(light));
-        }
         #endif
         SendMeasures(PY_UNCONFIRMED);
         ms100(1);
@@ -254,10 +252,11 @@ void main(void)
  * @param serial: El elemento con que se desea conectar (vease serial_t arriba)
  */
 void cambiaSerial (serial_t serial){
+    baudrate_t nuevaTasa;
     SerialDevice_Close();
+
     #ifdef _16F1769
     ppsLock(false);
-
     //Desligar las salidas del serial
     switch (modoSerial) {
         case MODEM_LW:
@@ -272,28 +271,29 @@ void cambiaSerial (serial_t serial){
         default:
             break;
     }
-
     //Ligar las nuevas salidas y entradas al modulo UART
     switch (modoSerial=serial) {
         case MODEM_LW:
             //Entradas y salidas UART
             RXPPS=0x15;     //Rx viene de RC5
             RC4PPS=0x16;    //Tx va hacia RC4
+            nuevaTasa = B115200;
             break;
 
         case GPS:
             //Entradas y salidas UART
             RXPPS=0x16;     //Rx viene de RC6
             RB5PPS=0x16;    //Tx va hacia RB5
+            nuevaTasa = B9600;
             break;
 
         default:
             break;
     }
-
     ppsLock(true);
     #endif
-    SerialDevice_Open("",115200,8,0);
+
+    SerialDevice_Open("",nuevaTasa,8,0);
 }
 
 void enviaIMST(char *arreglo,unsigned char largo) {
