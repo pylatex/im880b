@@ -33,7 +33,7 @@ extern "C" {
      * Inicializa la aplicacion LoRaWAN para el envio de datos de sensores.
      * @param transmitter: Funcion que transmite un byte por UART
      */
-    void initLW (serialTransmitHandler transmitter);
+    void initLW (serialTransmitHandler transmitter, LWstat *LWstatus);
 
     /**
      * Intenta agregar una medida a la cola de envio.

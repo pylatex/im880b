@@ -33,8 +33,8 @@ volatile unsigned char timeouts;
 //  Function Implementations
 //------------------------------------------------------------------------------
 
-void initLW (serialTransmitHandler txfun) {
-    WiMOD_LoRaWAN_Init(txfun);
+void initLW (serialTransmitHandler txfun, LWstat *LWstatus) {
+    WiMOD_LoRaWAN_Init(txfun,LWstatus);
 }
 
 void registerDelayFunction(delayHandlerFunction delfun,volatile bool *flag) {

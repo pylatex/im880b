@@ -9,19 +9,10 @@
 #include <string.h>
 #include "WiMOD_LoRaWAN_API.h"
 
-typedef enum {
-    WaitingUART,
-    WaitingNetStat,
-    WaitingActivation,
-    NWKinactive,
-    NWKactive,
-    NWKjoining
-} status_t;
-
 static HCIMessage_t TxMessage;
-extern volatile HCIMessage_t    HCIrxMessage;
-static void ProcesaHCI(); //Procesamiento de HCI entrante
-volatile static status_t   status;
+static void ProcesaHCI(HCIMessage_t *receivedHCI); //Procesamiento de HCI entrante
+static LWstat *userStat;
+static flag_t *catched;
 
 //------------------------------------------------------------------------------
 // FUNCTION PROTOTYPES
@@ -31,19 +22,30 @@ volatile static status_t   status;
 // FUNCTION IMPLEMENTATIONS
 //------------------------------------------------------------------------------
 
-bool WiMOD_LoRaWAN_Init (serialTransmitHandler transmitter) {
+bool WiMOD_LoRaWAN_Init (serialTransmitHandler transmitter, LWstat *LWstatus) {
     InitHCI(ProcesaHCI,transmitter);
-    status = WaitingUART;    //Initial State
-    WiMOD_LoRaWAN_SendPing();
-    while (status == WaitingUART);      //Espera hasta que haya respuesta del iM880
-    for (;;){
-        WiMOD_LoRaWAN_GetNetworkStatus();
-        while (status == WaitingNetStat);
-        if (status == NWKactive) return true;
-        if (status == NWKinactive) WiMOD_LoRaWAN_JoinNetworkRequest();
-        while (status == NWKinactive || status == NWKjoining);
+    userStat = LWstatus;
+    *userStat = CONNECTING;
+    return true;
+}
+
+void
+WiMOD_LoRaWAN_nextRequest(flag_t *responseCatched) {
+    catched = responseCatched;
+    *catched = false;
+    switch (*userStat) {
+
+        case CONNECTING:
+            WiMOD_LoRaWAN_GetNetworkStatus();
+            break;
+
+        case NET_IDLE:
+            WiMOD_LoRaWAN_JoinNetworkRequest();
+            break;
+
+        default:
+            break;
     }
-    return false;
 }
 
 // ping device
@@ -107,57 +109,49 @@ WiMOD_LoRaWAN_SendCRadioData(UINT8 port, UINT8* data, UINT8 length){
 
 /**
  * Handler for (pre)processing of an incoming HCI message. Once the user exits
- * from this handler function, the RxMessage.size variable gets cleared!
+ * from this handler function, the *receivedHCI->size variable gets cleared!
  */
-static void ProcesaHCI() {
-    if (HCIrxMessage.check) {
-        switch (status) {
+static void ProcesaHCI(HCIMessage_t *receivedHCI) {
+    if (receivedHCI->check) {
+        *catched = true;
+        switch (*userStat) {
 
-            case WaitingUART:
-                //Basta con cualquier HCI entrante.
-                status = WaitingNetStat;
-                break;
+            case CONNECTING:
+                if (receivedHCI->SapID == LORAWAN_ID) {
+                    switch (receivedHCI->MsgID) {
 
-            case WaitingNetStat:
-                if ((HCIrxMessage.SapID == LORAWAN_ID) && (HCIrxMessage.MsgID == LORAWAN_MSG_GET_NWK_STATUS_RSP)) {
-                    //The incoming HCI message is a response of NWK STATUS
-                    switch (HCIrxMessage.Payload[1]) {
-                        case 0: //Inactive
-                        case 1: //Active (ABP)
-                            status = NWKinactive;
+                        case LORAWAN_MSG_GET_NWK_STATUS_RSP:
+                            switch (receivedHCI->Payload[1]) {
+                                //case 1: //Active (ABP)
+                                case 2: //Active (OTAA)
+                                    *userStat = ACTIVE;
+                                default:
+                                    break;
+                            }
                             break;
-                        case 3: //Accediendo (OTAA)
-                            status = NWKjoining;
+
+                        case LORAWAN_MSG_JOIN_NETWORK_IND:
+                            //The incoming HCI message is a join event
+                            switch (receivedHCI->Payload[0]) {
+                                case 0x00:  //device successfully activated
+                                case 0x01:  //device successfully activated, Rx Channel Info attached
+                                    *userStat = ACTIVE;
+                                default:
+                                    break;
+                            }
                             break;
-                        case 2: //Active (OTAA)
-                            status = NWKactive;
+
+                        case LORAWAN_MSG_JOIN_NETWORK_RSP:
+                            *userStat = CONNECTING;
+                            break;
+
                         default:
                             break;
                     }
                 }
                 break;
 
-            case NWKinactive:
-                if ((HCIrxMessage.SapID == LORAWAN_ID) && (HCIrxMessage.MsgID == LORAWAN_MSG_JOIN_NETWORK_RSP)) {
-                    status = NWKjoining;
-                }
-                break;
-
-            case WaitingActivation:
-                if ((HCIrxMessage.SapID == LORAWAN_ID) && (HCIrxMessage.MsgID == LORAWAN_MSG_JOIN_NETWORK_IND)) {
-                    //The incoming HCI message is a join event
-                    switch (HCIrxMessage.Payload[0]) {
-                        case 0x00:  //device successfully activated
-                        case 0x01:  //device successfully activated, Rx Channel Info attached
-                            status = NWKactive;
-                        default:
-                            break;
-                    }
-                }
-                status = WaitingActivation;
-                break;
-
-            case NWKactive:
+            default:
                 break;
         }
     }

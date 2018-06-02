@@ -193,8 +193,17 @@ void main(void)
         #ifdef SMACH
 
         LED=true;
-        initLW((serialTransmitHandler)enviaIMST);
+        LWstat LWstatus;
+
+        initLW((serialTransmitHandler)enviaIMST,&LWstatus);
+        do {
+            flag_t catch;
+            WiMOD_LoRaWAN_nextRequest(&catch);
+            StartTimerDelayMs(20);
+            while (delrun && !catch); //Waits for timeout or HCI response/event
+        } while (LWstatus != ACTIVE);
         LED=false;
+
         registerDelayFunction(StartTimerDelayMs,&delrun);
         for (char cnt=0;cnt<60;cnt++) {
         LED=true;

@@ -22,7 +22,7 @@ static struct {
     serialTransmitHandler   tx;
 } WMHCIsetup;
 
-volatile HCIMessage_t   HCIrxMessage;
+static HCIMessage_t   HCIrxMessage;
 //------------------------------------------------------------------------------
 // Section Source
 //------------------------------------------------------------------------------
@@ -93,7 +93,7 @@ void IncomingHCIpacker (unsigned char rxByte)
         if (HCIrxMessage.size >=  2+WIMOD_HCI_MSG_FCS_SIZE) {
             HCIrxMessage.check=CRC16_Check((unsigned char *)HCIrxMessage.HCI, HCIrxMessage.size, CRC16_INIT_VALUE);
             HCIrxMessage.size -= (2+WIMOD_HCI_MSG_FCS_SIZE);   //Net payload size
-            WMHCIsetup.RxHandler();
+            WMHCIsetup.RxHandler(&HCIrxMessage);
         }
         escape=false;
         HCIrxMessage.size=0;

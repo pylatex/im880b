@@ -40,7 +40,8 @@ extern "C" {
         const char *String;
     }TIDString;
 
-    typedef enum {RESET,CONNECTING,ACTIVE} LWstat;
+    typedef volatile enum {NET_IDLE,CONNECTING,ACTIVE} LWstat;
+    typedef volatile bool flag_t;
 
     ////Endpoint (SAP) Identifier
     #define DEVMGMT_ID  DEVMGMT_SAP_ID  //WiMOD LoraWAN HCI PDF ver 1.13
@@ -185,7 +186,10 @@ extern "C" {
      * @return true on success
      */
     bool
-    WiMOD_LoRaWAN_Init(serialTransmitHandler transmitter);
+    WiMOD_LoRaWAN_Init(serialTransmitHandler transmitter, LWstat *LWstatus);
+
+    void
+    WiMOD_LoRaWAN_nextRequest(flag_t *responseCatched);
 
     /**
      * Ping
