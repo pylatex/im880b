@@ -13,7 +13,7 @@
 //#define T67XX_UART_MODE
 
 #ifdef T67XX_I2C_MODE
-#include "i2c.h"
+#include "I2Cgeneric.h"
 #define I2C_MAX_ATTEMPTS    30
 #endif
 
@@ -54,56 +54,14 @@ unsigned char *T67XX_Read(unsigned char fc,unsigned short address,unsigned char 
     Buffer[4] = 1;     //to be read
 
 #ifdef T67XX_I2C_MODE
-    I2C_MESSAGE_STATUS status;
-    uint16_t        attempts;
-
     // Now it is possible that the slave device will be slow.
     // As a work around on these slaves, the application can
     // retry sending the transaction
-    for (attempts = 0;(status != I2C_MESSAGE_FAIL) && (attempts<I2C_MAX_ATTEMPTS);attempts++)
-    {
-        // Define the register to be read from sensor
-        I2C_MasterWrite(Buffer, 5, T67XX_ADDR, &status);
+    if (I2Cwrite (T67XX_ADDR, Buffer, 5))
+        if (I2Cread (T67XX_ADDR, Buffer, RespLength))
+            return Buffer;
 
-        // wait for the message to be sent or status has changed.
-        while(status == I2C_MESSAGE_PENDING);
-
-        if (status == I2C_MESSAGE_COMPLETE)
-            break;
-
-        // if status is  I2C_MESSAGE_ADDRESS_NO_ACK,
-        //               or I2C_DATA_NO_ACK,
-        // The device may be busy and needs more time for the last
-        // write so we can retry writing the data, this is why we
-        // use a while loop here
-    }
-
-    if (status == I2C_MESSAGE_COMPLETE)
-    {
-
-        // this portion will read the byte from the memory location.
-        for (attempts = 0;(status != I2C_MESSAGE_FAIL) && (attempts<I2C_MAX_ATTEMPTS);attempts++) {
-            // write one byte to EEPROM (2 is the count of bytes to write)
-            I2C_MasterRead(Buffer, RespLength, T67XX_ADDR, &status);
-
-            // wait for the message to be sent or status has changed.
-            while(status == I2C_MESSAGE_PENDING);
-
-            if (status == I2C_MESSAGE_COMPLETE)
-                break;
-
-            // if status is  I2C_MESSAGE_ADDRESS_NO_ACK,
-            //               or I2C_DATA_NO_ACK,
-            // The device may be busy and needs more time for the last
-            // write so we can retry writing the data, this is why we
-            // use a while loop here
-
-        }
-    }
-    if (status == I2C_MESSAGE_COMPLETE)
-        return Buffer;
-    else
-        return 0;   //null pointer
+    return 0;   //null pointer
 #endif  //T67XX_I2C_MODE
 
 #ifdef T67XX_UART_MODE

@@ -13,6 +13,7 @@
 //  Include Files
 //------------------------------------------------------------------------------
 #include <xc.h>
+#include <string.h>
 #include "SerialDevice.h"
 
 //------------------------------------------------------------------------------
@@ -80,12 +81,14 @@ SerialDevice_Close()
 int
 SerialDevice_SendData(UINT8 *txBuffer, UINT8 txLength)
 {
-    for (UINT8 i=0;i<txLength;i++) {
-        if (!SerialDevice_SendByte(txBuffer[i])) {
-            //Escapes the error
+    unsigned char aux=0;
+    if (!txLength)
+        txLength=strlen(txBuffer);
+
+    while (aux<txLength)
+        if (!(SerialDevice_SendByte(*(txBuffer+(aux++)))))
             return false;
-        }
-    }
+
     return true;
 }
 

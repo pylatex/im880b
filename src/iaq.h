@@ -8,10 +8,12 @@
 #ifndef IAQ_H
 #define	IAQ_H
 
+#include <stdbool.h>
+#include <stdint.h>
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
-    #include <stdbool.h>
 
     #define IAQ_DEFADDR 0x5A    //Default I2C Address
 
@@ -21,14 +23,14 @@ extern "C" {
     #define IAQ_ERROR   0x80    //If constant: replace sensor
 
     // Decomposition of the answer given by the iAQ-CORE sensor
-    typedef volatile union {
+    typedef union {
         struct {
-            unsigned short pred;        //Prediction Value of CO2 in ppm
-            unsigned char status;
-            unsigned long resistance;   //Internal Resistance in Ohms
-            unsigned short tvoc;        //TVOC in ppb
+            uint16_t    pred;       //Prediction Value of CO2 in ppm
+            uint8_t     status;
+            uint32_t    resistance; //Internal Resistance in Ohms
+            uint16_t    tvoc;       //TVOC in ppb
         };
-        unsigned char raw[9];
+        uint8_t         raw[9];
     } IAQ_T;
 
     /**

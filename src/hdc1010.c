@@ -3,7 +3,7 @@
  */
 
 #include "hdc1010.h"
-#include "i2c.h"
+#include "I2Cgeneric.h"
 
 typedef union {
     unsigned short reg;
@@ -26,7 +26,6 @@ static struct {
     DelayFunction   delay;
 } HDC;
 
-static I2C_MESSAGE_STATUS   status;
 static void HDCreadConfig (void);
 static bool HDCwriteConfig (void);
 static void checkMode (const unsigned mode);
@@ -137,70 +136,29 @@ static bool HDC_WriteReg (unsigned char addr, unsigned short *val)
     if (addr >= 0x03 && addr <= 0xFA)
         return false; //Forbidden Addresses
 
-    unsigned char       attempts,Buffer[3],len;
+    unsigned char Buffer[3],len=1;
 
     Buffer[0]=addr;
-    len=1;
     if (val) {
         Buffer[1]=(unsigned char)(*val >> 8);
         Buffer[2]=(unsigned char)(*val);
         len = 3;
     }
 
-    // Now it is possible that the slave device will be slow.
-    // As a work around on these slaves, the application can
-    // retry sending the transaction
-    for (attempts = 0;(status != I2C_MESSAGE_FAIL) && (attempts<I2C_MAX_ATTEMPTS);attempts++)
-    {
-        // Define the register to be read from sensor
-        I2C_MasterWrite(Buffer, len, HDC_I2C_BASE_ADDR + HDC_ADDR_PINS, &status);
-
-        // wait for the message to be sent or status has changed.
-        while(status == I2C_MESSAGE_PENDING);
-
-        if (status == I2C_MESSAGE_COMPLETE)
-        {
-            if (addr == HDC_TEMPERATURE || addr == HDC_HUMIDITY)
+    return I2Cwrite(HDC_I2C_BASE_ADDR + HDC_ADDR_PINS, Buffer, len);
+    /* TODO: Consider this externally:
+                if (addr == HDC_TEMPERATURE || addr == HDC_HUMIDITY)
                 HDC.delay(7);
-            return true;
-        }
-        // if status is  I2C_MESSAGE_ADDRESS_NO_ACK,
-        //               or I2C_DATA_NO_ACK,
-        // The device may be busy and needs more time for the last
-        // write so we can retry writing the data, this is why we
-        // use a while loop here
-    }
-    return false;
+    // */
 }
 
 static unsigned char *HDC_ReadReg (unsigned char addr,unsigned char len)
 {
     static unsigned char    Buffer[4];
-    unsigned char           attempts;
 
     if (len < 4 && HDC_WriteReg(addr,0))    //At first, write (in pointer) the address to be read. If success:
-    {
-
-        // this portion will read the byte(s) from the memory location.
-        for (attempts = 0;(status != I2C_MESSAGE_FAIL) && (attempts<I2C_MAX_ATTEMPTS);attempts++) {
-            // write one byte to EEPROM (2 is the count of bytes to write)
-            I2C_MasterRead(Buffer, len, HDC_I2C_BASE_ADDR + HDC_ADDR_PINS, &status);
-
-            // wait for the message to be sent or status has changed.
-            while(status == I2C_MESSAGE_PENDING);
-
-            if (status == I2C_MESSAGE_COMPLETE) {
-                return Buffer;
-            }
-
-            // if status is  I2C_MESSAGE_ADDRESS_NO_ACK,
-            //               or I2C_DATA_NO_ACK,
-            // The device may be busy and needs more time for the last
-            // write so we can retry writing the data, this is why we
-            // use a while loop here
-
-        }
-    }
+        if (I2Cread(HDC_I2C_BASE_ADDR + HDC_ADDR_PINS, Buffer, len))
+            return Buffer;
 
     return 0;   //null pointer
 }
