@@ -149,8 +149,8 @@ void setup (void) {
     //UART & I2C
 #ifdef _16F1769
     //Entradas y salidas UART
-    RXPPS=0x05;     //Rx viene de RA5
-    RA2PPS=0x16;    //Tx va hacia RA2
+    RXPPS=0x15;     //Rx viene de RC5
+    RC4PPS=0x16;    //Tx va hacia RC4
 
     //Entradas y salidas I2C se dejan en los pines por defecto: SCK:RB6, SDA:RB4
     //(unicos totalmente compatibles con I2C/SMBus, segun seccion 12.3 del datasheet)
