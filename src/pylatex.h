@@ -14,17 +14,20 @@ extern "C" {
 
     #include <stdbool.h>
     #include "WiMOD_LoRaWAN_API.h"
-                            //MEDIDA    FORMATO
-    #define PY_CO2      1   //CO2       A
-    #define PY_TVOC     2   //TVOC      A
-    #define PY_PM025    3   //PM 2.5    A
-    #define PY_PM100    4   //PM 10     A
-    #define PY_RH1      5   //RH        A --> B
-    #define PY_TEMP1    6   //TEMP      A --> B
-    #define PY_ILUM1    7   //LUX       A/1.2
-    #define PY_GAS      8   //GAS       A
-    #define PY_ILUM2    9   //LUX       A/2.4
-    #define PY_PRESS1   10  //PRESSURE  E
+                                    //MEDIDA                FORMATO
+    #define PY_CO2              1           //CO2                   A
+    #define PY_TVOC             2           //TVOC                  A
+    #define PY_PM025            3           //PM 2.5                A
+    #define PY_PM100            4           //PM 10                 A
+    #define PY_RH1              5           //RH                    A --> B
+    #define PY_TEMP1            6           //TEMP                  A --> B
+    #define PY_ILUM1            7           //LUX                   A/1.2
+    #define PY_GAS              8           //GAS                   A
+    #define PY_ILUM2            9           //LUX                   A/2.4
+    #define PY_COMP1            10          //Presion + Temp        E
+    #define PY_PRESS1           PY_COMP1    //DEPRECADO             E
+    #define PY_PRECIPITATION    11          //                      A
+    #define PY_WINDSPEED        12          //                      A
 
     typedef void (*delayHandlerFunction)(unsigned char mscant);
     typedef enum {PY_UNCONFIRMED=0,PY_CONFIRMED} pyModeType;

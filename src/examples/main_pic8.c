@@ -216,7 +216,7 @@ void main(void)
         //AppendMeasure(PY_GAS,short2charp(valorPropano()));
         #ifdef BMP280_H //Pruebas con BMP280
         if (BMP280readTrimming(&mem[0]) && BMP280readValues(&mem[24]))
-            AppendMeasure(PY_PRESS1,mem);
+            AppendMeasure(PY_COMP1,mem);
         #endif
         #ifdef BH1750FVI_H
         if (BHread(&light))
