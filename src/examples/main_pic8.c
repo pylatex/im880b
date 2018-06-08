@@ -8,10 +8,10 @@
  */
 
 //MODOS DE COMPILACION. Descomentar el que se quiera probar:
-#define SMACH       //Maquina de estados (principal)
+//#define SMACH       //Maquina de estados (principal)
 //#define TEST_1      //Verificacion UART/Reloj
 //#define TEST_2      //Verificacion comunicacion PIC-WiMOD
-//#define TEST_3      //Verificacion I2C/UART
+#define TEST_3      //Verificacion I2C/UART
 //#define TEST_4      //Medicion ADC y envio por UART
 
 //------------------------------------------------------------------------------
@@ -386,8 +386,8 @@ void cambiaSerial (serial_t serial){
     switch (serial) {
         case MODEM_LW:
             //Entradas y salidas UART
-            RXPPS=0x05;     //Rx viene de RA5
-            RA2PPS=0x16;    //Tx va hacia RA2
+            RXPPS=0x16;     //Rx viene de RC6
+            RB5PPS=0x16;    //Tx va hacia RB5
             break;
         default:
             break;
