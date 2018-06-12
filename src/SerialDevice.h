@@ -12,8 +12,10 @@ extern "C" {
     typedef uint32_t            UINT32;
 
     typedef enum {
-        B9600,B19200,B115200
+        B0,B9600,B19200,B115200
     } baudrate_t;
+
+    typedef enum {MODEM_LW,GPS,HPM,DEBUG1,DEBUG2} serial_t;
 
     /**
      * Initializes the library to work with specified serial port

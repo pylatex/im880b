@@ -26,7 +26,6 @@
       <itemPath>src/pylatex.h</itemPath>
       <itemPath>src/ADC.h</itemPath>
       <itemPath>src/I2Cgeneric.h</itemPath>
-      <itemPath>src/SerialPPS.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -57,12 +56,11 @@
       </logicalFolder>
       <itemPath>src/CRC16.c</itemPath>
       <itemPath>src/i2c.c</itemPath>
-      <itemPath>src/SerialDevice_pic8.c</itemPath>
       <itemPath>src/crc16modbus.c</itemPath>
       <itemPath>src/pylatex.c</itemPath>
       <itemPath>src/ADC.c</itemPath>
       <itemPath>src/I2Cgeneric.c</itemPath>
-      <itemPath>src/SerialPPS.c</itemPath>
+      <itemPath>src/serial16F1769.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -621,14 +619,6 @@
         <XC8-config-global>
         </XC8-config-global>
       </item>
-      <item path="src/SerialPPS.c" ex="true" overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
       <item path="src/WMLW_API.c" ex="true" overriding="false">
         <HI-TECH-COMP>
         </HI-TECH-COMP>
@@ -812,6 +802,7 @@
         <property key="ToolFirmwareFilePath"
                   value="Press to browse for a specific firmware version"/>
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
+        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>
@@ -1222,22 +1213,6 @@
         <property key="stack-type" value="compiled"/>
       </XC8-config-global>
       <item path="src/SLIP.c" ex="true" overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="src/SerialPPS.c" ex="true" overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="src/SerialPPS.h" ex="true" overriding="false">
         <HI-TECH-COMP>
         </HI-TECH-COMP>
         <HI-TECH-LINK>
