@@ -18,20 +18,15 @@
 //------------------------------------------------------------------------------
 #include <xc.h>
 #include <string.h>
+#include <stdio.h>
 #include "SerialDevice.h"
 #include "pylatex.h"
 
-#if defined TEST_1 || defined TEST_3 || defined TEST_4
-#include <string.h>
-#include <stdio.h>
-#endif
 #if defined TEST_2
 void ProcesaHCI();
 volatile unsigned bool pendingmsg;
 #endif
-#if defined TEST_1 || defined TEST_3 || defined TEST_4
-#include "SerialDevice.h"
-#endif
+
 #if defined SMACH || defined TEST_3
 #include "i2c.h"
 #include "T67xx.h"
@@ -88,7 +83,7 @@ void msdelay (unsigned char cantidad);  //Demora activa en ms
 void StartTimerDelayMs(unsigned char cant); //Demora por TIMER 1
 void blink (unsigned char cant,unsigned char high,unsigned char low); //Parpadeo
 
-//Utiidades Serial
+//Utilidades Serial
 void cambiaSerial (serial_t serial);    //Para cambiar el elemento a controlar
 void enviaIMST(char *arreglo,unsigned char largo);
 void enviaGPS(char *arreglo,unsigned char largo);

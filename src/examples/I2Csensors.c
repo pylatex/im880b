@@ -154,10 +154,10 @@ void main(void)
     #endif
 
     while (true) {
-        //Pruebas con sensor CO2 Telaire T6713.
+        LED=true;
         char buff[30],phlen;
 
-        //Pruebas con sensor T6713
+        //Pruebas con T6713
         #ifdef T6700_H
         SerialDevice_SendData((char *)"T6713 - ",0);
         unsigned short rsp;
@@ -350,7 +350,7 @@ void ms100 (unsigned char q) {
  * Inhabilita/Habilita el cambio de perifericos
  * @param lock: 1 para bloquear los cambios a registros PPS, 0 para desbloquear.
  */
-#ifdef _16F1769
+#ifdef PPSLOCK
 void ppsLock (bool lock){
     PPSLOCK = 0x55;
     PPSLOCK = 0xAA;
