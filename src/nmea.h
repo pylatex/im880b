@@ -11,28 +11,39 @@
 #ifndef NMEA_H
 #define	NMEA_H
 
+#include <stdint.h>
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
+    #define PTR_SZ  20  //Quantity of (pointers to) fields
+    #define BUFF_SZ 85  //Buffer Size (82 for typical NMEA message)
+
+    typedef struct {
+        uint8_t         pers[PTR_SZ];   //Indices en que se encuentran ubicadas las comas
+        uint8_t         buffer[BUFF_SZ];
+        uint8_t         fields;       //Cantidad de comas
+        uint8_t         CSgiven;      //Suma de verificacion (parseado de los Ultimos dos octetos)
+        uint8_t         CScalc;       //Suma de verificacion (XOR entre $ y *, sin incluirlos)
+    } NMEAbuff_t;
+
     typedef volatile union {
         char reg;
         struct {
-            unsigned    full            :1; //The buffer is full
-            unsigned    checksumErr     :1; //Invalid checksum (given or calculated)
-            unsigned    complete        :1; //Fully recognized message, ready to be read.
-            unsigned    isCash          :1; //NMEA message begun with '$'
-            unsigned    isExclam        :1; //NMEA message begun with '!'
+            unsigned    full        :1; //Buffer(s) full
+            unsigned    checksumErr :1; //Invalid checksum (given or calculated)
+            unsigned    complete    :1; //Fully recognized message, ready to be read.
+            unsigned    isCash      :1; //NMEA message begun with '$'
+            unsigned    isExclam    :1; //NMEA message begun with '!'
         };
-    } NMEAstatus;
+    } NMEAstatus_t;
 
     /**
      * Configures the NMEA decoder.
-     * @param RxBuffer      Reception buffer.
-     * @param RxBufferSize  Size of reception buffer.
      * @param statusReg     A status register the user can read.
      */
-    void NMEAinit (char *RxBuffer,char RxBufferSize,NMEAstatus *statusReg);
+    void NMEAinit (NMEAstatus_t *statusReg);
 
     /**
      * Parses a NMEA message. Calls NMEAload() for every byte on the message.
@@ -57,7 +68,7 @@ extern "C" {
     /**
      * Allows to decode a new message.
      */
-    void NMEArelease (void);
+    void NMEArelease (uint8_t buffNum);
 
 #ifdef	__cplusplus
 }
