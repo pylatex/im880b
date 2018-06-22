@@ -34,11 +34,11 @@ extern "C" {
             unsigned    full        :1; //Buffer(s) full
             unsigned    checksumErr :1; //Invalid checksum (given or calculated)
             unsigned    complete    :1; //Fully recognized message, ready to be read.
-            unsigned    isCash      :1; //NMEA message begun with '$'
+            unsigned    isDollar    :1; //NMEA message begun with '$'
             unsigned    isExclam    :1; //NMEA message begun with '!'
         };
     } NMEAstatus_t;
-
+    
     /**
      * Configures the NMEA decoder.
      * @param statusReg     A status register the user can read.
@@ -46,24 +46,24 @@ extern "C" {
     void NMEAinit (NMEAstatus_t *statusReg);
 
     /**
-     * Parses a NMEA message. Calls NMEAload() for every byte on the message.
+     * Parses a NMEA message. Calls NMEAinput() for every byte on the message.
      * @param phrase A pointer to the message to be read
-     * @return The number of fields detected
+     * @return The number of fields detected 
      */
-    char NMEAload (const char *phrase);
+    uint8_t NMEAload (const uint8_t *phrase);
 
     /**
      * Input a char to the internal NMEA FSM.
      * @param incomingByte
      */
-    void NMEAinput (char incomingByte);
+    void NMEAinput (uint8_t incomingByte);
 
     /**
      * Gives the position of a specified field
      * @param item: the field to be read, starting on 0
      * @return: first byte of the field, null if not a valid position.
      */
-    char *NMEAselect (unsigned char item);
+    uint8_t *NMEAselect (uint8_t item);
 
     /**
      * Allows to decode a new message.

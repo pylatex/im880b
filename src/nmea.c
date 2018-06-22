@@ -6,59 +6,61 @@ typedef enum {
 } NMEA_fsm_stat_t;
 
 typedef volatile struct {
-    NMEAstatus_t   *UserReg;    //
+    NMEAstatus_t   *UserReg;        // Pointer to User's State Indication
     union {
         uint8_t;
         struct {
-            unsigned b1pending:1;  //
-            unsigned b2pending:1;  //
+            unsigned b1pending:1;   // Buffer 1 is ready to be read
+            unsigned b2pending:1;   // Buffer 2 is ready to be read
+            unsigned activeRx:1;    // Active Buffer for Reception
+            unsigned activeRead:1;  // Active Buffer for Reading
         };
     };
 } NMEA_t;
 
 static NMEA_t           NMEA;
 static NMEAbuff_t       buff[2];
-static uint8_t          active;
-static NMEA_fsm_stat_t  stat;
+static NMEA_fsm_stat_t  stat;   //Current Status of the Internal State Machine
 
 static char NibbleVal (char in);
 static void iniciaBuff (NMEAbuff_t *buffer);
+static void iniciaStat (NMEAbuff_t *buffer);
 
 void NMEAinit (NMEAstatus_t *statusReg) {
     NMEA.UserReg=statusReg;
     NMEA.b1pending=false;
     NMEA.b2pending=false;
-    NMEArelease(active=0);
+    NMEA.activeRx=0;
+    NMEA.activeRead=0;
+    NMEArelease(0);
     iniciaBuff(&buff[0]);
     iniciaBuff(&buff[1]);
 }
 
-char NMEAload (const char *phrase){
-    NMEArelease(active=0);
+uint8_t NMEAload (const uint8_t *phrase){
+    NMEArelease(NMEA.activeRx=0);
     while (*phrase) {
         NMEAinput(*phrase);
         phrase++;
     }
-    return buff[active].fields;
+    return buff[NMEA.activeRx].fields;
 }
 
 NMEAbuff_t *pendingNMEAbuffer (void) {
-    return &buff[active];
+    return &buff[NMEA.activeRx];
 }
 
 //State machine for NMEA String Decoding
-void NMEAinput (char incomingByte) {
+void NMEAinput (uint8_t incomingByte) {
     static char count=0;
-    static enum {none,cash,exclam} type=none;
+    static enum {NONE,DOLLAR,EXCLAM} type=NONE;
 
+    if ((NMEA.activeRx == 0 && !NMEA.b1pending) || (NMEA.activeRx == 1 && !NMEA.b2pending))
     switch (stat) {
 
         case WaitingStart:
             if (incomingByte=='$' || incomingByte=='!'){
-                if (incomingByte=='$')
-                    type=cash;
-                else
-                    type=exclam;
+                type = (incomingByte=='$') ? DOLLAR : EXCLAM;
                 stat = Receiving;
                 count=0;
             }
@@ -67,14 +69,14 @@ void NMEAinput (char incomingByte) {
         case Receiving:
             if (incomingByte=='*') {
                 stat = WaitingCheckHigh;
-                buff[active].buffer[count] = 0;
+                buff[NMEA.activeRx].buffer[count] = 0;
             } else if (incomingByte!='$' || incomingByte!='!') {
-                buff[active].CScalc ^= incomingByte;
+                buff[NMEA.activeRx].CScalc ^= incomingByte;
                 if (incomingByte==','){
-                    buff[active].buffer[count] = 0;
-                    buff[active].pers[buff[active].fields++] = count+1u;
+                    buff[NMEA.activeRx].buffer[count] = 0;
+                    buff[NMEA.activeRx].pers[buff[NMEA.activeRx].fields++] = count+1u;
                 } else {
-                    buff[active].buffer[count] = incomingByte;
+                    buff[NMEA.activeRx].buffer[count] = incomingByte;
                 }
                 count++;
                 if (count==BUFF_SZ) {
@@ -98,7 +100,7 @@ void NMEAinput (char incomingByte) {
                 stat = ChecksumError;
             } else {
                 stat = WaitingCheckLow;
-                buff[active].CSgiven = (unsigned char)((count << 4) | (count >> 4)); //would be optimized to SWAPF
+                buff[NMEA.activeRx].CSgiven = (unsigned char)((count << 4) | (count >> 4)); //would be optimized to SWAPF
             }
             break;
 
@@ -109,12 +111,12 @@ void NMEAinput (char incomingByte) {
                 stat = ChecksumError;
             } else {
                 stat = WaitingReading;
-                buff[active].CSgiven += count;
-                NMEA.UserReg->checksumErr= (buff[active].CSgiven == buff[active].CScalc)?0u:1u;
-                NMEA.UserReg->isCash=type == cash;
-                NMEA.UserReg->isExclam=type == exclam;
+                buff[NMEA.activeRx].CSgiven += count;
+                NMEA.UserReg->checksumErr= (buff[NMEA.activeRx].CSgiven == buff[NMEA.activeRx].CScalc)?0u:1u;
+                NMEA.UserReg->isDollar=type == DOLLAR;
+                NMEA.UserReg->isExclam=type == EXCLAM;
                 NMEA.UserReg->complete=1;
-                type = none;
+                type = NONE;
             }
             break;
 
@@ -123,13 +125,15 @@ void NMEAinput (char incomingByte) {
     }
 }
 
-char *NMEAselect (unsigned char item) {
-    if (item < buff[active].fields)
-        return buff[active].buffer + buff[active].pers[item];
+uint8_t *NMEAselect (uint8_t item) {
+    //Si el buffer activo esta listo para leer
+    if (item < buff[NMEA.activeRx].fields)
+        return buff[NMEA.activeRx].buffer + buff[NMEA.activeRx].pers[item];
     else
         return 0;
 }
 
+//Borrar la bandera de que el buffer activo esta listo para leer
 void NMEArelease (uint8_t buffNum) {
     NMEA.UserReg->reg=0;
     stat=WaitingStart;
