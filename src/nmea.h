@@ -6,6 +6,14 @@
  *
  * Rutinas para el manejo de sentencias NMEA
  *
+ * La mecanica consiste en que el usuario cree un elemento de tipo NMEAuser_t y
+ * lo asocie a la libreria mediante NMEAinit(), para con este elemento verificar
+ * el estado del sistema y, de acuerdo al estado, se puede leer los campos
+ * detectados con NMEAselect(), inclusive sin haber terminado de llegar el
+ * mensaje, permitiendo descartar el mensaje.
+ *
+ * Una vez terminados de leer los campos necesarios, se puede liberar el mensaje
+ * NMEA con NMEArelease().
  */
 
 #ifndef NMEA_H
@@ -17,43 +25,40 @@
 extern "C" {
 #endif
 
-    #define PTR_SZ  20  //Quantity of (pointers to) fields
-    #define BUFF_SZ 85  //Buffer Size (82 for typical NMEA message)
+    typedef enum {
+        IDLE,       //Waiting for a $ or ! NMEA beginning
+        RECEIVING,  //May be available fields to be read. DnEx can be read.
+        COMPLETE    //CRCgiven and CRCok can be read.
+    } NMEA_stat_t;  //On any invalid condition, receiver goes to idle
 
-    typedef struct {
-        uint8_t         pers[PTR_SZ];   //Indices en que se encuentran ubicadas las comas
-        uint8_t         buffer[BUFF_SZ];
-        uint8_t         fields;       //Cantidad de comas
-        uint8_t         CSgiven;      //Suma de verificacion (parseado de los Ultimos dos octetos)
-        uint8_t         CScalc;       //Suma de verificacion (XOR entre $ y *, sin incluirlos)
-    } NMEAbuff_t;
-
-    typedef volatile union {
-        char reg;
-        struct {
-            unsigned    full        :1; //Buffer(s) full
-            unsigned    checksumErr :1; //Invalid checksum (given or calculated)
-            unsigned    complete    :1; //Fully recognized message, ready to be read.
-            unsigned    isDollar    :1; //NMEA message begun with '$'
-            unsigned    isExclam    :1; //NMEA message begun with '!'
+    typedef volatile struct {
+        NMEA_stat_t stat;
+        union {
+            uint8_t flags;
+            struct {
+            unsigned CRCgiven   :1; //True if checksum given
+            unsigned CRCok      :1; //True if given checksum is same as calculated
+            unsigned DnEx       :1; //True for Dollar sign, false for Exclamation sign
+            };
         };
-    } NMEAstatus_t;
-    
+        uint8_t completeFields; //Complete fields detected (by a ',' or '*')
+    } NMEAuser_t;
+
     /**
      * Configures the NMEA decoder.
-     * @param statusReg     A status register the user can read.
+     * @param statusReg     A status object to be read by the user.
      */
-    void NMEAinit (NMEAstatus_t *statusReg);
+    void NMEAinit (NMEAuser_t *statusReg);
 
     /**
      * Parses a NMEA message. Calls NMEAinput() for every byte on the message.
      * @param phrase A pointer to the message to be read
-     * @return The number of fields detected 
+     * @return The number of fields detected
      */
-    uint8_t NMEAload (const uint8_t *phrase);
+    uint8_t NMEAload (const uint8_t *message);
 
     /**
-     * Input a char to the internal NMEA FSM.
+     * Input an octect to the internal NMEA FSM.
      * @param incomingByte
      */
     void NMEAinput (uint8_t incomingByte);
@@ -66,9 +71,9 @@ extern "C" {
     uint8_t *NMEAselect (uint8_t item);
 
     /**
-     * Allows to decode a new message.
+     * Releases the current message in read, and allows to decode a new message.
      */
-    void NMEArelease (uint8_t buffNum);
+    void NMEArelease ();
 
 #ifdef	__cplusplus
 }

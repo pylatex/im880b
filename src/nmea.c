@@ -1,21 +1,33 @@
+/*
+ * La logica consiste en dos indices: uno de escritura de los buffer (asociado
+ * a NMEAinput() ) y otra para la lectura de cada uno de los campos por parte
+ * del usuario (asociada con NMEAselect() )
+ */
+
 #include <stdbool.h>
 #include "nmea.h"
 
+#define PTR_SZ  20  //Quantity of (pointers to) fields
+#define BUFF_SZ 85  //Buffer Size (82 for typical NMEA message)
+
+typedef struct {
+    uint8_t     pers[PTR_SZ];   //Indices en que se encuentran ubicadas las comas
+    uint8_t     buffer[BUFF_SZ+1];
+    NMEAuser_t  intUserStat;
+} NMEAbuff_t;
+
 typedef enum {
-    WaitingStart,Receiving,WaitingCheckHigh,WaitingCheckLow,WaitingReading,BufferFull,ChecksumError
+    WaitingStart, Receiving, WaitingCheckHigh, WaitingCheckLow, BufferFull, ChecksumError
 } NMEA_fsm_stat_t;
 
-typedef volatile struct {
-    NMEAstatus_t   *UserReg;        // Pointer to User's State Indication
-    union {
-        uint8_t;
-        struct {
-            unsigned b1pending:1;   // Buffer 1 is ready to be read
-            unsigned b2pending:1;   // Buffer 2 is ready to be read
-            unsigned activeRx:1;    // Active Buffer for Reception
-            unsigned activeRead:1;  // Active Buffer for Reading
-        };
+typedef struct {
+    NMEAuser_t   *UserReg;      // Pointer to User's State Indication
+    struct {
+        unsigned activeRx   :1; // Active Buffer for Reception
+        unsigned activeRead :1; // Active Buffer for Reading
     };
+    uint8_t CSgiven;    //Parsed CRC
+    uint8_t CScalc;     //Calculated CRC
 } NMEA_t;
 
 static NMEA_t           NMEA;
@@ -23,73 +35,71 @@ static NMEAbuff_t       buff[2];
 static NMEA_fsm_stat_t  stat;   //Current Status of the Internal State Machine
 
 static char NibbleVal (char in);
-static void iniciaBuff (NMEAbuff_t *buffer);
-static void iniciaStat (NMEAbuff_t *buffer);
+static void updateExternalStatus();
 
-void NMEAinit (NMEAstatus_t *statusReg) {
-    NMEA.UserReg=statusReg;
-    NMEA.b1pending=false;
-    NMEA.b2pending=false;
+void NMEAinit (NMEAuser_t *externalStatusObject) {
+    //Set first buffer as active for both: reception and reading
     NMEA.activeRx=0;
     NMEA.activeRead=0;
-    NMEArelease(0);
-    iniciaBuff(&buff[0]);
-    iniciaBuff(&buff[1]);
+    NMEA.UserReg=externalStatusObject; //Saves the reference to status object to use
+    //Sets the inicial state
+    buff[NMEA.activeRead].intUserStat.stat=IDLE;//Reader: Inactive
+    buff[!NMEA.activeRead].intUserStat.stat=IDLE;//Reader: Inactive
+    buff[NMEA.activeRead].intUserStat.flags=0;    //Clear all flags
+    buff[NMEA.activeRead].intUserStat.completeFields=0; //Clears count of complete fields
+    updateExternalStatus();
+    buff[0].buffer[BUFF_SZ]=0;
+    buff[1].buffer[BUFF_SZ]=0;
 }
 
-uint8_t NMEAload (const uint8_t *phrase){
-    NMEArelease(NMEA.activeRx=0);
-    while (*phrase) {
-        NMEAinput(*phrase);
-        phrase++;
+uint8_t NMEAload (const uint8_t *message){
+    while (*message) {
+        NMEAinput(*message);
+        message++;
     }
-    return buff[NMEA.activeRx].fields;
-}
-
-NMEAbuff_t *pendingNMEAbuffer (void) {
-    return &buff[NMEA.activeRx];
+    return buff[NMEA.activeRx].intUserStat.completeFields + 1;
 }
 
 //State machine for NMEA String Decoding
 void NMEAinput (uint8_t incomingByte) {
     static char count=0;
-    static enum {NONE,DOLLAR,EXCLAM} type=NONE;
+    if (incomingByte=='$' || incomingByte=='!') {
+        //Check if the NMEA message that it's going to begin, can be stored.
 
-    if ((NMEA.activeRx == 0 && !NMEA.b1pending) || (NMEA.activeRx == 1 && !NMEA.b2pending))
+        if (buff[NMEA.activeRx].intUserStat.completeFields) {
+            //The current reception buffer has at least 1 complete field
+
+            buff[NMEA.activeRx].intUserStat.stat=COMPLETE; //Mark Current Rx as complete
+            if (buff[!NMEA.activeRx].intUserStat.stat == IDLE) {
+                //Opposite buffer is idle, change to it:
+                NMEA.activeRx = !NMEA.activeRx;
+            } else {updateExternalStatus();return;}
+        }
+        //Cleans the (possibly changed) active Rx buffer
+        buff[NMEA.activeRx].intUserStat.completeFields=0;
+        buff[NMEA.activeRx].intUserStat.DnEx = (incomingByte=='$');
+        stat = Receiving;
+        count=0;
+    } else //A NMEA message may be in receiving course. Proceed based on status
     switch (stat) {
 
-        case WaitingStart:
-            if (incomingByte=='$' || incomingByte=='!'){
-                type = (incomingByte=='$') ? DOLLAR : EXCLAM;
-                stat = Receiving;
-                count=0;
-            }
-            break;
-
         case Receiving:
+        case BufferFull:
             if (incomingByte=='*') {
                 stat = WaitingCheckHigh;
                 buff[NMEA.activeRx].buffer[count] = 0;
-            } else if (incomingByte!='$' || incomingByte!='!') {
-                buff[NMEA.activeRx].CScalc ^= incomingByte;
+            } else if (stat != BufferFull) {
+                NMEA.CScalc ^= incomingByte;
                 if (incomingByte==','){
                     buff[NMEA.activeRx].buffer[count] = 0;
-                    buff[NMEA.activeRx].pers[buff[NMEA.activeRx].fields++] = count+1u;
+                    buff[NMEA.activeRx].pers[buff[NMEA.activeRx].intUserStat.completeFields++] = count+1u;
                 } else {
                     buff[NMEA.activeRx].buffer[count] = incomingByte;
                 }
                 count++;
                 if (count==BUFF_SZ) {
                     stat = BufferFull;
-                    NMEA.UserReg->full = 1;
                 }
-            }
-            break;
-
-        case BufferFull:
-            if (incomingByte=='*') {
-                stat = WaitingCheckHigh;
-            } else {
             }
             break;
 
@@ -100,7 +110,7 @@ void NMEAinput (uint8_t incomingByte) {
                 stat = ChecksumError;
             } else {
                 stat = WaitingCheckLow;
-                buff[NMEA.activeRx].CSgiven = (unsigned char)((count << 4) | (count >> 4)); //would be optimized to SWAPF
+                NMEA.CSgiven = (count << 4) | (count >> 4); //would be optimized to SWAPF
             }
             break;
 
@@ -110,35 +120,42 @@ void NMEAinput (uint8_t incomingByte) {
                 //Error
                 stat = ChecksumError;
             } else {
-                stat = WaitingReading;
-                buff[NMEA.activeRx].CSgiven += count;
-                NMEA.UserReg->checksumErr= (buff[NMEA.activeRx].CSgiven == buff[NMEA.activeRx].CScalc)?0u:1u;
-                NMEA.UserReg->isDollar=type == DOLLAR;
-                NMEA.UserReg->isExclam=type == EXCLAM;
-                NMEA.UserReg->complete=1;
-                type = NONE;
+                stat = WaitingStart;
+                NMEA.CSgiven += count;
+                buff[NMEA.activeRx].intUserStat.CRCok = (NMEA.CSgiven == NMEA.CScalc)?1u:0u;
+                buff[NMEA.activeRx].intUserStat.stat = COMPLETE;
+                count = 0;
             }
             break;
 
         default:
             break;
     }
+    updateExternalStatus();
 }
 
 uint8_t *NMEAselect (uint8_t item) {
     //Si el buffer activo esta listo para leer
-    if (item < buff[NMEA.activeRx].fields)
-        return buff[NMEA.activeRx].buffer + buff[NMEA.activeRx].pers[item];
+    if (item <= buff[NMEA.activeRead].intUserStat.completeFields)
+        return buff[NMEA.activeRead].buffer + (item?buff[NMEA.activeRead].pers[item-1]:0);
     else
         return 0;
 }
 
-//Borrar la bandera de que el buffer activo esta listo para leer
-void NMEArelease (uint8_t buffNum) {
-    NMEA.UserReg->reg=0;
-    stat=WaitingStart;
-    buff[buffNum].fields=1;
-    buff[buffNum].CScalc=0;
+/*
+ * Funcion para el usuario.
+ * Tiene que entenderse como si el usuario dijera "ya no necesito el mensaje que
+ * me estas dando, dame el siguiente"
+ * Internamente lo que se hace es pasar al siguiente buffer, para la lectura, y
+ * de paso actualizar el registro de estado q indico el usuario.
+ */
+void NMEArelease () {
+    buff[NMEA.activeRead].intUserStat.flags=0;    //Clear all flags
+    buff[NMEA.activeRead].intUserStat.completeFields=0; //Clears count of complete fields
+    buff[NMEA.activeRead].intUserStat.stat = IDLE;
+    if (buff[!NMEA.activeRead].intUserStat.stat != IDLE)
+        NMEA.activeRead = !NMEA.activeRead; //Choose the opposite buffer
+    updateExternalStatus();
 }
 
 static char NibbleVal (char in) {
@@ -151,8 +168,8 @@ static char NibbleVal (char in) {
     return 0xFF;
 }
 
-static void iniciaBuff (NMEAbuff_t *buffer) {
-    buffer->fields=0;
-    buffer->CSgiven=0;
-    buffer->CScalc=0;
+static void updateExternalStatus() {
+    NMEA.UserReg->stat = buff[NMEA.activeRead].intUserStat.stat;
+    NMEA.UserReg->flags = buff[NMEA.activeRead].intUserStat.flags;
+    NMEA.UserReg->completeFields = buff[NMEA.activeRead].intUserStat.completeFields;
 }
