@@ -128,6 +128,10 @@ void cambiaSerial (serial_t serial){
             RB5PPS=0;    //RB5 recibe el Latch de su puerto
             break;
 
+        case DEBUG1:
+            RC7PPS=0;
+            break;
+
         default:
             break;
     }
@@ -144,6 +148,13 @@ void cambiaSerial (serial_t serial){
             //Entradas y salidas UART
             RXPPS=0x16;     //Rx viene de RC6
             RB5PPS=0x16;    //Tx va hacia RB5
+            nuevaTasa = B9600;
+            break;
+
+        case DEBUG1:
+            //Entradas y salidas UART
+            RXPPS=0x0F;     //Rx viene de RB7
+            RC7PPS=0x16;    //Tx va hacia RC7
             nuevaTasa = B9600;
             break;
 
@@ -165,5 +176,11 @@ void enviaIMST(char *arreglo,unsigned char largo) {
 void enviaGPS(char *arreglo,unsigned char largo) {
     if (modoSerial != GPS)
         cambiaSerial(GPS);
+    SerialDevice_SendData(arreglo,largo);
+}
+
+void enviaDebug(char *arreglo,unsigned char largo) {
+    if (modoSerial != DEBUG1)
+        cambiaSerial(DEBUG1);
     SerialDevice_SendData(arreglo,largo);
 }

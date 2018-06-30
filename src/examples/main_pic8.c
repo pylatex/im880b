@@ -85,6 +85,7 @@ void blink (unsigned char cant,unsigned char high,unsigned char low); //Parpadeo
 extern void cambiaSerial (serial_t serial);    //Para cambiar el elemento a controlar
 extern void enviaIMST(char *arreglo,unsigned char largo);
 extern void enviaGPS(char *arreglo,unsigned char largo);
+extern void enviaDebug(char *arreglo,unsigned char largo);
 
 //Utilidades Sistema
 void ppsLock (bool state);      //Especifica el estado de bloqueo de PPS
@@ -220,7 +221,7 @@ void main(void)
         LED=false;
         ms100(49);  //Approx. each 5 sec ((49+1)x100ms)
         const char largo=14,test[]="Terminal GPS\n\r";
-        enviaGPS((char *)test,largo);
+        enviaDebug((char *)test,largo);
         }
         #endif
 
