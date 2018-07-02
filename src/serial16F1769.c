@@ -125,7 +125,7 @@ void cambiaSerial (serial_t serial){
 
         case GPS:
             //Entradas y salidas UART
-            RB5PPS=0;    //RB5 recibe el Latch de su puerto
+            RC6PPS=0;    //RC6 recibe el Latch de su puerto
             break;
 
         case DEBUG1:
@@ -146,8 +146,8 @@ void cambiaSerial (serial_t serial){
 
         case GPS:
             //Entradas y salidas UART
-            RXPPS=0x16;     //Rx viene de RC6
-            RB5PPS=0x16;    //Tx va hacia RB5
+            RXPPS=0x16;     //Rx viene de RB5
+            RC6PPS=0x16;    //Tx va hacia RC6
             nuevaTasa = B9600;
             break;
 
@@ -155,7 +155,7 @@ void cambiaSerial (serial_t serial){
             //Entradas y salidas UART
             RXPPS=0x0F;     //Rx viene de RB7
             RC7PPS=0x16;    //Tx va hacia RC7
-            nuevaTasa = B9600;
+            nuevaTasa = B115200;
             break;
 
         default:

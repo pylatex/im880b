@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include "SerialDevice.h"
 #include "pylatex.h"
+#include "nucleoPIC.h"
 
 #if defined TEST_2
 void ProcesaHCI();
@@ -37,35 +38,6 @@ volatile unsigned bool pendingmsg;
 #endif
 #if defined SMACH || defined TEST_4
 #include "ADC.h"
-#endif
-
-#define _XTAL_FREQ 8000000  //May be either Internal RC or external oscillator.
-//#define _XTAL_FREQ 7372800  //External Quartz Crystal to derivate common UART speeds
-
-#ifdef _18F2550 //PIC18F2550
-#pragma config PLLDIV = 1, CPUDIV = OSC1_PLL2, USBDIV = 1
-#if _XTAL_FREQ == 8000000
-#pragma config FOSC = INTOSCIO_EC,  FCMEN = ON, IESO = OFF // INTOSC @ 8MHz
-#elif _XTAL_FREQ == 7372800
-#pragma config FOSC = HS,  FCMEN = ON, IESO = OFF // HS @ 7.3728MHz
-#endif
-#pragma config PWRT = ON, BOR = OFF, BORV = 3, VREGEN = OFF
-#pragma config WDT = OFF, WDTPS = 32768
-#pragma config CCP2MX = ON, PBADEN = OFF, LPT1OSC = ON, MCLRE =	ON
-#pragma config STVREN = OFF, LVP = OFF, DEBUG=OFF, XINST = OFF
-
-#define LED LATA1 //Para las pruebas de parpadeo y ping
-//#define PIN RC0   //Para probar en un loop con LED=PIN
-#define DVI LATA2   //Pin DVI del sensor BH1750FVI
-#endif
-
-#ifdef _16F1769
-#pragma config FOSC = INTOSC, WDTE = OFF, PWRTE = ON, MCLRE = ON, CP = OFF, BOREN = OFF, CLKOUTEN = OFF, IESO = ON, FCMEN = ON
-#pragma config WRT = OFF, PPS1WAY =	OFF, ZCD = OFF, PLLEN =	OFF, STVREN = ON, BORV = HI, LPBOR =	OFF, LVP = OFF
-
-#define LED LATC0   //Para las pruebas de parpadeo y ping
-//#define PIN RB5     //Para probar en un loop con LED=PIN
-#define DVI LATC1   //Pin DVI del sensor BH1750FVI
 #endif
 
 //------------------------------------------------------------------------------
@@ -87,66 +59,9 @@ extern void enviaIMST(char *arreglo,unsigned char largo);
 extern void enviaGPS(char *arreglo,unsigned char largo);
 extern void enviaDebug(char *arreglo,unsigned char largo);
 
-//Utilidades Sistema
-void ppsLock (bool state);      //Especifica el estado de bloqueo de PPS
-void enableInterrupts (void);   //Habilita las interrupciones
 //------------------------------------------------------------------------------
 //  Section Code
 //------------------------------------------------------------------------------
-
-/**
- * Inicializacion de la mayoria de perifericos y otras
- * opciones del microcontrolador
- */
-void setup (void) {
-
-    //OSCILLATOR
-#ifdef _18F2550
-    OSCCON=0x73;    //Internal at 8 MHz
-    while(!IOFS);   //Waits for stabilization
-#endif
-#ifdef _16F1769
-    OSCCON=0x70;    //Internal at 8 MHz
-    while(!HFIOFS); //May be either PLLR or HFIOFS. See OSCSTAT register for specific case
-#endif
-
-    //PINS SETUP
-#ifdef _16F1769
-    PORTC=0;
-    LATC=0;
-    ANSELA=0;       //All pins as digital
-    ANSELC=0;       //All pins as digital
-    ODCONC = 2;    //Enable Open Drain to drive DVI
-    TRISC=0xFC; //RC0 and RC1 as outputs
-#endif
-#ifdef _18F2550
-    PORTA=0;
-    LATA=0;
-    ADCON1=0x0E;
-    ADCON2=0x83;
-    TRISA=0xFD; //RA1 as output
-#endif
-
-    //UART & I2C
-#ifdef _16F1769
-
-    //Entradas y salidas I2C se dejan en los pines por defecto: SCK:RB6, SDA:RB4
-    //(unicos totalmente compatibles con I2C/SMBus, segun seccion 12.3 del datasheet)
-    RB6PPS=0x12;
-    RB4PPS=0x13;
-    SSPDATPPS = 0x0C;   //RB4->MSSP:SDA;
-    SSPCLKPPS = 0x0E;   //RB6->MSSP:SCL;
-    ANSELB=0;       //Todos los pines son digitales.
-
-    ppsLock(true);
-#endif
-
-    ms100(2);   //Delay for stabilization of power supply
-
-    #ifdef _I2C_H
-    I2C_Initialize();
-    #endif
-}
 
 /**
  * Programa Principal
@@ -296,15 +211,6 @@ void __interrupt ISR (void) {
 }
 
 /**
- * Habilita las interrupciones
- */
-void enableInterrupts (void) {
-    CCP1IE = true; //Comparison, for timeouts.
-    PEIE = true; //Peripheral Interrupts Enable
-    GIE = true; //Global Interrupts Enable
-}
-
-/**
  * Para hacer parpadear el led externo (definido anteriormente)
  * @param cant: Cantidad de parpadeos
  * @param high: Tiempo en alto (centenas de ms)
@@ -369,14 +275,4 @@ int SerialDevice_ReadData(UINT8 *rxBuffer, int rxBufferSize) {
                 lleno=true;
         } else break;
     }
-}
-
-/**
- * Inhabilita/Habilita el cambio de perifericos
- * @param lock: 1 para bloquear los cambios a registros PPS, 0 para desbloquear.
- */
-void ppsLock (bool lock){
-    PPSLOCK = 0x55;
-    PPSLOCK = 0xAA;
-    PPSLOCKbits.PPSLOCKED = lock?1u:0u; // lock PPS
 }
