@@ -57,7 +57,7 @@ uint8_t NMEAload (const uint8_t *message){
         NMEAinput(*message);
         message++;
     }
-    return buff[NMEA.activeRx].intUserStat.completeFields + 1;
+    return buff[NMEA.activeRx].intUserStat.completeFields + 1u;
 }
 
 //State machine for NMEA String Decoding
@@ -77,7 +77,7 @@ void NMEAinput (uint8_t incomingByte) {
         }
         //Cleans the (possibly changed) active Rx buffer
         buff[NMEA.activeRx].intUserStat.completeFields=0;
-        buff[NMEA.activeRx].intUserStat.DnEx = (incomingByte=='$');
+        buff[NMEA.activeRx].intUserStat.DnEx = (unsigned)(incomingByte=='$');
         stat = Receiving;
         count=0;
     } else //A NMEA message may be in receiving course. Proceed based on status
@@ -110,7 +110,7 @@ void NMEAinput (uint8_t incomingByte) {
                 stat = ChecksumError;
             } else {
                 stat = WaitingCheckLow;
-                NMEA.CSgiven = (count << 4) | (count >> 4); //would be optimized to SWAPF
+                NMEA.CSgiven = (unsigned)((count << 4) | (count >> 4)); //would be optimized to SWAPF
             }
             break;
 
@@ -179,11 +179,15 @@ bool parseCoord2int(NMEAnumber *destination,uint8_t *number,uint8_t *direction){
     destination->decimals = 0;
     uint8_t aux;
     bool punto = false;
+    bool menos = false;
 
     while (*number) {
         if (*number == '.') {
             if (punto) return false;
             punto = true;
+        } else if (*number == '-'){
+            if (menos) return false;
+            menos = true;
         } else if ((aux = *number - '0') < 10) {
             destination->mag *= 10;
             destination->mag += aux;
@@ -191,15 +195,32 @@ bool parseCoord2int(NMEAnumber *destination,uint8_t *number,uint8_t *direction){
         } else return false;
     }
 
+    if (menos) destination->mag *= -1;
+
     switch (*direction) {
         case 'S':
         case 'W':
             destination->mag *= -1;
         case 'N':
         case 'E':
+        case 'M':
             return true;
 
         default:
             return false;
+    }
+}
+
+void fixDecimals(NMEAnumber *number,uint8_t decimals){
+    if (number->decimals < decimals) {
+        while (number->decimals < decimals) {
+            number->mag *= 10;
+            number->decimals++;
+        }
+    } else if (number->decimals > decimals) {
+        while (number->decimals > decimals) {
+            number->mag /= 10;
+            number->decimals--;
+        }
     }
 }

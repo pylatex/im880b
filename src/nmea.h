@@ -82,6 +82,8 @@ extern "C" {
     
     bool parseCoord2int(NMEAnumber *destination,uint8_t *number,uint8_t *direction);
 
+    void fixDecimals(NMEAnumber *number,uint8_t decimals);
+
 #ifdef	__cplusplus
 }
 #endif

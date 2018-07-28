@@ -18,6 +18,7 @@
 
 void main (void) {
     setup();
+    enableInterrupts();
 
     #ifdef SOFTWARE_REDIRECTION
     LATC = 0xC0;
@@ -28,18 +29,24 @@ void main (void) {
     }
     #else
     NMEAuser_t statreg;
-    NMEAnumber lat,lon;
+    NMEAnumber lat,lon,height;
     NMEAinit(&statreg);
     while (1) {
         while (statreg.completeFields < 1);
         if (strcmp("GPGGA",NMEAselect(0)) == 0) {
-            while (statreg.completeFields < 6);
+            while (statreg.completeFields < 10);
             if (*NMEAselect(6) > '0') {
                 if (parseCoord2int(&lat,NMEAselect(2),NMEAselect(3))) {
-                    //TODO: Division / Shifting according to decimals
+                    //For Cayenne LPP, 0.0001 deg/bit, Signed MSB
+                    fixDecimals(&lat,4);
                 }
                 if (parseCoord2int(&lon,NMEAselect(4),NMEAselect(5))) {
-                    //TODO: Division / Shifting according to decimals
+                    //For Cayenne LPP, 0.0001 deg/bit, Signed MSB
+                    fixDecimals(&lon,4);
+                }
+                if (parseCoord2int(&height,NMEAselect(9),NMEAselect(10))) {
+                    //For Cayenne LPP, 0.01 m/bit, Signed MSB
+                    fixDecimals(&height,2);
                 }
             }
         } else if (strcmp("GPRMC",NMEAselect(0)) == 0) {
@@ -51,7 +58,7 @@ void main (void) {
 
 }
 
-//*
+#ifndef SOFTWARE_REDIRECTION
 void __interrupt ISR (void) {
     uint8_t rx_err;  //Error de recepcion en UART
     if (RCIE && RCIF) {
@@ -64,4 +71,4 @@ void __interrupt ISR (void) {
         //Unhandled Interrupt
     }
 }
-// */
+#endif
