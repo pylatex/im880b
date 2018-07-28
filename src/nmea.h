@@ -43,6 +43,11 @@ extern "C" {
         };
         uint8_t completeFields; //Complete fields detected (by a ',' or '*')
     } NMEAuser_t;
+    
+    typedef struct {
+        int32_t mag;
+        uint8_t decimals;
+    } NMEAnumber;
 
     /**
      * Configures the NMEA decoder.
@@ -74,6 +79,8 @@ extern "C" {
      * Releases the current message in read, and allows to decode a new message.
      */
     void NMEArelease ();
+    
+    bool parseCoord2int(NMEAnumber *destination,uint8_t *number,uint8_t *direction);
 
 #ifdef	__cplusplus
 }

@@ -173,3 +173,33 @@ static void updateExternalStatus() {
     NMEA.UserReg->flags = buff[NMEA.activeRead].intUserStat.flags;
     NMEA.UserReg->completeFields = buff[NMEA.activeRead].intUserStat.completeFields;
 }
+
+bool parseCoord2int(NMEAnumber *destination,uint8_t *number,uint8_t *direction){
+    destination->mag = 0;
+    destination->decimals = 0;
+    uint8_t aux;
+    bool punto = false;
+
+    while (*number) {
+        if (*number == '.') {
+            if (punto) return false;
+            punto = true;
+        } else if ((aux = *number - '0') < 10) {
+            destination->mag *= 10;
+            destination->mag += aux;
+            if (punto) destination->decimals++;
+        } else return false;
+    }
+
+    switch (*direction) {
+        case 'S':
+        case 'W':
+            destination->mag *= -1;
+        case 'N':
+        case 'E':
+            return true;
+
+        default:
+            return false;
+    }
+}
