@@ -114,29 +114,33 @@ void main(void)
         LED=false;
 
         registerDelayFunction(StartTimerDelayMs,&delrun);
-        for (char cnt=0;cnt<60;cnt++) {
-        LED=true;
 
-        #ifdef T6700_H //T6713 reading though I2C
-        unsigned short rsp;
-        if (T67xx_CO2(&rsp))
-            AppendMeasure(PY_CO2,short2charp(rsp));
-        #endif
-        //AppendMeasure(PY_GAS,short2charp(valorPropano()));
-        #ifdef BMP280_H //Pruebas con BMP280
-        if (BMP280readTrimming(&mem[0]) && BMP280readValues(&mem[24]))
-            AppendMeasure(PY_COMP1,mem);
-        #endif
-        #ifdef BH1750FVI_H
-        if (BHread(&light))
-            AppendMeasure(PY_ILUM1,short2charp(light));
-        #endif
-        SendMeasures(PY_UNCONFIRMED);
-        ms100(1);
-        LED=false;
-        ms100(49);  //Approx. each 5 sec ((49+1)x100ms)
-        const char largo=14,test[]="Terminal GPS\n\r";
-        enviaDebug((char *)test,largo);
+        const uint8_t CNT_BEFORE_REAUTH=60;
+        for (char cnt=0;cnt<CNT_BEFORE_REAUTH;cnt++) {
+            LED=true;
+
+            #ifdef T6700_H //T6713 reading though I2C
+            unsigned short rsp;
+            if (T67xx_CO2(&rsp))
+                AppendMeasure(PY_CO2,short2charp(rsp));
+            #endif
+            //AppendMeasure(PY_GAS,short2charp(valorPropano()));
+            #ifdef BMP280_H //Pruebas con BMP280
+            if (BMP280readTrimming(&mem[0]) && BMP280readValues(&mem[24]))
+                AppendMeasure(PY_COMP1,mem);
+            #endif
+            #ifdef BH1750FVI_H
+            if (BHread(&light))
+                AppendMeasure(PY_ILUM1,short2charp(light));
+            #endif
+            SendMeasures(PY_UNCONFIRMED);
+            ms100(1);
+
+            LED=false;
+            ms100(49);  //Approx. each 5 sec ((49+1)x100ms)
+            char buff[20],len;
+            len=sprintf(buff,"Intento %2i/%2i\n\r",cnt+1,CNT_BEFORE_REAUTH);
+            enviaDebug(buff,len);
         }
         #endif
 
