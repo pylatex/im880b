@@ -1957,7 +1957,7 @@
         <XC8-config-global>
         </XC8-config-global>
       </item>
-      <item path="src/serial16F1769.c" ex="true" overriding="false">
+      <item path="src/serial16F1769.c" ex="false" overriding="false">
         <HI-TECH-COMP>
         </HI-TECH-COMP>
         <HI-TECH-LINK>

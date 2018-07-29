@@ -16,8 +16,12 @@
 #include "SerialDevice.h"
 #endif
 
+extern serial_t modoSerial;     //Elemento Serial que se esta controlando
+extern void cambiaSerial (serial_t serial);    //Para cambiar el elemento a controlar
+
 void main (void) {
     setup();
+    cambiaSerial(GPS);
     enableInterrupts();
 
     #ifdef SOFTWARE_REDIRECTION
@@ -29,31 +33,50 @@ void main (void) {
     }
     #else
     NMEAuser_t statreg;
-    NMEAnumber lat,lon,height;
+    uint8_t *latnum,*latvec,*lonnum,*lonvec,*hnum=0,*hunit=0;
     NMEAinit(&statreg);
+
     while (1) {
         while (statreg.completeFields < 1);
+
+        bool update = false;
         if (strcmp("GPGGA",NMEAselect(0)) == 0) {
             while (statreg.completeFields < 10);
             if (*NMEAselect(6) > '0') {
-                if (parseCoord2int(&lat,NMEAselect(2),NMEAselect(3))) {
-                    //For Cayenne LPP, 0.0001 deg/bit, Signed MSB
-                    fixDecimals(&lat,4);
-                }
-                if (parseCoord2int(&lon,NMEAselect(4),NMEAselect(5))) {
-                    //For Cayenne LPP, 0.0001 deg/bit, Signed MSB
-                    fixDecimals(&lon,4);
-                }
-                if (parseCoord2int(&height,NMEAselect(9),NMEAselect(10))) {
-                    //For Cayenne LPP, 0.01 m/bit, Signed MSB
-                    fixDecimals(&height,2);
-                }
+                latnum = NMEAselect(2);
+                latvec = NMEAselect(3);
+                lonnum = NMEAselect(4);
+                lonvec = NMEAselect(5);
+                hnum = NMEAselect(9);
+                hunit = NMEAselect(10);
+                update = true;
             }
         } else if (strcmp("GPRMC",NMEAselect(0)) == 0) {
             while (statreg.completeFields < 6);
+            if (*NMEAselect(6) > '0') {
+                latnum = NMEAselect(3);
+                latvec = NMEAselect(4);
+                lonnum = NMEAselect(5);
+                lonvec = NMEAselect(6);
+                if (hnum && hunit) update = true;
+            }
         }
+
+        NMEAnumber lat,lon,height;
+        if (update
+        &&  parseCoord2int(&lat,latnum,latvec)
+        &&  parseCoord2int(&lon,lonnum,lonvec)
+        &&  parseCoord2int(&height,hnum,hunit) ) {
+            //For Cayenne LPP, 0.0001 deg/bit, Signed MSB
+            fixDecimals(&lat,4);
+            //For Cayenne LPP, 0.0001 deg/bit, Signed MSB
+            fixDecimals(&lon,4);
+            //For Cayenne LPP, 0.01 m/bit, Signed MSB
+            fixDecimals(&height,2);
+        }
+
         NMEArelease();
-    }    
+    }
     #endif
 
 }

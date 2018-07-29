@@ -44,7 +44,7 @@ void NMEAinit (NMEAuser_t *externalStatusObject) {
     NMEA.UserReg=externalStatusObject; //Saves the reference to status object to use
     //Sets the inicial state
     buff[NMEA.activeRead].intUserStat.stat=IDLE;//Reader: Inactive
-    buff[!NMEA.activeRead].intUserStat.stat=IDLE;//Reader: Inactive
+    buff[(unsigned)!NMEA.activeRead].intUserStat.stat=IDLE;//Reader: Inactive
     buff[NMEA.activeRead].intUserStat.flags=0;    //Clear all flags
     buff[NMEA.activeRead].intUserStat.completeFields=0; //Clears count of complete fields
     updateExternalStatus();
@@ -70,9 +70,9 @@ void NMEAinput (uint8_t incomingByte) {
             //The current reception buffer has at least 1 complete field
 
             buff[NMEA.activeRx].intUserStat.stat=COMPLETE; //Mark Current Rx as complete
-            if (buff[!NMEA.activeRx].intUserStat.stat == IDLE) {
+            if (buff[(unsigned)!NMEA.activeRx].intUserStat.stat == IDLE) {
                 //Opposite buffer is idle, change to it:
-                NMEA.activeRx = !NMEA.activeRx;
+                NMEA.activeRx = (unsigned)!NMEA.activeRx;
             } else {updateExternalStatus();return;}
         }
         //Cleans the (possibly changed) active Rx buffer
@@ -137,7 +137,7 @@ void NMEAinput (uint8_t incomingByte) {
 uint8_t *NMEAselect (uint8_t item) {
     //Si el buffer activo esta listo para leer
     if (item <= buff[NMEA.activeRead].intUserStat.completeFields)
-        return buff[NMEA.activeRead].buffer + (item?buff[NMEA.activeRead].pers[item-1]:0);
+        return buff[NMEA.activeRead].buffer + (item?buff[NMEA.activeRead].pers[item - 1u]:0);
     else
         return 0;
 }
@@ -153,8 +153,8 @@ void NMEArelease () {
     buff[NMEA.activeRead].intUserStat.flags=0;    //Clear all flags
     buff[NMEA.activeRead].intUserStat.completeFields=0; //Clears count of complete fields
     buff[NMEA.activeRead].intUserStat.stat = IDLE;
-    if (buff[!NMEA.activeRead].intUserStat.stat != IDLE)
-        NMEA.activeRead = !NMEA.activeRead; //Choose the opposite buffer
+    if (buff[(unsigned)!NMEA.activeRead].intUserStat.stat != IDLE)
+        NMEA.activeRead = (unsigned)!NMEA.activeRead; //Choose the opposite buffer
     updateExternalStatus();
 }
 
@@ -193,6 +193,7 @@ bool parseCoord2int(NMEAnumber *destination,uint8_t *number,uint8_t *direction){
             destination->mag += aux;
             if (punto) destination->decimals++;
         } else return false;
+        number++;
     }
 
     if (menos) destination->mag *= -1;

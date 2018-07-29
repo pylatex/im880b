@@ -146,7 +146,7 @@ void cambiaSerial (serial_t serial){
 
         case GPS:
             //Entradas y salidas UART
-            RXPPS=0x16;     //Rx viene de RB5
+            RXPPS=0x0D;     //Rx viene de RB5
             RC6PPS=0x16;    //Tx va hacia RC6
             nuevaTasa = B9600;
             break;
@@ -167,20 +167,22 @@ void cambiaSerial (serial_t serial){
     SerialDevice_Open("",nuevaTasa,8,0);
 }
 
+void compruebaModo (serial_t modo) {
+    if (modoSerial != modo)
+        cambiaSerial(modo);
+}
+
 void enviaIMST(char *arreglo,unsigned char largo) {
-    if (modoSerial != MODEM_LW)
-        cambiaSerial(MODEM_LW);
+    compruebaModo(MODEM_LW);
     SerialDevice_SendData(arreglo,largo);
 }
 
 void enviaGPS(char *arreglo,unsigned char largo) {
-    if (modoSerial != GPS)
-        cambiaSerial(GPS);
+    compruebaModo(GPS);
     SerialDevice_SendData(arreglo,largo);
 }
 
 void enviaDebug(char *arreglo,unsigned char largo) {
-    if (modoSerial != DEBUG1)
-        cambiaSerial(DEBUG1);
+    compruebaModo(DEBUG1);
     SerialDevice_SendData(arreglo,largo);
 }
