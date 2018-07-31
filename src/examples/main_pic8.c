@@ -75,6 +75,7 @@ void main(void)
     enableInterrupts();
     #endif
 
+    /*
     #ifdef HDC1010_H
     unsigned short temp,hum;
     HDCinit (&temp,&hum,msdelay);
@@ -96,6 +97,7 @@ void main(void)
     BMP280init(false);
     BMP280writeCtlMeas(BMPnormalMode | BMPostX1 | BMPospX1);
     #endif
+    // */
 
     while (true) {
         //State Machine Description
@@ -117,6 +119,10 @@ void main(void)
 
         const uint8_t CNT_BEFORE_REAUTH=60;
         for (char cnt=0;cnt<CNT_BEFORE_REAUTH;cnt++) {
+            AppendMeasure(PY_CO2,short2charp(650));
+            SendMeasures(PY_UNCONFIRMED);
+            
+            /*
             LED=true;
 
             #ifdef T6700_H //T6713 reading though I2C
@@ -135,12 +141,13 @@ void main(void)
             #endif
             SendMeasures(PY_UNCONFIRMED);
             ms100(1);
-
+            // */
             LED=false;
             ms100(49);  //Approx. each 5 sec ((49+1)x100ms)
             char buff[20],len;
             len=sprintf(buff,"Intento %2i/%2i\n\r",cnt+1,CNT_BEFORE_REAUTH);
             enviaDebug(buff,len);
+            
         }
         #endif
 
