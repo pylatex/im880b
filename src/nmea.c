@@ -174,7 +174,7 @@ static void updateExternalStatus() {
     NMEA.UserReg->completeFields = buff[NMEA.activeRead].intUserStat.completeFields;
 }
 
-bool parseCoord2int(NMEAnumber *destination,uint8_t *number,uint8_t *direction){
+bool strnum2int (NMEAnumber *destination,uint8_t *number){
     destination->mag = 0;
     destination->decimals = 0;
     uint8_t aux;
@@ -197,19 +197,29 @@ bool parseCoord2int(NMEAnumber *destination,uint8_t *number,uint8_t *direction){
     }
 
     if (menos) destination->mag *= -1;
+    return true;
+}
 
-    switch (*direction) {
-        case 'S':
-        case 'W':
-            destination->mag *= -1;
-        case 'N':
-        case 'E':
-        case 'M':
-            return true;
+bool parseCoord2int(NMEAnumber *destination,uint8_t *number,uint8_t *direction){
+    if (strnum2int(destination,number)) {
+        destination->decimals += 2; //Dos digitos son de minutos realmente
+        int32_t base=1;
+        for (uint8_t aux=destination->decimals;aux;aux--)
+            base *= 10;
 
-        default:
-            return false;
+        switch (*direction) {
+            case 'S':
+            case 'W':
+                destination->mag *= -1;
+            case 'N':
+            case 'E':
+                return true;
+
+            default:
+                return false;
+        }
     }
+    return false;
 }
 
 void fixDecimals(NMEAnumber *number,uint8_t decimals){

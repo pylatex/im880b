@@ -16,6 +16,7 @@
 #include "SerialDevice.h"
 extern serial_t modoSerial;     //Elemento Serial que se esta controlando
 extern void cambiaSerial (serial_t serial);    //Para cambiar el elemento a controlar
+void enviaDebug(char *arreglo,unsigned char largo);
 #endif
 
 void main (void) {
@@ -29,7 +30,7 @@ void main (void) {
         RC7=RB5;
     }
     #else
-    cambiaSerial(GPS);
+    cambiaSerial(DEBUG1);
     enableInterrupts();
 
     NMEAuser_t statreg;
@@ -37,6 +38,9 @@ void main (void) {
     NMEAinit(&statreg);
 
     while (1) {
+        //enviaDebug("estoy vivo\r\n",0);
+        //__delay_ms(1000);
+        //*
         while (statreg.completeFields < 1);
 
         bool update = false;
@@ -73,9 +77,12 @@ void main (void) {
             fixDecimals(&lon,4);
             //For Cayenne LPP, 0.01 m/bit, Signed MSB
             fixDecimals(&height,2);
+        } else {
+            enviaDebug("NOPE\r\n",0);
         }
 
         NMEArelease();
+        // */
     }
     #endif
 

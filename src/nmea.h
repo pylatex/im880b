@@ -79,7 +79,9 @@ extern "C" {
      * Releases the current message in read, and allows to decode a new message.
      */
     void NMEArelease ();
-    
+
+    bool strnum2int (NMEAnumber *destination,uint8_t *number);
+
     bool parseCoord2int(NMEAnumber *destination,uint8_t *number,uint8_t *direction);
 
     void fixDecimals(NMEAnumber *number,uint8_t decimals);

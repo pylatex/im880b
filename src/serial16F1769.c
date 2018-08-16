@@ -155,7 +155,7 @@ void cambiaSerial (serial_t serial){
             //Entradas y salidas UART
             RXPPS=0x0F;     //Rx viene de RB7
             RC7PPS=0x16;    //Tx va hacia RC7
-            nuevaTasa = B115200;
+            nuevaTasa = B9600;
             break;
 
         default:
