@@ -14,15 +14,12 @@
 #include <string.h>
 #include "nmea.h"
 #include "SerialDevice.h"
-#endif
-
 extern serial_t modoSerial;     //Elemento Serial que se esta controlando
 extern void cambiaSerial (serial_t serial);    //Para cambiar el elemento a controlar
+#endif
 
 void main (void) {
     setup();
-    cambiaSerial(GPS);
-    enableInterrupts();
 
     #ifdef SOFTWARE_REDIRECTION
     LATC = 0xC0;
@@ -32,6 +29,9 @@ void main (void) {
         RC7=RB5;
     }
     #else
+    cambiaSerial(GPS);
+    enableInterrupts();
+
     NMEAuser_t statreg;
     uint8_t *latnum,*latvec,*lonnum,*lonvec,*hnum=0,*hunit=0;
     NMEAinit(&statreg);
