@@ -12,8 +12,10 @@
 #include "nucleoPIC.h"
 #ifndef SOFTWARE_REDIRECTION
 #include <string.h>
+#include <stdio.h>
 #include "nmea.h"
 #include "SerialDevice.h"
+#include "pylatex.h"
 extern serial_t modoSerial;     //Elemento Serial que se esta controlando
 extern void cambiaSerial (serial_t serial);    //Para cambiar el elemento a controlar
 void enviaDebug(char *arreglo,unsigned char largo);
@@ -71,12 +73,11 @@ void main (void) {
         &&  nmeaCoord2cayenneNumber(&lat,latnum,latvec)
         &&  nmeaCoord2cayenneNumber(&lon,lonnum,lonvec)
         &&  strnum2int(&height,hnum) ) {
-            //For Cayenne LPP, 0.0001 deg/bit, Signed MSB
-            fixDecimals(&lat,4);
-            //For Cayenne LPP, 0.0001 deg/bit, Signed MSB
-            fixDecimals(&lon,4);
             //For Cayenne LPP, 0.01 m/bit, Signed MSB
             fixDecimals(&height,2);
+            uint8_t len,buff[50];
+            len=(uint8_t)sprintf(buff,"Lat: %i, Lon: %i, Height: %i\n\r",lat.mag,lon.mag,height.mag);
+            enviaDebug(buff,len);
         } else {
             enviaDebug("NOPE\r\n",0);
         }
