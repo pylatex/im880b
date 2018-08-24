@@ -68,9 +68,9 @@ void main (void) {
 
         NMEAnumber lat,lon,height;
         if (update
-        &&  parseCoord2int(&lat,latnum,latvec)
-        &&  parseCoord2int(&lon,lonnum,lonvec)
-        &&  parseCoord2int(&height,hnum,hunit) ) {
+        &&  nmeaCoord2cayenneNumber(&lat,latnum,latvec)
+        &&  nmeaCoord2cayenneNumber(&lon,lonnum,lonvec)
+        &&  strnum2int(&height,hnum) ) {
             //For Cayenne LPP, 0.0001 deg/bit, Signed MSB
             fixDecimals(&lat,4);
             //For Cayenne LPP, 0.0001 deg/bit, Signed MSB

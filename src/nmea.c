@@ -200,12 +200,19 @@ bool strnum2int (NMEAnumber *destination,uint8_t *number){
     return true;
 }
 
-bool parseCoord2int(NMEAnumber *destination,uint8_t *number,uint8_t *direction){
+bool nmeaCoord2cayenneNumber(NMEAnumber *destination,uint8_t *number,uint8_t *direction){
     if (strnum2int(destination,number)) {
-        destination->decimals += 2; //Dos digitos son de minutos realmente
         int32_t base=1;
-        for (uint8_t aux=destination->decimals;aux;aux--)
+        for (uint8_t aux=destination->decimals + 2;aux;aux--)
             base *= 10;
+        //base is being recycled
+        base = destination->mag % base;
+        destination->mag -= base;
+        destination->mag /= 10;
+        base /= 6;
+        destination->mag += base;
+        destination->decimals ++;
+        fixDecimals(destination,4);
 
         switch (*direction) {
             case 'S':

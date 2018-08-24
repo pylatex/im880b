@@ -82,7 +82,7 @@ extern "C" {
 
     bool strnum2int (NMEAnumber *destination,uint8_t *number);
 
-    bool parseCoord2int(NMEAnumber *destination,uint8_t *number,uint8_t *direction);
+    bool nmeaCoord2cayenneNumber(NMEAnumber *destination,uint8_t *number,uint8_t *direction);
 
     void fixDecimals(NMEAnumber *number,uint8_t decimals);
 
