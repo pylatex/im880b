@@ -143,7 +143,7 @@ void main(void)
         //Prueba 1: Verificacion UART y Reloj ~ 1 Hz
         #ifdef TEST_1
         LED = true;
-        SerialDevice_SendData((char *)"estoy vivo\r\n",0);
+        enviaDebug((char *)"estoy vivo\r\n",0);
         ms100(5);
         LED = false;
         ms100(5);
