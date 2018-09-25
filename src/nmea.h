@@ -31,6 +31,11 @@ extern "C" {
         COMPLETE    //CRCgiven and CRCok can be read.
     } NMEA_stat_t;  //On any invalid condition, receiver goes to idle
 
+    typedef struct {
+        int32_t mag;
+        uint8_t decimals;
+    } NMEAnumber;
+
     typedef volatile struct {
         NMEA_stat_t stat;
         union {
@@ -42,18 +47,27 @@ extern "C" {
             };
         };
         uint8_t completeFields; //Complete fields detected (by a ',' or '*')
+        NMEAnumber lat;
+        NMEAnumber lon;
+        NMEAnumber height;
     } NMEAuser_t;
-    
-    typedef struct {
-        int32_t mag;
-        uint8_t decimals;
-    } NMEAnumber;
+
+    extern NMEAuser_t statreg;
 
     /**
      * Configures the NMEA decoder.
      * @param statusReg     A status object to be read by the user.
      */
     void NMEAinit (NMEAuser_t *statusReg);
+
+    /**
+     * Waits a NMEA sentence with a specific quantity of fields
+     * @param proceed: Write false on interrupt to abort waiting
+     * @param fields: Number of fields that mus
+     */
+    void WaitNMEA (volatile bool *proceed);
+
+    void checkNMEAupdate (void);
 
     /**
      * Parses a NMEA message. Calls NMEAinput() for every byte on the message.
@@ -85,6 +99,8 @@ extern "C" {
     bool nmeaCoord2cayenneNumber(NMEAnumber *destination,uint8_t *number,uint8_t *direction);
 
     void fixDecimals(NMEAnumber *number,uint8_t decimals);
+    
+    void WaitNMEAfields (uint8_t fields);
 
 #ifdef	__cplusplus
 }

@@ -11,7 +11,6 @@
 
 #include "nucleoPIC.h"
 #ifndef SOFTWARE_REDIRECTION
-#include <string.h>
 #include <stdio.h>
 #include "nmea.h"
 #include "SerialDevice.h"
@@ -35,49 +34,17 @@ void main (void) {
     cambiaSerial(DEBUG1);
     enableInterrupts();
 
-    NMEAuser_t statreg;
-    uint8_t *latnum,*latvec,*lonnum,*lonvec,*hnum=0,*hunit=0;
     NMEAinit(&statreg);
 
     while (1) {
         //enviaDebug("estoy vivo\r\n",0);
         //__delay_ms(1000);
         //*
-        while (statreg.completeFields < 1);
-
-        bool update = false;
-        if (strcmp("GPGGA",NMEAselect(0)) == 0) {
-            while (statreg.completeFields < 10);
-            if (*NMEAselect(6) > '0') {
-                latnum = NMEAselect(2);
-                latvec = NMEAselect(3);
-                lonnum = NMEAselect(4);
-                lonvec = NMEAselect(5);
-                hnum = NMEAselect(9);
-                hunit = NMEAselect(10);
-                update = true;
-            }
-        } else if (strcmp("GPRMC",NMEAselect(0)) == 0) {
-            while (statreg.completeFields < 6);
-            if (*NMEAselect(6) > '0') {
-                latnum = NMEAselect(3);
-                latvec = NMEAselect(4);
-                lonnum = NMEAselect(5);
-                lonvec = NMEAselect(6);
-                if (hnum && hunit) update = true;
-            }
-        }
-
-        NMEAnumber lat,lon,height;
-        if (update
-        &&  nmeaCoord2cayenneNumber(&lat,latnum,latvec)
-        &&  nmeaCoord2cayenneNumber(&lon,lonnum,lonvec)
-        &&  strnum2int(&height,hnum) ) {
-            //For Cayenne LPP, 0.01 m/bit, Signed MSB
-            fixDecimals(&height,2);
+        volatile bool proceed = false;
+        WaitNMEA(&proceed);
+        if (proceed) {
             uint8_t len,buff[50];
-            len=(uint8_t)sprintf(buff,"Lat: %i, Lon: %i, Height: %i\n\r",lat.mag,lon.mag,height.mag);
-            enviaDebug(buff,len);
+            len=(uint8_t)sprintf(buff,"Lat: %i, Lon: %i, Height: %i\n\r",statreg.lat.mag,statreg.lon.mag,statreg.height.mag);
         } else {
             enviaDebug("NOPE\r\n",0);
         }

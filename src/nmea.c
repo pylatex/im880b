@@ -5,6 +5,7 @@
  */
 
 #include <stdbool.h>
+#include <string.h>
 #include "nmea.h"
 
 #define PTR_SZ  20  //Quantity of (pointers to) fields
@@ -33,6 +34,7 @@ typedef struct {
 static NMEA_t           NMEA;
 static NMEAbuff_t       buff[2];
 static NMEA_fsm_stat_t  stat;   //Current Status of the Internal State Machine
+NMEAuser_t statreg;
 
 static char NibbleVal (char in);
 static void updateExternalStatus();
@@ -50,6 +52,52 @@ void NMEAinit (NMEAuser_t *externalStatusObject) {
     updateExternalStatus();
     buff[0].buffer[BUFF_SZ]=0;
     buff[1].buffer[BUFF_SZ]=0;
+}
+
+volatile bool *proceed_ptr;
+
+void WaitNMEA (volatile bool *proceed) {
+    uint8_t *latnum,*latvec,*lonnum,*lonvec,*hnum=0,*hunit=0;
+    proceed_ptr = proceed;
+
+    *proceed_ptr = true;
+    WaitNMEAfields(1);
+    if (! *proceed_ptr) {
+        NMEArelease();
+        return;
+    }
+    *proceed_ptr = false;
+
+    if (strcmp("GPGGA",NMEAselect(0)) == 0) {
+        WaitNMEAfields(10);
+        if (*NMEAselect(6) > '0') {
+            latnum = NMEAselect(2);
+            latvec = NMEAselect(3);
+            lonnum = NMEAselect(4);
+            lonvec = NMEAselect(5);
+            hnum = NMEAselect(9);
+            hunit = NMEAselect(10);
+            *proceed_ptr = true;
+        }
+    } else if (strcmp("GPRMC",NMEAselect(0)) == 0) {
+        WaitNMEAfields(6);
+        if (*NMEAselect(6) > '0') {
+            latnum = NMEAselect(3);
+            latvec = NMEAselect(4);
+            lonnum = NMEAselect(5);
+            lonvec = NMEAselect(6);
+            if (hnum && hunit) *proceed_ptr = true;
+        }
+    }
+
+    if (*proceed_ptr) {
+        *proceed_ptr =  nmeaCoord2cayenneNumber(&statreg.lat,latnum,latvec)
+                    &&  nmeaCoord2cayenneNumber(&statreg.lon,lonnum,lonvec)
+                    &&  strnum2int(&statreg.height,hnum);
+        //For Cayenne LPP, 0.01 m/bit, Signed MSB
+        fixDecimals(&statreg.height,2);
+    }
+
 }
 
 uint8_t NMEAload (const uint8_t *message){
@@ -243,4 +291,8 @@ void fixDecimals(NMEAnumber *number,uint8_t decimals){
             number->decimals--;
         }
     }
+}
+
+void WaitNMEAfields (uint8_t fields) {
+    while (statreg.completeFields < fields && *proceed_ptr);
 }
