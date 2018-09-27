@@ -35,6 +35,7 @@ volatile unsigned bool pendingmsg;
 #include "iaq.h"
 #include "bh1750fvi.h"
 #include "bmp280.h"
+#include "nmea.h"
 #endif
 #if defined SMACH || defined TEST_4
 #include "ADC.h"
@@ -131,6 +132,21 @@ void main(void)
         if (BHread(&light))
             AppendMeasure(PY_ILUM1,short2charp(light));
         #endif
+        volatile bool proceed = false;
+        WaitNMEA(&proceed);
+        if (proceed) {
+            uint8_t buff[9];
+            buff[0] = (statreg.lat.mag >> 16) & 0xFF;
+            buff[1] = (statreg.lat.mag >> 8) & 0xFF;
+            buff[2] = statreg.lat.mag & 0xFF;
+            buff[3] = (statreg.lon.mag >> 16) & 0xFF;
+            buff[4] = (statreg.lon.mag >> 8) & 0xFF;
+            buff[5] = statreg.lon.mag & 0xFF;
+            buff[6] = (statreg.height.mag >> 16) & 0xFF;
+            buff[7] = (statreg.height.mag >> 8) & 0xFF;
+            buff[8] = statreg.height.mag & 0xFF;
+            AppendMeasure(PY_GPS,buff);
+        }
         SendMeasures(PY_UNCONFIRMED);
         ms100(1);
         LED=false;
