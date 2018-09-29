@@ -148,9 +148,11 @@ void main(void)
             AppendMeasure(PY_GPS,buff);
         }
         SendMeasures(PY_UNCONFIRMED);
+        cambiaSerial(GPS);
         ms100(1);
         LED=false;
-        ms100(49);  //Approx. each 5 sec ((49+1)x100ms)
+        ms100(99);  //Approx. each 5 sec ((49+1)x100ms)
+        cambiaSerial(MODEM_LW);
         const char largo=14,test[]="Terminal GPS\n\r";
         enviaDebug((char *)test,largo);
         }
@@ -197,9 +199,11 @@ void __interrupt ISR (void) {
             case MODEM_LW:
                 pylatexRx(RCREG);
                 break;
+            case GPS:
+                NMEAinput(RCREG);
+                break;
             case HPM:
                 libre = false;
-            case GPS:
             default:
                 minibuff = RCREG;
                 break;
