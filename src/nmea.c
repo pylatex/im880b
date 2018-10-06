@@ -22,7 +22,6 @@ typedef enum {
 } NMEA_fsm_stat_t;
 
 typedef struct {
-    NMEAuser_t   *UserReg;      // Pointer to User's State Indication
     struct {
         unsigned activeRx   :1; // Active Buffer for Reception
         unsigned activeRead :1; // Active Buffer for Reading
@@ -34,7 +33,7 @@ typedef struct {
 static NMEA_t           NMEA;
 static NMEAbuff_t       buff[2];
 static NMEA_fsm_stat_t  stat;   //Current Status of the Internal State Machine
-NMEAuser_t NMEAstatReg;
+NMEAuser_t NMEAstatReg; //External Status Register for the user
 
 static bool strnum2int (NMEAnumber *destination,uint8_t *number);
 static bool nmeaCoord2cayenneNumber(NMEAnumber *destination,uint8_t *number,uint8_t *direction);
@@ -47,7 +46,6 @@ void NMEAinit () {
     //Set first buffer as active for both: reception and reading
     NMEA.activeRx=0;
     NMEA.activeRead=0;
-    NMEA.UserReg = &NMEAstatReg; //Saves the reference to status object to use
     //Sets the inicial state
     buff[NMEA.activeRead].intUserStat.stat=IDLE;//Reader: Inactive
     buff[(unsigned)!NMEA.activeRead].intUserStat.stat=IDLE;//Reader: Inactive
@@ -221,9 +219,9 @@ static char NibbleVal (char in) {
 }
 
 static void updateExternalStatus() {
-    NMEA.UserReg->stat = buff[NMEA.activeRead].intUserStat.stat;
-    NMEA.UserReg->flags = buff[NMEA.activeRead].intUserStat.flags;
-    NMEA.UserReg->completeFields = buff[NMEA.activeRead].intUserStat.completeFields;
+    NMEAstatReg.stat = buff[NMEA.activeRead].intUserStat.stat;
+    NMEAstatReg.flags = buff[NMEA.activeRead].intUserStat.flags;
+    NMEAstatReg.completeFields = buff[NMEA.activeRead].intUserStat.completeFields;
 }
 
 static bool strnum2int (NMEAnumber *destination,uint8_t *number){

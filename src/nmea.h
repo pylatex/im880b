@@ -52,6 +52,9 @@ extern "C" {
         NMEAnumber height;
     } NMEAuser_t;
 
+    /**
+     * User Status Object
+     */
     extern NMEAuser_t NMEAstatReg;
 
     /**
