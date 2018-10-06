@@ -99,7 +99,7 @@ void main(void)
     #endif
 
     #ifdef NMEA_H
-    NMEAinit(&statreg);
+    NMEAinit();
     #endif
 
     while (true) {
@@ -140,17 +140,19 @@ void main(void)
         WaitNMEA(&proceed);
         if (proceed) {
             uint8_t buff[9];
-            buff[0] = (statreg.lat.mag >> 16) & 0xFF;
-            buff[1] = (statreg.lat.mag >> 8) & 0xFF;
-            buff[2] = statreg.lat.mag & 0xFF;
-            buff[3] = (statreg.lon.mag >> 16) & 0xFF;
-            buff[4] = (statreg.lon.mag >> 8) & 0xFF;
-            buff[5] = statreg.lon.mag & 0xFF;
-            buff[6] = (statreg.height.mag >> 16) & 0xFF;
-            buff[7] = (statreg.height.mag >> 8) & 0xFF;
-            buff[8] = statreg.height.mag & 0xFF;
+            buff[0] = (NMEAstatReg.lat.mag >> 16) & 0xFF;
+            buff[1] = (NMEAstatReg.lat.mag >> 8) & 0xFF;
+            buff[2] = NMEAstatReg.lat.mag & 0xFF;
+            buff[3] = (NMEAstatReg.lon.mag >> 16) & 0xFF;
+            buff[4] = (NMEAstatReg.lon.mag >> 8) & 0xFF;
+            buff[5] = NMEAstatReg.lon.mag & 0xFF;
+            buff[6] = (NMEAstatReg.height.mag >> 16) & 0xFF;
+            buff[7] = (NMEAstatReg.height.mag >> 8) & 0xFF;
+            buff[8] = NMEAstatReg.height.mag & 0xFF;
             AppendMeasure(PY_GPS,buff);
         }
+        NMEArelease();
+
         SendMeasures(PY_UNCONFIRMED);
         cambiaSerial(GPS);
         ms100(1);

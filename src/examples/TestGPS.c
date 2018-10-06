@@ -34,7 +34,7 @@ void main (void) {
     cambiaSerial(DEBUG1);
     enableInterrupts();
 
-    NMEAinit(&statreg);
+    NMEAinit();
 
     while (1) {
         //enviaDebug("estoy vivo\r\n",0);
@@ -44,7 +44,7 @@ void main (void) {
         WaitNMEA(&proceed);
         if (proceed) {
             uint8_t len,buff[50];
-            len=(uint8_t)sprintf(buff,"Lat: %i, Lon: %i, Height: %i\n\r",statreg.lat.mag,statreg.lon.mag,statreg.height.mag);
+            len=(uint8_t)sprintf(buff,"Lat: %i, Lon: %i, Height: %i\n\r",NMEAstatReg.lat.mag,NMEAstatReg.lon.mag,NMEAstatReg.height.mag);
         } else {
             enviaDebug("NOPE\r\n",0);
         }

@@ -34,16 +34,20 @@ typedef struct {
 static NMEA_t           NMEA;
 static NMEAbuff_t       buff[2];
 static NMEA_fsm_stat_t  stat;   //Current Status of the Internal State Machine
-NMEAuser_t statreg;
+NMEAuser_t NMEAstatReg;
 
+static bool strnum2int (NMEAnumber *destination,uint8_t *number);
+static bool nmeaCoord2cayenneNumber(NMEAnumber *destination,uint8_t *number,uint8_t *direction);
+static void fixDecimals(NMEAnumber *number,uint8_t decimals);
+static void WaitNMEAfields (uint8_t fields);
 static char NibbleVal (char in);
 static void updateExternalStatus();
 
-void NMEAinit (NMEAuser_t *externalStatusObject) {
+void NMEAinit () {
     //Set first buffer as active for both: reception and reading
     NMEA.activeRx=0;
     NMEA.activeRead=0;
-    NMEA.UserReg=externalStatusObject; //Saves the reference to status object to use
+    NMEA.UserReg = &NMEAstatReg; //Saves the reference to status object to use
     //Sets the inicial state
     buff[NMEA.activeRead].intUserStat.stat=IDLE;//Reader: Inactive
     buff[(unsigned)!NMEA.activeRead].intUserStat.stat=IDLE;//Reader: Inactive
@@ -54,7 +58,7 @@ void NMEAinit (NMEAuser_t *externalStatusObject) {
     buff[1].buffer[BUFF_SZ]=0;
 }
 
-volatile bool *proceed_ptr;
+static volatile bool *proceed_ptr;
 
 void WaitNMEA (volatile bool *proceed) {
     uint8_t *latnum,*latvec,*lonnum,*lonvec,*hnum=0,*hunit=0;
@@ -91,11 +95,11 @@ void WaitNMEA (volatile bool *proceed) {
     }
 
     if (*proceed_ptr) {
-        *proceed_ptr =  nmeaCoord2cayenneNumber(&statreg.lat,latnum,latvec)
-                    &&  nmeaCoord2cayenneNumber(&statreg.lon,lonnum,lonvec)
-                    &&  strnum2int(&statreg.height,hnum);
+        *proceed_ptr =  nmeaCoord2cayenneNumber(&NMEAstatReg.lat,latnum,latvec)
+                    &&  nmeaCoord2cayenneNumber(&NMEAstatReg.lon,lonnum,lonvec)
+                    &&  strnum2int(&NMEAstatReg.height,hnum);
         //For Cayenne LPP, 0.01 m/bit, Signed MSB
-        fixDecimals(&statreg.height,2);
+        fixDecimals(&NMEAstatReg.height,2);
     }
 
 }
@@ -222,7 +226,7 @@ static void updateExternalStatus() {
     NMEA.UserReg->completeFields = buff[NMEA.activeRead].intUserStat.completeFields;
 }
 
-bool strnum2int (NMEAnumber *destination,uint8_t *number){
+static bool strnum2int (NMEAnumber *destination,uint8_t *number){
     destination->mag = 0;
     destination->decimals = 0;
     uint8_t aux;
@@ -248,7 +252,7 @@ bool strnum2int (NMEAnumber *destination,uint8_t *number){
     return true;
 }
 
-bool nmeaCoord2cayenneNumber(NMEAnumber *destination,uint8_t *number,uint8_t *direction){
+static bool nmeaCoord2cayenneNumber(NMEAnumber *destination,uint8_t *number,uint8_t *direction){
     if (strnum2int(destination,number)) {
         int32_t base=1;
         uint8_t aux=destination->decimals + 2;
@@ -279,7 +283,7 @@ bool nmeaCoord2cayenneNumber(NMEAnumber *destination,uint8_t *number,uint8_t *di
     return false;
 }
 
-void fixDecimals(NMEAnumber *number,uint8_t decimals){
+static void fixDecimals(NMEAnumber *number,uint8_t decimals){
     if (number->decimals < decimals) {
         while (number->decimals < decimals) {
             number->mag *= 10;
@@ -293,6 +297,6 @@ void fixDecimals(NMEAnumber *number,uint8_t decimals){
     }
 }
 
-void WaitNMEAfields (uint8_t fields) {
-    while (statreg.completeFields < fields && *proceed_ptr);
+static void WaitNMEAfields (uint8_t fields) {
+    while (NMEAstatReg.completeFields < fields && *proceed_ptr);
 }

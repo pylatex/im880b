@@ -52,13 +52,13 @@ extern "C" {
         NMEAnumber height;
     } NMEAuser_t;
 
-    extern NMEAuser_t statreg;
+    extern NMEAuser_t NMEAstatReg;
 
     /**
      * Configures the NMEA decoder.
      * @param statusReg     A status object to be read by the user.
      */
-    void NMEAinit (NMEAuser_t *statusReg);
+    void NMEAinit ();
 
     /**
      * Waits a NMEA sentence with a specific quantity of fields
@@ -66,8 +66,6 @@ extern "C" {
      * @param fields: Number of fields that mus
      */
     void WaitNMEA (volatile bool *proceed);
-
-    void checkNMEAupdate (void);
 
     /**
      * Parses a NMEA message. Calls NMEAinput() for every byte on the message.
@@ -93,14 +91,6 @@ extern "C" {
      * Releases the current message in read, and allows to decode a new message.
      */
     void NMEArelease ();
-
-    bool strnum2int (NMEAnumber *destination,uint8_t *number);
-
-    bool nmeaCoord2cayenneNumber(NMEAnumber *destination,uint8_t *number,uint8_t *direction);
-
-    void fixDecimals(NMEAnumber *number,uint8_t decimals);
-    
-    void WaitNMEAfields (uint8_t fields);
 
 #ifdef	__cplusplus
 }
