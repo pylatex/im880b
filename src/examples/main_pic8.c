@@ -98,6 +98,10 @@ void main(void)
     BMP280writeCtlMeas(BMPnormalMode | BMPostX1 | BMPospX1);
     #endif
 
+    #ifdef NMEA_H
+    NMEAinit(&statreg);
+    #endif
+
     while (true) {
         //State Machine Description
         #ifdef SMACH
