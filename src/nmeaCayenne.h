@@ -32,11 +32,6 @@ extern "C" {
     void initNC(NMEAdata_t *NCobjPtr);
 
     /**
-     * Call in your infinite loop, to keept your NCobjPtr updated.
-     */
-    void processPending(void);
-
-    /**
      * You can use this function to avoid unnecesary readings of your NCobjPtr
      * @return true if a new GPS update have been received.
      */

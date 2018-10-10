@@ -138,7 +138,6 @@ void main(void)
             AppendMeasure(PY_ILUM1,short2charp(light));
         #endif
         #ifdef NMEACAYENNE_H
-        processPending();
         if (NCupdated()) {
             uint8_t buff[9];
             buff[0] = (NMEA.latitude >> 16) & 0xFF;

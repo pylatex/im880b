@@ -41,10 +41,11 @@ void main (void) {
         //enviaDebug("estoy vivo\r\n",0);
         //__delay_ms(1000);
         //*
-        processPending();
+        //processPending();
         if (NCupdated()) {
             uint8_t len,buff[50];
-            len=(uint8_t)sprintf(buff, "Lat: %li, Lon: %li, Height: %li\r\n", (long int)NMEA.latitude, (long int)NMEA.longitude, (long int)NMEA.height);
+            len=(uint8_t)sprintf(buff, "Lat: %li, Lon: %li, Height: %li\r\n",
+                    (long int)NMEA.latitude, (long int)NMEA.longitude, (long int)NMEA.height );
             enviaDebug(buff,0);
             cambiaSerial(GPS);
         }

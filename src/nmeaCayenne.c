@@ -26,7 +26,9 @@ void initNC(NMEAdata_t *NCobjPtr) {
     NMEAinit ();
 }
 
-void processPending(void) {
+void NCinputSerial(char rxByte) {
+    NMEAinput(rxByte);
+
     uint8_t *latnum,*latvec,*lonnum,*lonvec,*hnum=0,*hunit=0;
     bool process = false;
     static enum {
@@ -107,10 +109,6 @@ bool NCupdated(void) {
         return true;
     }
     return false;
-}
-
-void NCinputSerial(char rxByte) {
-    NMEAinput(rxByte);
 }
 
 //------------------------------------------------------------------------------
