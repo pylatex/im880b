@@ -47,28 +47,12 @@ extern "C" {
             };
         };
         uint8_t completeFields; //Complete fields detected (by a ',' or '*')
-        NMEAnumber lat;
-        NMEAnumber lon;
-        NMEAnumber height;
     } NMEAuser_t;
 
     /**
-     * User Status Object
-     */
-    extern NMEAuser_t NMEAstatReg;
-
-    /**
      * Configures the NMEA decoder.
-     * @param statusReg     A status object to be read by the user.
      */
     void NMEAinit ();
-
-    /**
-     * Waits a NMEA sentence with a specific quantity of fields
-     * @param proceed: Write false on interrupt to abort waiting
-     * @param fields: Number of fields that mus
-     */
-    void WaitNMEA (volatile bool *proceed);
 
     /**
      * Parses a NMEA message. Calls NMEAinput() for every byte on the message.
@@ -82,6 +66,12 @@ extern "C" {
      * @param incomingByte
      */
     void NMEAinput (uint8_t incomingByte);
+
+    /**
+     * Get the quantity of completed fields (finished by a ',' or by '*')
+     * @return quantity of completed fields
+     */
+    uint8_t NMEAgetCompletedFields(void);
 
     /**
      * Gives the position of a specified field

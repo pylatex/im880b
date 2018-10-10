@@ -33,14 +33,12 @@ typedef struct {
 static NMEA_t           NMEA;
 static NMEAbuff_t       buff[2];
 static NMEA_fsm_stat_t  stat;   //Current Status of the Internal State Machine
-NMEAuser_t NMEAstatReg; //External Status Register for the user
 
-static bool strnum2int (NMEAnumber *destination,uint8_t *number);
-static bool nmeaCoord2cayenneNumber(NMEAnumber *destination,uint8_t *number,uint8_t *direction);
-static void fixDecimals(NMEAnumber *number,uint8_t decimals);
-static void WaitNMEAfields (uint8_t fields);
 static char NibbleVal (char in);
-static void updateExternalStatus();
+
+//------------------------------------------------------------------------------
+// CORE FUNCTIONS
+//------------------------------------------------------------------------------
 
 void NMEAinit () {
     //Set first buffer as active for both: reception and reading
@@ -51,55 +49,8 @@ void NMEAinit () {
     buff[(unsigned)!NMEA.activeRead].intUserStat.stat=IDLE;//Reader: Inactive
     buff[NMEA.activeRead].intUserStat.flags=0;    //Clear all flags
     buff[NMEA.activeRead].intUserStat.completeFields=0; //Clears count of complete fields
-    updateExternalStatus();
     buff[0].buffer[BUFF_SZ]=0;
     buff[1].buffer[BUFF_SZ]=0;
-}
-
-static volatile bool *proceed_ptr;
-
-void WaitNMEA (volatile bool *proceed) {
-    uint8_t *latnum,*latvec,*lonnum,*lonvec,*hnum=0,*hunit=0;
-    proceed_ptr = proceed;
-
-    *proceed_ptr = true;
-    WaitNMEAfields(1);
-    if (! *proceed_ptr) {
-        NMEArelease();
-        return;
-    }
-    *proceed_ptr = false;
-
-    if (strcmp("GPGGA",NMEAselect(0)) == 0) {
-        WaitNMEAfields(10);
-        if (*NMEAselect(6) > '0') {
-            latnum = NMEAselect(2);
-            latvec = NMEAselect(3);
-            lonnum = NMEAselect(4);
-            lonvec = NMEAselect(5);
-            hnum = NMEAselect(9);
-            hunit = NMEAselect(10);
-            *proceed_ptr = true;
-        }
-    } else if (strcmp("GPRMC",NMEAselect(0)) == 0) {
-        WaitNMEAfields(6);
-        if (*NMEAselect(6) > '0') {
-            latnum = NMEAselect(3);
-            latvec = NMEAselect(4);
-            lonnum = NMEAselect(5);
-            lonvec = NMEAselect(6);
-            if (hnum && hunit) *proceed_ptr = true;
-        }
-    }
-
-    if (*proceed_ptr) {
-        *proceed_ptr =  nmeaCoord2cayenneNumber(&NMEAstatReg.lat,latnum,latvec)
-                    &&  nmeaCoord2cayenneNumber(&NMEAstatReg.lon,lonnum,lonvec)
-                    &&  strnum2int(&NMEAstatReg.height,hnum);
-        //For Cayenne LPP, 0.01 m/bit, Signed MSB
-        fixDecimals(&NMEAstatReg.height,2);
-    }
-
 }
 
 uint8_t NMEAload (const uint8_t *message){
@@ -123,7 +74,7 @@ void NMEAinput (uint8_t incomingByte) {
             if (buff[(unsigned)!NMEA.activeRx].intUserStat.stat == IDLE) {
                 //Opposite buffer is idle, change to it:
                 NMEA.activeRx = (unsigned)!NMEA.activeRx;
-            } else {updateExternalStatus();return;}
+            } else {return;}
         }
         //Cleans the (possibly changed) active Rx buffer
         buff[NMEA.activeRx].intUserStat.completeFields=0;
@@ -181,7 +132,10 @@ void NMEAinput (uint8_t incomingByte) {
         default:
             break;
     }
-    updateExternalStatus();
+}
+
+uint8_t NMEAgetCompletedFields(void) {
+    return buff[NMEA.activeRead].intUserStat.completeFields;
 }
 
 uint8_t *NMEAselect (uint8_t item) {
@@ -205,8 +159,11 @@ void NMEArelease () {
     buff[NMEA.activeRead].intUserStat.stat = IDLE;
     if (buff[(unsigned)!NMEA.activeRead].intUserStat.stat != IDLE)
         NMEA.activeRead = (unsigned)!NMEA.activeRead; //Choose the opposite buffer
-    updateExternalStatus();
 }
+
+//------------------------------------------------------------------------------
+// AUXILIAR FUNCTIONS
+//------------------------------------------------------------------------------
 
 static char NibbleVal (char in) {
     if (in >= '0' && in <= '9')
@@ -216,85 +173,4 @@ static char NibbleVal (char in) {
     else if (in >= 'a' && in <= 'f')
         return in-'a'+10;
     return 0xFF;
-}
-
-static void updateExternalStatus() {
-    NMEAstatReg.stat = buff[NMEA.activeRead].intUserStat.stat;
-    NMEAstatReg.flags = buff[NMEA.activeRead].intUserStat.flags;
-    NMEAstatReg.completeFields = buff[NMEA.activeRead].intUserStat.completeFields;
-}
-
-static bool strnum2int (NMEAnumber *destination,uint8_t *number){
-    destination->mag = 0;
-    destination->decimals = 0;
-    uint8_t aux;
-    bool punto = false;
-    bool menos = false;
-
-    while (*number) {
-        if (*number == '.') {
-            if (punto) return false;
-            punto = true;
-        } else if (*number == '-'){
-            if (menos) return false;
-            menos = true;
-        } else if ((aux = *number - '0') < 10) {
-            destination->mag *= 10;
-            destination->mag += aux;
-            if (punto) destination->decimals++;
-        } else return false;
-        number++;
-    }
-
-    if (menos) destination->mag *= -1;
-    return true;
-}
-
-static bool nmeaCoord2cayenneNumber(NMEAnumber *destination,uint8_t *number,uint8_t *direction){
-    if (strnum2int(destination,number)) {
-        int32_t base=1;
-        uint8_t aux=destination->decimals + 2;
-        for (;aux;aux--)
-            base *= 10;
-        //base is being recycled
-        base = destination->mag % base;
-        destination->mag -= base;
-        destination->mag /= 10;
-        base /= 6;
-        destination->mag += base;
-        destination->mag /= 10;
-        destination->decimals ++;
-        fixDecimals(destination,4);
-
-        switch (*direction) {
-            case 'S':
-            case 'W':
-                destination->mag *= -1;
-            case 'N':
-            case 'E':
-                return true;
-
-            default:
-                return false;
-        }
-    }
-    return false;
-}
-
-static void fixDecimals(NMEAnumber *number,uint8_t decimals){
-    if (number->decimals < decimals) {
-        while (number->decimals < decimals) {
-            number->mag *= 10;
-            number->decimals++;
-        }
-    } else if (number->decimals > decimals) {
-        while (number->decimals > decimals) {
-            number->mag /= 10;
-            number->decimals--;
-        }
-    }
-}
-
-static void WaitNMEAfields (uint8_t fields) {
-    while (NMEAstatReg.completeFields < fields && *proceed_ptr);
 }

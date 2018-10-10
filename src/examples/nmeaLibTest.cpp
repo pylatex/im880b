@@ -1,15 +1,15 @@
 #include <cstring>
 #include <cstdio>
 #include "nmea.h"
+#include "nmeaCayenne.h"
 
 #define IT1 0
 
 static void tryprint(uint8_t *latnum,uint8_t *latvec,uint8_t *lonnum,uint8_t *lonvec,uint8_t *hnum,uint8_t *hunit);
 
 int main () {
-    NMEAuser_t statreg;
     bool update = false;
-    NMEAinit(&statreg);
+    NMEAinit();
 
     const uint8_t fr1[]="$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47";
     NMEAload(fr1);
@@ -25,7 +25,7 @@ int main () {
 
     const uint8_t frase[]="7,,13,07,206,*79bc$!puto,el que lo,,compiled*4c";
     NMEAload(frase);
-    while (statreg.completeFields < IT1+1);
+    //while (statreg.completeFields < IT1+1);
     printf("%s\n\r",NMEAselect(IT1));
     NMEArelease();
 

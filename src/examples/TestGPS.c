@@ -12,7 +12,7 @@
 #include "nucleoPIC.h"
 #ifndef SOFTWARE_REDIRECTION
 #include <stdio.h>
-#include "nmea.h"
+#include "nmeaCayenne.h"
 #include "SerialDevice.h"
 #include "pylatex.h"
 extern serial_t modoSerial;     //Elemento Serial que se esta controlando
@@ -31,25 +31,24 @@ void main (void) {
         RC7=RB5;
     }
     #else
-    cambiaSerial(DEBUG1);
+    cambiaSerial(GPS);
     enableInterrupts();
 
-    NMEAinit();
+    NMEAdata_t NMEA;
+    initNC(&NMEA);
 
     while (1) {
         //enviaDebug("estoy vivo\r\n",0);
         //__delay_ms(1000);
         //*
-        volatile bool proceed = false;
-        WaitNMEA(&proceed);
-        if (proceed) {
+        processPending();
+        if (NCupdated()) {
             uint8_t len,buff[50];
-            len=(uint8_t)sprintf(buff,"Lat: %i, Lon: %i, Height: %i\n\r",NMEAstatReg.lat.mag,NMEAstatReg.lon.mag,NMEAstatReg.height.mag);
-        } else {
-            enviaDebug("NOPE\r\n",0);
+            len=(uint8_t)sprintf(buff, "Lat: %li, Lon: %li, Height: %li\r\n", (long int)NMEA.latitude, (long int)NMEA.longitude, (long int)NMEA.height);
+            enviaDebug(buff,0);
+            cambiaSerial(GPS);
         }
 
-        NMEArelease();
         // */
     }
     #endif
@@ -63,7 +62,7 @@ void __interrupt ISR (void) {
         //Error reading
         rx_err=RCSTA;
         //As RCREG is argument, their reading implies the RCIF erasing
-        NMEAinput(RCREG);
+        NCinputSerial(RCREG);
     }
     else {
         //Unhandled Interrupt

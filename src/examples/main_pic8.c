@@ -35,7 +35,7 @@ volatile unsigned bool pendingmsg;
 #include "iaq.h"
 #include "bh1750fvi.h"
 #include "bmp280.h"
-#include "nmea.h"
+#include "nmeaCayenne.h"
 #endif
 #if defined SMACH || defined TEST_4
 #include "ADC.h"
@@ -98,8 +98,9 @@ void main(void)
     BMP280writeCtlMeas(BMPnormalMode | BMPostX1 | BMPospX1);
     #endif
 
-    #ifdef NMEA_H
-    NMEAinit();
+    #ifdef NMEACAYENNE_H
+    NMEAdata_t NMEA;
+    initNC(&NMEA);
     #endif
 
     while (true) {
@@ -136,22 +137,22 @@ void main(void)
         if (BHread(&light))
             AppendMeasure(PY_ILUM1,short2charp(light));
         #endif
-        volatile bool proceed = false;
-        WaitNMEA(&proceed);
-        if (proceed) {
+        #ifdef NMEACAYENNE_H
+        processPending();
+        if (NCupdated()) {
             uint8_t buff[9];
-            buff[0] = (NMEAstatReg.lat.mag >> 16) & 0xFF;
-            buff[1] = (NMEAstatReg.lat.mag >> 8) & 0xFF;
-            buff[2] = NMEAstatReg.lat.mag & 0xFF;
-            buff[3] = (NMEAstatReg.lon.mag >> 16) & 0xFF;
-            buff[4] = (NMEAstatReg.lon.mag >> 8) & 0xFF;
-            buff[5] = NMEAstatReg.lon.mag & 0xFF;
-            buff[6] = (NMEAstatReg.height.mag >> 16) & 0xFF;
-            buff[7] = (NMEAstatReg.height.mag >> 8) & 0xFF;
-            buff[8] = NMEAstatReg.height.mag & 0xFF;
+            buff[0] = (NMEA.latitude >> 16) & 0xFF;
+            buff[1] = (NMEA.latitude >> 8) & 0xFF;
+            buff[2] = NMEA.latitude & 0xFF;
+            buff[3] = (NMEA.longitude >> 16) & 0xFF;
+            buff[4] = (NMEA.longitude >> 8) & 0xFF;
+            buff[5] = NMEA.longitude & 0xFF;
+            buff[6] = (NMEA.height >> 16) & 0xFF;
+            buff[7] = (NMEA.height >> 8) & 0xFF;
+            buff[8] = NMEA.height & 0xFF;
             AppendMeasure(PY_GPS,buff);
         }
-        NMEArelease();
+        #endif
 
         SendMeasures(PY_UNCONFIRMED);
         cambiaSerial(GPS);
@@ -206,7 +207,7 @@ void __interrupt ISR (void) {
                 pylatexRx(RCREG);
                 break;
             case GPS:
-                NMEAinput(RCREG);
+                NCinputSerial(RCREG);
                 break;
             case HPM:
                 libre = false;
