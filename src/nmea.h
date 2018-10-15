@@ -25,19 +25,12 @@
 extern "C" {
 #endif
 
-    typedef enum {
-        IDLE,       //Waiting for a $ or ! NMEA beginning
-        RECEIVING,  //May be available fields to be read. DnEx can be read.
-        COMPLETE    //CRCgiven and CRCok can be read.
-    } NMEA_stat_t;  //On any invalid condition, receiver goes to idle
-
     typedef struct {
         int32_t mag;
         uint8_t decimals;
     } NMEAnumber;
 
     typedef volatile struct {
-        NMEA_stat_t stat;
         union {
             uint8_t flags;
             struct {
@@ -48,11 +41,14 @@ extern "C" {
         };
         uint8_t completeFields; //Complete fields detected (by a ',' or '*')
     } NMEAuser_t;
+    
+    typedef void (*NMEArxHandler)(void);
 
     /**
-     * Configures the NMEA decoder.
+     * Pass the NMEA reception handler.
+     * @param hdl: The function who will handle the reception of NMEA strings
      */
-    void NMEAinit ();
+    void regNMEAhandler (NMEArxHandler hdl);
 
     /**
      * Parses a NMEA message. Calls NMEAinput() for every byte on the message.
@@ -80,10 +76,6 @@ extern "C" {
      */
     uint8_t *NMEAselect (uint8_t item);
 
-    /**
-     * Releases the current message in read, and allows to decode a new message.
-     */
-    void NMEArelease ();
 
 #ifdef	__cplusplus
 }

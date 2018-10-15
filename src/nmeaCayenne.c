@@ -9,13 +9,13 @@
 #include "nmeaCayenne.h"
 #include "nmea.h"
 
-static bool pendingWork = false;
 static bool updated = false;
 static NMEAdata_t *GPS;
 
 static bool strnum2int (NMEAnumber *destination,uint8_t *number);
 static bool nmeaCoord2cayenneNumber(NMEAnumber *destination,uint8_t *number,uint8_t *direction);
 static void fixDecimals(NMEAnumber *number,uint8_t decimals);
+static void nmeaHandler (void);
 
 //------------------------------------------------------------------------------
 // CORE FUNCTIONS
@@ -23,84 +23,11 @@ static void fixDecimals(NMEAnumber *number,uint8_t decimals);
 
 void initNC(NMEAdata_t *NCobjPtr) {
     GPS=NCobjPtr;
-    NMEAinit ();
+    regNMEAhandler(nmeaHandler);
 }
 
 void NCinputSerial(char rxByte) {
     NMEAinput(rxByte);
-
-    uint8_t *latnum,*latvec,*lonnum,*lonvec,*hnum=0,*hunit=0;
-    bool process = false;
-    static enum {
-        IDLE,
-        waitingGGA,
-        waitingRMC,
-        DONE
-    } stat = IDLE;
-
-    switch (stat) {
-
-        case IDLE:
-            if (NMEAgetCompletedFields() >= 1 ) {
-                if (strcmp("GPGGA",NMEAselect(0)) == 0) {
-                    stat = waitingGGA;
-                } else if (strcmp("GPRMC",NMEAselect(0)) == 0) {
-                    stat = waitingRMC;
-                } else {
-                    NMEArelease();
-                    stat = IDLE;
-                }
-            }
-            break;
-
-        case waitingGGA:
-            if (NMEAgetCompletedFields() >= 10) {
-                if (*NMEAselect(6) > '0') {
-                    latnum = NMEAselect(2);
-                    latvec = NMEAselect(3);
-                    lonnum = NMEAselect(4);
-                    lonvec = NMEAselect(5);
-                    hnum = NMEAselect(9);
-                    hunit = NMEAselect(10);
-                    process = true;
-                }
-            }
-            break;
-
-        case waitingRMC:
-            if (NMEAgetCompletedFields() >= 6 ) {
-                if (*NMEAselect(6) > '0') {
-                    latnum = NMEAselect(3);
-                    latvec = NMEAselect(4);
-                    lonnum = NMEAselect(5);
-                    lonvec = NMEAselect(6);
-                    if (hnum && hunit) process = true;
-                }
-            }
-            break;
-
-        default:
-            break;
-    }
-
-    if (process) {
-        NMEAnumber lat;
-        NMEAnumber lon;
-        NMEAnumber height;
-        if (nmeaCoord2cayenneNumber(&lat,latnum,latvec)
-            && nmeaCoord2cayenneNumber(&lon,lonnum,lonvec)
-            && strnum2int(&height,hnum) ){
-            fixDecimals(&lat,4);
-            fixDecimals(&lon,4);
-            fixDecimals(&height,2);
-            GPS->latitude = lat.mag;
-            GPS->longitude = lon.mag;
-            GPS->height = height.mag;
-            updated = true;
-        }
-        NMEArelease ();
-        stat = IDLE;
-    }
 }
 
 bool NCupdated(void) {
@@ -114,6 +41,55 @@ bool NCupdated(void) {
 //------------------------------------------------------------------------------
 // AUXILIAR FUNCTIONS
 //------------------------------------------------------------------------------
+
+static void nmeaHandler (void) {
+
+    static uint8_t *latnum,*latvec,*lonnum,*lonvec,*hnum=0,*hunit=0;
+    bool proc = false;
+    bool hproc = false;
+
+    if (strcmp("GPGGA",NMEAselect(0)) == 0) {
+        if (*NMEAselect(6) > '0') {
+            latnum = NMEAselect(2);
+            latvec = NMEAselect(3);
+            lonnum = NMEAselect(4);
+            lonvec = NMEAselect(5);
+            hnum = NMEAselect(9);
+            hunit = NMEAselect(10);
+            proc = true;
+            hproc = true;
+        }
+    } else if (strcmp("GPRMC",NMEAselect(0)) == 0) {
+        if (*NMEAselect(2) == 'A') {
+            latnum = NMEAselect(3);
+            latvec = NMEAselect(4);
+            lonnum = NMEAselect(5);
+            lonvec = NMEAselect(6);
+            proc = true;
+        }
+    }
+
+    if (proc) {
+        NMEAnumber lat;
+        NMEAnumber lon;
+        if (nmeaCoord2cayenneNumber(&lat,latnum,latvec)
+            && nmeaCoord2cayenneNumber(&lon,lonnum,lonvec)) {
+            fixDecimals(&lat,4);
+            fixDecimals(&lon,4);
+            GPS->latitude = lat.mag;
+            GPS->longitude = lon.mag;
+        }
+        updated = true;
+    }
+
+    if (hproc && *hunit == 'M') {
+        NMEAnumber height;
+        if (strnum2int(&height,hnum)) {
+            fixDecimals(&height,2);
+            GPS->height = height.mag;
+        }
+    }
+}
 
 static bool strnum2int (NMEAnumber *destination,uint8_t *number){
     if (!destination || !number)

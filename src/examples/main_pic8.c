@@ -154,10 +154,11 @@ void main(void)
         #endif
 
         SendMeasures(PY_UNCONFIRMED);
-        cambiaSerial(GPS);
         ms100(1);
         LED=false;
-        ms100(99);  //Approx. each 5 sec ((49+1)x100ms)
+        ms100(24); //Waits 2.5 seconds (LoRaWAN Rx Windows) prior changing to GPS
+        cambiaSerial(GPS);
+        ms100(75);  //Approx. each 10 sec ((75+24+1)x100ms)
         cambiaSerial(MODEM_LW);
         const char largo=14,test[]="Terminal GPS\n\r";
         enviaDebug((char *)test,largo);
