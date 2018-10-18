@@ -150,6 +150,10 @@ void main(void)
             buff[7] = (NMEA.height >> 8) & 0xFF;
             buff[8] = NMEA.height & 0xFF;
             AppendMeasure(PY_GPS,buff);
+            ms100(1);
+            LED=false;
+            ms100(1);
+            LED=true;
         }
         #endif
 
