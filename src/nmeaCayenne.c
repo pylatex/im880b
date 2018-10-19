@@ -147,7 +147,6 @@ static bool nmeaCoord2cayenneNumber(NMEAnumber *destination,uint8_t *number,uint
         base /= 6;
         destination->mag += base;
         destination->mag /= 10;
-        destination->decimals ++;
         fixDecimals(destination,4);
 
         switch (*direction) {
