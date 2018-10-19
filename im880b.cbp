@@ -108,6 +108,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/nmea.h" />
+		<Unit filename="src/nmeaCayenne.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/nmeaCayenne.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

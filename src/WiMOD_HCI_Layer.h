@@ -31,7 +31,7 @@ extern "C" {
     typedef uint16_t                        UINT16;
 
     #define WIMOD_HCI_MSG_HEADER_SIZE       2
-    #define WIMOD_HCI_MSG_PAYLOAD_SIZE      300
+    #define WIMOD_HCI_MSG_PAYLOAD_SIZE      100
     #define WIMOD_HCI_MSG_FCS_SIZE          2
 
     #ifndef LOBYTE

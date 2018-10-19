@@ -35,6 +35,7 @@ volatile unsigned bool pendingmsg;
 #include "iaq.h"
 #include "bh1750fvi.h"
 #include "bmp280.h"
+#include "nmeaCayenne.h"
 #endif
 #if defined SMACH || defined TEST_4
 #include "ADC.h"
@@ -97,6 +98,11 @@ void main(void)
     BMP280writeCtlMeas(BMPnormalMode | BMPostX1 | BMPospX1);
     #endif
 
+    #ifdef NMEACAYENNE_H
+    NMEAdata_t NMEA;
+    initNC(&NMEA);
+    #endif
+
     while (true) {
         //State Machine Description
         #ifdef SMACH
@@ -133,6 +139,25 @@ void main(void)
             if (BHread(&light))
                 AppendMeasure(PY_ILUM1,short2charp(light));
             #endif
+            #ifdef NMEACAYENNE_H
+            if (NCupdated()) {
+                uint8_t buff[9];
+                buff[0] = (NMEA.latitude >> 16) & 0xFF;
+                buff[1] = (NMEA.latitude >> 8) & 0xFF;
+                buff[2] = NMEA.latitude & 0xFF;
+                buff[3] = (NMEA.longitude >> 16) & 0xFF;
+                buff[4] = (NMEA.longitude >> 8) & 0xFF;
+                buff[5] = NMEA.longitude & 0xFF;
+                buff[6] = (NMEA.height >> 16) & 0xFF;
+                buff[7] = (NMEA.height >> 8) & 0xFF;
+                buff[8] = NMEA.height & 0xFF;
+                AppendMeasure(PY_GPS,buff);
+                ms100(1);
+                LED=false;
+                ms100(1);
+                LED=true;
+            }
+            #endif
             SendMeasures(PY_UNCONFIRMED);
             ms100(1);
 
@@ -147,7 +172,7 @@ void main(void)
         //Prueba 1: Verificacion UART y Reloj ~ 1 Hz
         #ifdef TEST_1
         LED = true;
-        SerialDevice_SendData((char *)"estoy vivo\r\n",0);
+        enviaDebug((char *)"estoy vivo\r\n",0);
         ms100(5);
         LED = false;
         ms100(5);
@@ -185,9 +210,11 @@ void __interrupt ISR (void) {
             case MODEM_LW:
                 pylatexRx(RCREG);
                 break;
+            case GPS:
+                NCinputSerial(RCREG);
+                break;
             case HPM:
                 libre = false;
-            case GPS:
             default:
                 minibuff = RCREG;
                 break;

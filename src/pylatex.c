@@ -72,6 +72,15 @@ bool AppendMeasure (char variable,char *medida) {
                 }
                 break;
 
+            case PY_GPS:
+                //FORMATO F
+                if (PY.cnt < (LARGO - 10)) {
+                    PY.carga[PY.cnt++]=variable;   //Identificador
+                    memcpy(&PY.carga[PY.cnt], medida, 9 );
+                    PY.cnt+=9;
+                }
+                break;
+
             default:
                 break;
         }

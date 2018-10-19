@@ -1,31 +1,48 @@
 #include <cstring>
 #include <cstdio>
-#include "nmea.h"
+#include "nmeaCayenne.h"
 
 #define IT1 0
 
+static NMEAdata_t NMEA;
+
+static void tryprint();
+static void load(char *phr);
+
 int main () {
-    NMEAuser_t statreg;
-    NMEAinit(&statreg);
 
-    const uint8_t fr1[]="$GPGLL,4916.45,N,12311.12,W,225444,A,*1D";
-    NMEAload(fr1);
-    while (statreg.completeFields < IT1+1);
-    printf("%s\n\r",NMEAselect(IT1));
-    NMEArelease();
+    initNC(&NMEA);
 
-    const uint8_t fr2[]="$GPGSV,3,2,10,02,30,309,,09,20,088,,30,10,157,,13,07,206,*79";
-    NMEAload(fr2);
-    while (statreg.completeFields < IT1+1);
-    printf("%s\n\r",NMEAselect(IT1));
-    NMEArelease();
+    load("$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47");
+    if (NCupdated())
+        tryprint();
 
-    const uint8_t frase[]="7,,13,07,206,*79bc$!puto,el que lo,,compiled*4c";
-    NMEAload(frase);
-    while (statreg.completeFields < IT1+1);
-    printf("%s\n\r",NMEAselect(IT1));
-    NMEArelease();
+    load("$GPRMC,023042,A,3907.3837,N,12102.4684,W,0.0,156.1,131102,15.3,E,A*36");
+    if (NCupdated())
+        tryprint();
+
+    load("7,,13,07,206,*79bc$!puto,el que lo,,compiled*4c");
+    if (NCupdated())
+        tryprint();
+
+    load("$GPGGA,011832.000,0442.8941,N,07407.4114,W,1,8,0.97,2575.5,M,3.2,M,,*42");
+    if (NCupdated())
+        tryprint();
+
+    load("$GPRMC,011832.000,A,0442.8941,N,07407.4114,W,0.77,224.41,101018,,,A*7F");
+    if (NCupdated())
+        tryprint();
 
     return 0;
 }
 
+static void tryprint(){
+    printf("Latitud: %f, Longitud: %f, Altitud:%f\n\r",NMEA.latitude/1000.0,NMEA.longitude/1000.0,NMEA.height/100.0);
+}
+
+static void load(char *phr) {
+    while (*phr) {
+        NCinputSerial(*phr);
+        phr++;
+    }
+}

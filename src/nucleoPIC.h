@@ -5,11 +5,11 @@
  * Created on 30 de junio de 2018, 01:04 PM
  */
 
-#ifndef NUCLEOPIC_H
-#define	NUCLEOPIC_H
-
 #include <xc.h>
 #include <stdbool.h>
+
+#ifndef NUCLEOPIC_H
+#define	NUCLEOPIC_H
 
 #ifdef	__cplusplus
 extern "C" {
