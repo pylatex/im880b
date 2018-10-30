@@ -88,7 +88,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC8</languageToolchain>
-        <languageToolchainVersion>1.45</languageToolchainVersion>
+        <languageToolchainVersion>2.00</languageToolchainVersion>
         <platform>2</platform>
       </toolsSet>
       <packs>
@@ -600,9 +600,9 @@
       </Simulator>
       <XC8-config-global>
         <property key="advanced-elf" value="true"/>
-        <property key="gcc-opt-driver-new" value="false"/>
-        <property key="gcc-opt-std" value="--std=c89"/>
-        <property key="gcc-output-file-format" value="dwarf-3"/>
+        <property key="gcc-opt-driver-new" value="true"/>
+        <property key="gcc-opt-std" value="-std=c90"/>
+        <property key="gcc-output-file-format" value="coff"/>
         <property key="omit-pack-options" value="false"/>
         <property key="output-file-format" value="+mcof,-elf"/>
         <property key="stack-size-high" value="auto"/>
@@ -724,7 +724,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC8</languageToolchain>
-        <languageToolchainVersion>1.45</languageToolchainVersion>
+        <languageToolchainVersion>2.00</languageToolchainVersion>
         <platform>2</platform>
       </toolsSet>
       <packs>
@@ -833,7 +833,6 @@
                   value="Press to browse for a specific firmware version"/>
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
         <property key="debugoptions.useswbreakpoints" value="false"/>
-        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>
@@ -1237,9 +1236,9 @@
       </Simulator>
       <XC8-config-global>
         <property key="advanced-elf" value="true"/>
-        <property key="gcc-opt-driver-new" value="false"/>
-        <property key="gcc-opt-std" value="--std=c89"/>
-        <property key="gcc-output-file-format" value="dwarf-3"/>
+        <property key="gcc-opt-driver-new" value="true"/>
+        <property key="gcc-opt-std" value="-std=c90"/>
+        <property key="gcc-output-file-format" value="coff"/>
         <property key="omit-pack-options" value="false"/>
         <property key="output-file-format" value="+mcof,-elf"/>
         <property key="stack-size-high" value="auto"/>
@@ -1313,7 +1312,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC8</languageToolchain>
-        <languageToolchainVersion>1.45</languageToolchainVersion>
+        <languageToolchainVersion>2.00</languageToolchainVersion>
         <platform>2</platform>
       </toolsSet>
       <packs>
@@ -1825,9 +1824,9 @@
       </Simulator>
       <XC8-config-global>
         <property key="advanced-elf" value="true"/>
-        <property key="gcc-opt-driver-new" value="false"/>
-        <property key="gcc-opt-std" value="--std=c89"/>
-        <property key="gcc-output-file-format" value="dwarf-3"/>
+        <property key="gcc-opt-driver-new" value="true"/>
+        <property key="gcc-opt-std" value="-std=c90"/>
+        <property key="gcc-output-file-format" value="coff"/>
         <property key="omit-pack-options" value="false"/>
         <property key="output-file-format" value="+mcof,-elf"/>
         <property key="stack-size-high" value="auto"/>
@@ -1980,7 +1979,7 @@
         <XC8-config-global>
         </XC8-config-global>
       </item>
-      <item path="src/nmea.c" ex="true" overriding="false">
+      <item path="src/nmea.c" ex="false" overriding="false">
         <HI-TECH-COMP>
         </HI-TECH-COMP>
         <HI-TECH-LINK>
@@ -1988,7 +1987,7 @@
         <XC8-config-global>
         </XC8-config-global>
       </item>
-      <item path="src/pylatex.c" ex="true" overriding="false">
+      <item path="src/pylatex.c" ex="false" overriding="false">
         <HI-TECH-COMP>
         </HI-TECH-COMP>
         <HI-TECH-LINK>
@@ -1996,7 +1995,7 @@
         <XC8-config-global>
         </XC8-config-global>
       </item>
-      <item path="src/serial16F1769.c" ex="true" overriding="false">
+      <item path="src/serial16F1769.c" ex="false" overriding="false">
         <HI-TECH-COMP>
         </HI-TECH-COMP>
         <HI-TECH-LINK>
