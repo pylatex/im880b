@@ -8,11 +8,11 @@
  */
 
 //MODOS DE COMPILACION. Descomentar el que se quiera probar:
-#define SMACH       //Maquina de estados (principal)
+//#define SMACH       //Maquina de estados (principal)
 //#define TEST_1      //Verificacion UART/Reloj
 //#define TEST_2      //Verificacion comunicacion PIC-WiMOD
 //#define TEST_4      //Medicion ADC y envio por UART
-
+  #define TEST_5      //Medicion de distancias y envio por UART
 //------------------------------------------------------------------------------
 //  Definitions and Setup
 //------------------------------------------------------------------------------
@@ -41,6 +41,9 @@ volatile unsigned bool pendingmsg;
 #include "ADC.h"
 #endif
 
+#if defined TEST_5
+#include "hcsr04.h"
+#endif
 //------------------------------------------------------------------------------
 //  Declarations, Function Prototypes and Variables
 //------------------------------------------------------------------------------
@@ -71,7 +74,16 @@ void main(void)
 {
     setup();
     cambiaSerial (MODEM_LW);
+    /*
+#ifdef SMASH
+    cambiaSerial (MODEM_LW);
+#else
+    cambiaSerial (DEBUG1);    
+#endif
+    */
 
+    
+    
     #ifndef TEST_4
     enableInterrupts();
     #endif
@@ -191,6 +203,14 @@ void main(void)
         SerialDevice_SendData(phrase,phlen);
         ms100(10);
         #endif
+        #ifdef TEST_5
+        unsigned char phrase[15],phlen; 
+        phlen=sprintf(phrase,"Distancia:%i\r\n",123);// construye la cadena y la guarda phrase y el tamaño en phlen
+        SerialDevice_SendData(phrase,phlen);
+        LED=true;
+        ms100(1);
+        LED=false;
+        #endif
     }
 }
 
@@ -211,7 +231,10 @@ void __interrupt ISR (void) {
                 pylatexRx(RCREG);
                 break;
             case GPS:
-                NCinputSerial(RCREG);
+                #ifdef SMASH
+                    NCinputSerial(RCREG);
+                #endif    
+                
                 break;
             case HPM:
                 libre = false;
