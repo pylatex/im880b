@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   hcsr04.h
  * Author: Nicolas Pastran at gmail dot com
  *
@@ -12,19 +12,18 @@
 extern "C" {
 #endif
 
-    #include <xc.h>
     #include <stdbool.h>
-    #include "nucleoPIC.h"
 
+    /**
+     * Initializes the pin setup
+     */
+    void HCSinit(void);
 
-    #define HC_DELAY_WAITING_TRIGGER   0x10 // 10 us
-     
     /**
      * Updates the last distancia result in the pointed variable
-     * @return true if success 
+     * @return true on success
      */
-    bool HCread (int *buffer);
-
+    bool HCSread (int *buffer);
 
 #ifdef	__cplusplus
 }

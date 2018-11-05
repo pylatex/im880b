@@ -8,11 +8,11 @@
  */
 
 //MODOS DE COMPILACION. Descomentar el que se quiera probar:
-  #define SMACH       //Maquina de estados (principal)
+//#define SMACH       //Maquina de estados (principal)
 //#define TEST_1      //Verificacion UART/Reloj
 //#define TEST_2      //Verificacion comunicacion PIC-WiMOD
 //#define TEST_4      //Medicion ADC y envio por UART
-//  #define TEST_5      //Medicion de distancias y envio por UART
+#define TEST_5      //Medicion de distancias y envio por UART
 //------------------------------------------------------------------------------
 //  Definitions and Setup
 //------------------------------------------------------------------------------
@@ -41,7 +41,7 @@ volatile unsigned bool pendingmsg;
 #include "ADC.h"
 #endif
 
-#if defined TEST_5
+#if defined SMACH || defined TEST_5
 #include "hcsr04.h"
 #endif
 //------------------------------------------------------------------------------
@@ -74,18 +74,7 @@ void main(void)
 {
     setup();
     cambiaSerial (MODEM_LW);
-    
-    
-    /*
-#ifdef SMASH
-    cambiaSerial (MODEM_LW);
-#else
-    cambiaSerial (DEBUG1);    
-#endif
-    */
 
-    
-    
     #ifndef TEST_4
     enableInterrupts();
     #endif
@@ -118,14 +107,10 @@ void main(void)
     #endif
 
     #ifdef HCSR04_H
+    HCSinit();
     int distance;
     #endif
 
-    
-
-    
-    
-    
     while (true) {
         //State Machine Description
         #ifdef SMACH
@@ -181,6 +166,10 @@ void main(void)
                 LED=true;
             }
             #endif
+            #ifdef HCSR04_H
+            if (HCSread(&distance))//le indica la direccion de la variable tipo entero distancia
+                AppendMeasure(PY_DISTANCE,short2charp(distance));
+            #endif
             SendMeasures(PY_UNCONFIRMED);
             ms100(1);
 
@@ -209,22 +198,23 @@ void main(void)
 
         //Prueba 4: Medicion ADC y envio por UART
         #ifdef TEST_4
-        unsigned char phrase[15],phlen;
-        phlen=sprintf(phrase,"Propano:%u\r\n",valorPropano());
-        SerialDevice_SendData(phrase,phlen);
+        unsigned char phrase[20];
+        sprintf(phrase,"Propano: %u\r\n",valorPropano());
+        enviaDebug(phrase,0);
         ms100(10);
         #endif
-        #ifdef TEST_5
 
-        if (HCread(&distance))//le indica la direccion de la variable tipo entero distancia
-            AppendMeasure(PY_DISTANCE,distance);
-        
-        unsigned char phrase[15],phlen; 
-        phlen=sprintf(phrase,"Distancia:%i\r\n",distance);// construye la cadena y la guarda phrase y el tamaño en phlen
-        SerialDevice_SendData(phrase,phlen);
-        LED=true;
-        ms100(1);
-        LED=false;
+        //Prueba 5: Test con sensor de ultrasonido HCSR04
+        #ifdef TEST_5
+        if (HCSread(&distance)) {//le indica la direccion de la variable tipo entero distancia
+            unsigned char phrase[20];
+            sprintf(phrase,"Distancia:%i\r\n",distance);// construye la cadena y la guarda phrase y el tamaño en phlen
+            enviaDebug(phrase,0);
+            LED=true;
+            ms100(1);
+            LED=false;
+            ms100(1);
+        }
         #endif
     }
 }
@@ -246,10 +236,9 @@ void __interrupt ISR (void) {
                 pylatexRx(RCREG);
                 break;
             case GPS:
-                #ifdef SMASH
+                #ifdef SMACH
                     NCinputSerial(RCREG);
-                #endif    
-                
+                #endif
                 break;
             case HPM:
                 libre = false;

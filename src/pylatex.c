@@ -54,6 +54,7 @@ bool AppendMeasure (char variable,char *medida) {
             case PY_ILUM2:
             case PY_PRECIPITATION:
             case PY_WINDSPEED:
+            case PY_DISTANCE:
                 //FORMATO A
                 if (PY.cnt < (LARGO - 3)) {
                     PY.carga[PY.cnt++]=variable;   //Identificador

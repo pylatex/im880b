@@ -39,8 +39,6 @@ extern "C" {
     #pragma config WRT = OFF, PPS1WAY =	OFF, ZCD = OFF, PLLEN =	OFF, STVREN = ON, BORV = HI, LPBOR =	OFF, LVP = OFF
 
     #define LED LATC0   //Para las pruebas de parpadeo y ping
-    #define TRIGGER RC4; // Pin Trigger HC-SR04
-    #define ECHO LATC5; // Pin Echo HC-SR04
     //#define PIN RB5     //Para probar en un loop con LED=PIN
     #define DVI LATC1   //Pin DVI del sensor BH1750FVI
     #endif
