@@ -29,6 +29,7 @@ extern "C" {
     #define PY_PRECIPITATION    11          //                      A
     #define PY_WINDSPEED        12          //                      A
     #define PY_GPS              13          //Posicion              F
+    #define PY_DISTANCE         14          //Distancia 
 
     typedef void (*delayHandlerFunction)(unsigned char mscant);
     typedef enum {PY_UNCONFIRMED=0,PY_CONFIRMED} pyModeType;

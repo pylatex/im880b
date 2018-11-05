@@ -8,11 +8,11 @@
  */
 
 //MODOS DE COMPILACION. Descomentar el que se quiera probar:
-//#define SMACH       //Maquina de estados (principal)
+  #define SMACH       //Maquina de estados (principal)
 //#define TEST_1      //Verificacion UART/Reloj
 //#define TEST_2      //Verificacion comunicacion PIC-WiMOD
 //#define TEST_4      //Medicion ADC y envio por UART
-  #define TEST_5      //Medicion de distancias y envio por UART
+//  #define TEST_5      //Medicion de distancias y envio por UART
 //------------------------------------------------------------------------------
 //  Definitions and Setup
 //------------------------------------------------------------------------------
@@ -74,6 +74,8 @@ void main(void)
 {
     setup();
     cambiaSerial (MODEM_LW);
+    
+    
     /*
 #ifdef SMASH
     cambiaSerial (MODEM_LW);
@@ -115,6 +117,15 @@ void main(void)
     initNC(&NMEA);
     #endif
 
+    #ifdef HCSR04_H
+    int distance;
+    #endif
+
+    
+
+    
+    
+    
     while (true) {
         //State Machine Description
         #ifdef SMACH
@@ -204,8 +215,12 @@ void main(void)
         ms100(10);
         #endif
         #ifdef TEST_5
+
+        if (HCread(&distance))//le indica la direccion de la variable tipo entero distancia
+            AppendMeasure(PY_DISTANCE,distance);
+        
         unsigned char phrase[15],phlen; 
-        phlen=sprintf(phrase,"Distancia:%i\r\n",123);// construye la cadena y la guarda phrase y el tamaño en phlen
+        phlen=sprintf(phrase,"Distancia:%i\r\n",distance);// construye la cadena y la guarda phrase y el tamaño en phlen
         SerialDevice_SendData(phrase,phlen);
         LED=true;
         ms100(1);

@@ -12,24 +12,17 @@
 extern "C" {
 #endif
 
+    #include <xc.h>
     #include <stdbool.h>
 
 
     #define HC_DELAY_WAITING_TRIGGER   0x10 // 10 us
-    #define HDC_DELAY_TIMEOUT   false
-
-        /**
-     * Initializes the library working mode
-     * @param tempAdd   Address in which will be saved the temperature readings
-     * @param humAdd    Address in which will be saved the humidity readings
-     */
-    void HCinit (unsigned short *distanceAdd);
      
     /**
      * Updates the last distancia result in the pointed variable
      * @return true if success 
      */
-    bool HCread ();
+    bool HCread (int *buffer);
 
 
 #ifdef	__cplusplus
