@@ -14,6 +14,7 @@ extern "C" {
 
     #include <xc.h>
     #include <stdbool.h>
+    #include "nucleoPIC.h"
 
 
     #define HC_DELAY_WAITING_TRIGGER   0x10 // 10 us
