@@ -1,15 +1,11 @@
 /**
   TMR1 Generated Driver File
-
   @Company
     Microchip Technology Inc.
-
   @File Name
     tmr1.c
-
   @Summary
     This is the generated driver implementation file for the TMR1 driver using PIC10 / PIC12 / PIC16 / PIC18 MCUs
-
   @Description
     This source file provides APIs for TMR1.
     Generation Information :

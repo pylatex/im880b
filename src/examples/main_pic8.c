@@ -211,9 +211,9 @@ void main(void)
             sprintf(phrase,"Distancia:%i\r\n",distance);// construye la cadena y la guarda phrase y el tamaño en phlen
             enviaDebug(phrase,0);
             LED=true;
-            ms100(1);
+            ms100(100);
             LED=false;
-            ms100(1);
+            ms100(100);
         }
         #endif
     }
