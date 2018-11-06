@@ -71,6 +71,7 @@ void main(void)
 {
     setup();
     cambiaSerial (MODEM_LW);
+    I2CPersOn();    //Enciende los perifericos I2C (RC7 - VCC_SENS)
 
     #ifndef TEST_4
     enableInterrupts();
