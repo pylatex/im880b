@@ -8,11 +8,11 @@
  */
 
 //MODOS DE COMPILACION. Descomentar el que se quiera probar:
-//#define SMACH       //Maquina de estados (principal)
+#define SMACH       //Maquina de estados (principal)
 //#define TEST_1      //Verificacion UART/Reloj
 //#define TEST_2      //Verificacion comunicacion PIC-WiMOD
 //#define TEST_4      //Medicion ADC y envio por UART
-#define TEST_5      //Medicion de distancias y envio por UART
+//#define TEST_5      //Medicion de distancias y envio por UART
 //------------------------------------------------------------------------------
 //  Definitions and Setup
 //------------------------------------------------------------------------------
@@ -29,13 +29,13 @@ volatile unsigned bool pendingmsg;
 #endif
 
 #if defined SMACH || defined TEST_3
-#include "i2c.h"
-#include "T67xx.h"
-#include "hdc1010.h"
-#include "iaq.h"
-#include "bh1750fvi.h"
-#include "bmp280.h"
-#include "nmeaCayenne.h"
+//#include "i2c.h"
+//#include "T67xx.h"
+//#include "hdc1010.h"
+//#include "iaq.h"
+//#include "bh1750fvi.h"
+//#include "bmp280.h"
+//#include "nmeaCayenne.h"
 #endif
 #if defined SMACH || defined TEST_4
 #include "ADC.h"
@@ -77,6 +77,12 @@ void main(void)
 
     #ifndef TEST_4
     enableInterrupts();
+    #endif
+
+    #ifdef TEST_5
+    LED=true;    
+    ms100(10);
+    LED=false;    
     #endif
 
     #ifdef HDC1010_H
@@ -172,7 +178,6 @@ void main(void)
             #endif
             SendMeasures(PY_UNCONFIRMED);
             ms100(1);
-
             LED=false;
             ms100(49);  //Approx. each 5 sec ((49+1)x100ms)
             char buff[20],len;
@@ -210,12 +215,12 @@ void main(void)
             unsigned char phrase[20];
             sprintf(phrase,"Distancia:%i\r\n",distance);// construye la cadena y la guarda phrase y el tamaño en phlen
             enviaDebug(phrase,0);
-            LED=true;
-            ms100(100);
-            LED=false;
-            ms100(100);
-        }
-        #endif
+        }else{
+            unsigned char phrase[20];
+            sprintf(phrase,"Distancia: No se envio nada\r\n");
+            enviaDebug(phrase,0);
+        }    
+    #endif
     }
 }
 
@@ -236,7 +241,7 @@ void __interrupt ISR (void) {
                 pylatexRx(RCREG);
                 break;
             case GPS:
-                #ifdef SMACH
+                #ifdef NMEACAYENNE_H
                     NCinputSerial(RCREG);
                 #endif
                 break;
