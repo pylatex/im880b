@@ -42,8 +42,8 @@ void setup (void) {
     RB4PPS=0x13;
     SSPDATPPS = 0x0C;   //RB4->MSSP:SDA;
     SSPCLKPPS = 0x0E;   //RB6->MSSP:SCL;
-
-    ppsLock(true);
+    ppsLock(true);    
+    TMR1_Initialize();  // Inicicializa el timer 1 para que cuente de 500ns a 63ms
 #endif
 
     __delay_ms(200);   //Delay for stabilization of power supply

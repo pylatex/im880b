@@ -2,7 +2,7 @@
  * File:   hcsr04.h
  * Author: Nicolas Pastran at gmail dot com
  *
- * Created on 1 Noviembre de 2018, 15:49
+ * Created on 1 Nov de 2018, 15:49
  */
 
 #ifndef HCSR04_H
@@ -20,7 +20,7 @@ extern "C" {
     void HCSinit(void);
 
     /**
-     * Updates the last distancia result in the pointed variable
+     * Updates the last distance result in the pointed variable
      * @return true on success
      */
     bool HCSread (int *buffer);
