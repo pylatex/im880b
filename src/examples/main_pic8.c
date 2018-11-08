@@ -231,7 +231,7 @@ char minibuff,HCIbuff[20],rxcnt;
 /**
  * Rutina de atencion de interrupciones
  */
-void __interrupt ISR (void) {
+void __interrupt() ISR (void) {
     if (RCIE && RCIF) {
         //Error reading
         rx_err=RCSTA;

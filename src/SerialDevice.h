@@ -8,9 +8,6 @@ extern "C" {
     #include <stdint.h>
     #include <stdbool.h>
 
-    typedef uint8_t             UINT8;
-    typedef uint32_t            UINT32;
-
     typedef enum {
         B0,B9600,B19200,B115200
     } baudrate_t;
@@ -29,7 +26,7 @@ extern "C" {
     SerialDevice_Open(const char   *comPort,
                       baudrate_t    baudRate,   //115200, siempre.
                       int           dataBits,   //8, siempre.
-                      UINT8         parity);    //Ninguna, siempre.
+                      uint8_t         parity);    //Ninguna, siempre.
 
     /**
      * Close
@@ -50,22 +47,22 @@ extern "C" {
      * @return Bytes sent or -1 if communication error
      */
     int
-    SerialDevice_SendByte(UINT8 txByte);
+    SerialDevice_SendByte(uint8_t txByte);
 
     /**
      * SendData
      * @brief: send data
      */
     int
-    SerialDevice_SendData(UINT8    *txBuffer,
-                          UINT8     txLength);
+    SerialDevice_SendData(uint8_t    *txBuffer,
+                          uint8_t     txLength);
 
     /**
      * ReadData
      * @brief: read data
      */
     int
-    SerialDevice_ReadData(UINT8    *rxBuffer,
+    SerialDevice_ReadData(uint8_t    *rxBuffer,
                           int       rxBufferSize);
 
 #ifdef	__cplusplus

@@ -33,7 +33,7 @@ bool
 SerialDevice_Open(const char   *comPort,
                   baudrate_t    baudRate,
                   int           dataBits,
-                  UINT8         parity)
+                  uint8_t         parity)
 {
     //UART, Ajustes comunes a Rx y Tx. Inicializado de acuerdo a datasheet 18F2550
     //Se prueba con 8(interno) y 7.3728(externo) MHz
@@ -81,7 +81,7 @@ SerialDevice_Close()
 
 // send data
 int
-SerialDevice_SendData(UINT8 *txBuffer, UINT8 txLength)
+SerialDevice_SendData(uint8_t *txBuffer, uint8_t txLength)
 {
     unsigned char aux=0;
     if (!txLength)
@@ -96,7 +96,7 @@ SerialDevice_SendData(UINT8 *txBuffer, UINT8 txLength)
 
 // send single byte
 int
-SerialDevice_SendByte(UINT8 txByte)
+SerialDevice_SendByte(uint8_t txByte)
 {
     if (SerialSentIsOpen()) {
         while (!TRMT);  //Wait for a pending transmision, due to TSR busy
