@@ -8,11 +8,12 @@
  */
 
 //MODOS DE COMPILACION. Descomentar el que se quiera probar:
-#define SMACH       //Maquina de estados (principal)
+//#define SMACH       //Maquina de estados (principal)
 //#define TEST_1      //Verificacion UART/Reloj
 //#define TEST_2      //Verificacion comunicacion PIC-WiMOD
 //#define TEST_4      //Medicion ADC y envio por UART
 //#define TEST_5      //Medicion de distancias y envio por UART
+#define TEST_6 //Tarjeta
 //------------------------------------------------------------------------------
 //  Definitions and Setup
 //------------------------------------------------------------------------------
@@ -22,6 +23,10 @@
 #include "SerialDevice.h"
 #include "pylatex.h"
 #include "nucleoPIC.h"
+
+#ifdef TEST_6
+    #include "RC522.h"   
+#endif
 
 #if defined TEST_2
 void ProcesaHCI();
@@ -83,6 +88,11 @@ void main(void)
     LED=true;    
     ms100(10);
     LED=false;    
+    #endif
+    
+    #ifdef RC522_H
+    init();
+    //writeMFRC522(SerialSpeedReg,0x0C);
     #endif
 
     #ifdef HDC1010_H
@@ -221,6 +231,48 @@ void main(void)
             enviaDebug(phrase,0);
         }    
     #endif
+
+#ifdef TEST_6  
+        unsigned char a;
+        a=readMFRC522(VersionReg);
+        unsigned char phrase[20];
+        sprintf(phrase,"\r\n%02X",a);//Debe salir 91H 
+        enviaDebug(phrase,0); 
+        /*
+        unsigned char phrase[20];
+        char i;
+        if (isCard()==true)
+            {
+            if(readCardSerial()==true){
+            //Serial.println("Card detected:")
+            sprintf(phrase,"Tarjeta detectada\r\n");
+            enviaDebug(phrase,0);
+            for(i = 0; i <= 4; i++)
+            {
+              //Serial.print(serNum[i]); //imprimir en HEX
+              //Serial.print(" ");
+            char *aux  = serNum[i];
+            sprintf(phrase," %i",*aux); 
+            enviaDebug(phrase,0); 
+            }
+            sprintf(phrase,"\r\n"); 
+            enviaDebug(phrase,0);
+            }
+        else{
+            
+            sprintf(phrase,"No se pudo leer\r\n"); 
+            enviaDebug(phrase,0);
+        }
+    }
+          else{
+            
+            sprintf(phrase,"Tarjeta No Detectada\r\n"); 
+            enviaDebug(phrase,0);     
+            }*/
+        
+                ms100(10);
+#endif
+        
     }
 }
 
