@@ -233,44 +233,24 @@ void main(void)
     #endif
 
 #ifdef TEST_6  
+        /* Codigo de prueba
         unsigned char a;
         a=readMFRC522(VersionReg);
         unsigned char phrase[20];
         sprintf(phrase,"\r\n%02X",a);//Debe salir 91H 
         enviaDebug(phrase,0); 
-        /*
-        unsigned char phrase[20];
-        char i;
-        if (isCard()==true)
-            {
-            if(readCardSerial()==true){
-            //Serial.println("Card detected:")
+        */
+        unsigned char phrase[20],a;
+        a=readMFRC522(VersionReg);
+        sprintf(phrase,"\r\n%02X",a);//Debe salir 91H 
+        enviaDebug(phrase,0); 
+        if (isCard()==true){
             sprintf(phrase,"Tarjeta detectada\r\n");
-            enviaDebug(phrase,0);
-            for(i = 0; i <= 4; i++)
-            {
-              //Serial.print(serNum[i]); //imprimir en HEX
-              //Serial.print(" ");
-            char *aux  = serNum[i];
-            sprintf(phrase," %i",*aux); 
-            enviaDebug(phrase,0); 
-            }
-            sprintf(phrase,"\r\n"); 
-            enviaDebug(phrase,0);
-            }
-        else{
-            
-            sprintf(phrase,"No se pudo leer\r\n"); 
-            enviaDebug(phrase,0);
-        }
-    }
-          else{
-            
+        }else{
             sprintf(phrase,"Tarjeta No Detectada\r\n"); 
             enviaDebug(phrase,0);     
-            }*/
-        
-                ms100(10);
+        }
+            ms100(10);
 #endif
         
     }

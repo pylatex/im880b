@@ -101,7 +101,7 @@
 #define     SerialSpeedReg        0x1F
 //Page 2:CFG    
 #define     Reserved20            0x20  
-#define     CRCResultRegM         0x21
+#define     CRCResultRegH         0x21
 #define     CRCResultRegL         0x22
 #define     Reserved21            0x23
 #define     ModWidthReg           0x24
@@ -158,9 +158,12 @@ extern "C" {
 	unsigned char readMFRC522(unsigned char addr);
 	void setBitMask(unsigned char reg, unsigned char mask);
 	void clearBitMask(unsigned char reg, unsigned char mask);
-	void calculateCRC(unsigned char *pIndata, unsigned char len, unsigned char *pOutData);
+	bool calculateCRC(	unsigned char *data,		///< In: Pointer to the data to transfer to the FIFO for CRC calculation.
+                        unsigned char length,	///< In: The number of bytes to transfer.
+						unsigned char *result	///< Out: Pointer to result buffer. Result is written to result[0..1], low byte first.
+					 );
 	unsigned char MFRC522Request(unsigned char reqMode, unsigned char *TagType);
-	unsigned char MFRC522ToCard(unsigned char command, unsigned char *sendData, unsigned char sendLen, unsigned char *backData, uint16_t *backLen);
+	unsigned char MFRC522ToCard(unsigned char command, unsigned char *sendData, unsigned char sendLen, unsigned char *backData, unsigned char *backLen);
 	unsigned char anticoll(unsigned char *serNum);
 	unsigned char auth(unsigned char authMode, unsigned char BlockAddr, unsigned char *Sectorkey, unsigned char *serNum);
 	void halt();
