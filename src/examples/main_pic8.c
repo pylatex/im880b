@@ -91,8 +91,11 @@ void main(void)
     #endif
     
     #ifdef RC522_H
-    init();
-    //writeMFRC522(SerialSpeedReg,0x0C);
+    unsigned char phrase[20];
+    unsigned char a;
+    sprintf(phrase,"Iniciamos\r\n");
+    enviaDebug(phrase,0);
+    PCD_Init();
     #endif
 
     #ifdef HDC1010_H
@@ -240,16 +243,16 @@ void main(void)
         sprintf(phrase,"\r\n%02X",a);//Debe salir 91H 
         enviaDebug(phrase,0); 
         */
-        unsigned char phrase[20],a;
-        a=readMFRC522(VersionReg);
+        a=PCD_ReadRegister(VersionReg);
         sprintf(phrase,"\r\n%02X",a);//Debe salir 91H 
-        enviaDebug(phrase,0); 
-        if (isCard()==true){
-            sprintf(phrase,"Tarjeta detectada\r\n");
+        enviaDebug(phrase,0);/*
+        if (PICC_IsNewCardPresent()){
+            sprintf(phrase,"Te encontramos alelulla\r\n");
+            enviaDebug(phrase,0);
         }else{
-            sprintf(phrase,"Tarjeta No Detectada\r\n"); 
+            sprintf(phrase,"No Detectada\r\n"); 
             enviaDebug(phrase,0);     
-        }
+        }*/
             ms100(10);
 #endif
         
