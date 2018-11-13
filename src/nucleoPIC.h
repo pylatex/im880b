@@ -36,9 +36,9 @@ extern "C" {
 
     #ifdef _16F1769
     #pragma config FOSC = INTOSC, WDTE = OFF, PWRTE = ON, MCLRE = ON, CP = OFF, BOREN = OFF, CLKOUTEN = OFF, IESO = ON, FCMEN = ON
-    #pragma config WRT = OFF, PPS1WAY =	OFF, ZCD = OFF, PLLEN =	OFF, STVREN = ON, BORV = HI, LPBOR =	OFF, LVP = OFF
+    #pragma config WRT = OFF, PPS1WAY =	OFF, PLLEN =	OFF, STVREN = ON, BORV = HI, LPBOR =	OFF, LVP = OFF//, ZCD = OFF
 
-    #define LED LATC0   //Para las pruebas de parpadeo y ping
+    #define SS LATC0   //Para las pruebas de parpadeo y ping
     //#define PIN RB5     //Para probar en un loop con LED=PIN
     #define DVI LATC1   //Pin DVI del sensor BH1750FVI
     #endif

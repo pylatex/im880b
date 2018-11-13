@@ -1,40 +1,46 @@
 
 #include "spi.h"
-#include "nucleoPIC.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include "RC522.h"
+#include "nucleoPIC.h"
 
 
 unsigned char     readData;
 unsigned char     readDummy;
 
 void PCD_WriteRegister(unsigned char addr, unsigned char value) {
+        //SSPCON1bits.SSPEN=1;   // Enable SPI port
         SS = false;
-        readData = SPI_Exchange8bit( ( addr << 1 ) & 0x7E );//Equivalente a SPI.transfer((addr<<1)&0x7E);
-        readDummy = SPI_Exchange8bit( value );// Equivalente a  SPI.transfer(val);
+        readData = spi_exchangeByte( ( addr << 1 ) & 0x7E );//Equivalente a SPI.transfer((addr<<1)&0x7E);
+        readDummy = spi_exchangeByte( value );// Equivalente a  SPI.transfer(val);
         SS = true;
+       // SSPCON1bits.SSPEN=0;   // Enable SPI port
 }
 void PCD_WriteRegisters( unsigned char addr,unsigned char count,unsigned char *values){
-	SS = false;
-    readData = SPI_Exchange8bit((addr << 1 ) & 0x7E );//Equivalente a SPI.transfer((addr<<1)&0x7E);
+	//SSPCON1bits.SSPEN=1;   // Enable SPI port
+    SS = false;
+    readData = spi_exchangeByte((addr << 1 ) & 0x7E );//Equivalente a SPI.transfer((addr<<1)&0x7E);
 	// MSB == 0 is for writing. LSB is not used in address. Datasheet section 8.1.2.3.
 	for (unsigned char index = 0; index < count; index++) {
-		readDummy = SPI_Exchange8bit(values[index]);
+		readDummy = spi_exchangeByte(values[index]);
 	}
 	SS = true;
+    //SSPCON1bits.SSPEN=0;   // Enable SPI port
 }
 
 unsigned char PCD_ReadRegister(unsigned char addr) {
         unsigned char value;
         //Activa con c0
+        //SSPCON1bits.SSPEN=1;   // Enable SPI port
         SS = false;
-        readData = SPI_Exchange8bit(((addr<<1)&0x7E)|0x80);// Equivalente a SPI.transfer(((addr<<1)&0x7E) | 0x80);
-        value = SPI_Exchange8bit(0x00); // Equivalente a val = SPI.transfer(0x00);
+        readData = spi_exchangeByte(((addr<<1)&0x7E)|0x80);// Equivalente a SPI.transfer(((addr<<1)&0x7E) | 0x80);
+        value = spi_exchangeByte(0x00); // Equivalente a val = SPI.transfer(0x00);
         SS = true;
+        //SSPCON1bits.SSPEN=0;   // Enable SPI port
         //Desactiva con C1
 	return value;
 } // End PCD_ReadRegister()
@@ -47,26 +53,28 @@ void PCD_ReadRegisters(	unsigned char addr,	///< The register to read from. One 
 	if (count == 0) {
 		return;
 	}
+    //SSPCON1bits.SSPEN=1;   // Enable SPI port
     unsigned char index = 0;							// Index in values array.
     //Activa con c0
     SS = false;
 	count--;								// One read is performed outside of the loop
-	readData = SPI_Exchange8bit(((addr<<1)&0x7E)|0x80);// Equivalente a SPI.transfer(((addr<<1)&0x7E) | 0x80);
+	readData = spi_exchangeByte(((addr<<1)&0x7E)|0x80);// Equivalente a SPI.transfer(((addr<<1)&0x7E) | 0x80);
 	if (rxAlign) {		// Only update bit positions rxAlign..7 in values[0]
 		// Create bit mask for bit positions rxAlign..7
 		unsigned char mask = (0xFF << rxAlign) & 0xFF;
 		// Read value and tell that we want to read the same address again.
-		unsigned char value = SPI_Exchange8bit(((addr<<1)&0x7E)|0x80);// Equivalente a SPI.transfer(((addr<<1)&0x7E) | 0x80);
+		unsigned char value = spi_exchangeByte(((addr<<1)&0x7E)|0x80);// Equivalente a SPI.transfer(((addr<<1)&0x7E) | 0x80);
 		// Apply mask to both current value of values[0] and the new data in value.
 		values[0] = (values[0] & ~mask) | (value & mask);
 		index++;
 	}
 	while (index < count) {
-		values[index] = SPI_Exchange8bit(((addr<<1)&0x7E)|0x80);// Equivalente a SPI.transfer(((addr<<1)&0x7E) | 0x80);
+		values[index] = spi_exchangeByte(((addr<<1)&0x7E)|0x80);// Equivalente a SPI.transfer(((addr<<1)&0x7E) | 0x80);
 		index++;
 	}
-	values[index] = SPI_Exchange8bit(0x00); // Equivalente a val = SPI.transfer(0x00);
-	SS = true;
+	values[index] = spi_exchangeByte(0x00); // Equivalente a val = SPI.transfer(0x00);
+	//SSPCON1bits.SSPEN=0;   // Enable SPI port
+    SS = true;
 } // End PCD_ReadRegisters()
 
 void PCD_SetRegisterBitMask(	unsigned char reg,	///< The register to update. One of the PCD_Register enums.
@@ -83,7 +91,7 @@ void PCD_ClearRegisterBitMask(	unsigned char reg,	///< The register to update. O
 									  ) {
 	unsigned char tmp;
 	tmp = PCD_ReadRegister(reg);
-	PCD_WriteRegister(reg, tmp & (~mask));		// clear bit mask
+	PCD_WriteRegister(reg,(tmp&(~mask)));		// clear bit mask
 } // End PCD_ClearRegisterBitMask()
 
 unsigned char  PCD_CalculateCRC(	unsigned char *data,		///< In: Pointer to the data to transfer to the FIFO for CRC calculation.
@@ -121,11 +129,9 @@ unsigned char  PCD_CalculateCRC(	unsigned char *data,		///< In: Pointer to the d
 
 void PCD_Init(void) {
 	// Set the chipSelectPin as digital output, do not select the slave yet
-	 SPI_Initialize();
-    
+    spi_master_open();
     RST = true; //Equivalente a digitalWrite(_NRSTPD,HIGH)
     SS = true;
-    
     RST=false;		// Make shure we have a clean LOW state.
     __delay_us(2);				// 8.8.1 Reset timing requirements says about 100ns. Let us be generous: 2?sl
     RST=true; // Exit power down mode. This triggers a hard reset.
@@ -186,7 +192,6 @@ bool PCD_PerformSelfTest(void) {
 	// This follows directly the steps outlined in 16.1.1
 	// 1. Perform a soft reset.
 	PCD_Reset();
-	
 	// 2. Clear the internal buffer by writing 25 bytes of 00h
 	unsigned char ZEROES[25] = {0x00};
 	PCD_WriteRegister(FIFOLevelReg, 0x80);		// flush the FIFO buffer
@@ -277,12 +282,12 @@ void PCD_SoftPowerUp(void){
 }
 
 unsigned char PCD_TransceiveData(unsigned char *sendData,		///< Pointer to the data to transfer to the FIFO.
-													unsigned char sendLen,		///< Number of bytes to transfer to the FIFO.
-													unsigned char *backData,		///< nullptr or pointer to buffer if data should be read back after executing the command.
-													unsigned char *backLen,		///< In: Max number of unsigned chars to write to *backData. Out: The number of bytes returned.
-													unsigned char *validBits,	///< In/Out: The number of valid bits in the last byte. 0 for 8 valid bits. Default nullptr.
-													unsigned char rxAlign,		///< In: Defines the bit position in backData[0] for the first bit received. Default 0.
-													bool checkCRC		///< In: True => The last two bytes of the response is assumed to be a CRC_A that must be validated.
+                                unsigned char sendLen,		///< Number of bytes to transfer to the FIFO.
+								unsigned char *backData,		///< nullptr or pointer to buffer if data should be read back after executing the command.
+								unsigned char *backLen,		///< In: Max number of unsigned chars to write to *backData. Out: The number of bytes returned.
+								unsigned char *validBits,	///< In/Out: The number of valid bits in the last byte. 0 for 8 valid bits. Default nullptr.
+								unsigned char rxAlign,		///< In: Defines the bit position in backData[0] for the first bit received. Default 0.
+								bool checkCRC		///< In: True => The last two bytes of the response is assumed to be a CRC_A that must be validated.
 								 ) {
 	unsigned char waitIRq = 0x30;		// RxIRq and IdleIRq
 	return PCD_CommunicateWithPICC(PCD_Transceive, waitIRq, sendData, sendLen, backData, backLen, validBits, rxAlign, checkCRC);
@@ -317,10 +322,11 @@ unsigned char PCD_CommunicateWithPICC(	unsigned char command,		///< The command 
 	// Each iteration of the do-while-loop takes 17.86?s.
 	// TODO check/modify for other architectures than Arduino Uno 16bit
 	uint16_t i;
+    unsigned char n;
 	for (i = 2000; i > 0; i--) {
-		unsigned char n = PCD_ReadRegister(ComIrqReg);	// ComIrqReg[7..0] bits are: Set1 TxIRq RxIRq IdleIRq HiAlertIRq LoAlertIRq ErrIRq TimerIRq
-		if (n & waitIRq) {					// One of the interrupts that signal success has been set.
-			break;
+		n = PCD_ReadRegister(ComIrqReg);	// ComIrqReg[7..0] bits are: Set1 TxIRq RxIRq IdleIRq HiAlertIRq LoAlertIRq ErrIRq TimerIRq
+		if (n == 0x64) {					// One of the interrupts that signal success has been set.
+            break;
 		}
 		if (n & 0x01) {						// Timer interrupt - nothing received in 25ms
 			return STATUS_TIMEOUT;
@@ -402,12 +408,12 @@ unsigned char PICC_REQA_or_WUPA(	unsigned char command, 		///< The command to se
 	unsigned char validBits;
 	unsigned char status;
 	
-	if (bufferATQA == 0 || *bufferSize < 2) {	// The ATQA response is 2 bytes unsigned long.
+	if (bufferATQA == NULL || (*bufferSize < 2)) {	// The ATQA response is 2 bytes unsigned long.
 		return STATUS_NO_ROOM;
 	}
 	PCD_ClearRegisterBitMask(CollReg, 0x80);		// ValuesAfterColl=1 => Bits received after collision are cleared.
 	validBits = 7;									// For REQA and WUPA we need the short frame format - transmit only 7 bits of the last (and only) byte. TxLastBits = BitFramingReg[2..0]
-	status = PCD_TransceiveData(&command, 1, bufferATQA, bufferSize, &validBits,0,false);
+	status = PCD_TransceiveData(&command, 1, bufferATQA, bufferSize, &validBits, 0x0 ,false);
 	if (status != STATUS_OK) {
 		return status;
 	}
@@ -960,7 +966,7 @@ bool PICC_IsNewCardPresent(void) {
 
 	unsigned char result = PICC_RequestA(bufferATQA, &bufferSize);
 	
-    if(result == STATUS_OK || result == STATUS_COLLISION){
+    if((result == STATUS_OK || result == STATUS_COLLISION)){
         return true;
     }else{        
         return false;

@@ -140,7 +140,7 @@ typedef struct {
 #define	STATUS_INTERNAL_ERROR	0x05	// Internal error in the code. Should not happen ;-)
 #define	STATUS_INVALID			0x06	// Invalid argument.
 #define	STATUS_CRC_WRONG		0x07	// The CRC_A does not match
-#define	STATUS_MIFARE_NACK		0xff	// A MIFARE PICC responded with NAK.
+#define	STATUS_MIFARE_NACK		0xFF	// A MIFARE PICC responded with NAK.
 
 
 //------------------ MFRC522 registro---------------

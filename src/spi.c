@@ -1,171 +1,73 @@
-/**
-  MSSP Generated Driver File
-  @Company
-    Microchip Technology Inc.
-  @File Name
-    spi.c
-  @Summary
-    This is the generated driver implementation file for the MSSP driver using PIC10 / PIC12 / PIC16 / PIC18 MCUs 
-  @Description
-    This source file provides APIs for MSSP.
-    Generation Information :
-        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs  - 1.55
-        Device            :  PIC12LF1840
-        Driver Version    :  2.00
-    The generated drivers are tested against the following:
-        Compiler          :  XC8 1.35
-        MPLAB             :  MPLAB X 3.40
-*/
-
-/*
-    (c) 2016 Microchip Technology Inc. and its subsidiaries. You may use this
-    software and any derivatives exclusively with Microchip products.
-    THIS SOFTWARE IS SUPPLIED BY MICROCHIP "AS IS". NO WARRANTIES, WHETHER
-    EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING ANY IMPLIED
-    WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS FOR A
-    PARTICULAR PURPOSE, OR ITS INTERACTION WITH MICROCHIP PRODUCTS, COMBINATION
-    WITH ANY OTHER PRODUCTS, OR USE IN ANY APPLICATION.
-    IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE,
-    INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF ANY KIND
-    WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF MICROCHIP HAS
-    BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE FORESEEABLE. TO THE
-    FULLEST EXTENT ALLOWED BY LAW, MICROCHIP'S TOTAL LIABILITY ON ALL CLAIMS IN
-    ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED THE AMOUNT OF FEES, IF ANY,
-    THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
-    MICROCHIP PROVIDES THIS SOFTWARE CONDITIONALLY UPON YOUR ACCEPTANCE OF THESE
-    TERMS.
-*/
-
-/**
-  Section: Included Files
-*/
-
 #include <xc.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include "spi.h"
 
-/**
-  Section: Macro Declarations
-*/
+#pragma warning disable 520        
 
-#define SPI_RX_IN_PROGRESS 0x0
-
-typedef struct { uint8_t con1; uint8_t stat; uint8_t add; } spi_configuration_t;
-static const spi_configuration_t spi_configuration[] = {   
-    {0x0, 0x80, 0x4f }
-};
-
-/**
-  Section: Module APIs
-*/
-
-void SPI_Initialize(void)
-{   
-    // R_nW write_noTX; P stopbit_notdetected; S startbit_notdetected; BF RCinprocess_TXcomplete; SMP Middle; UA dontupdate; CKE Idle to Active; D_nA lastbyte_address; 
-    SSP1STAT = 0x00;
-    // SSPEN enabled; WCOL no_collision; CKP Idle:Low, Active:High; SSPM FOSC/16; SSPOV no_overflow; 
-    SSP1CON1 = 0x21;
-    SSPCON1 = (SSPCON1 & 0xF0) | 1;
-    SSPCON1bits.SSPEN=1;   // Enable SPI port
-    SSP1CON2 = 0x00;
-    
-    SSPCON1bits.CKP=0; //Polaridad modo 0
-    SSPSTATbits.CKE=1;  // Flancos modo 0
-    SSPSTATbits.SMP=0;//medio ciclo
-    
-    // SSPADD 0; 
-    SSP1ADD = 0x00;  
-    //setup PPS pins
-    SSPCLKPPS = 12;
-    SSPDATPPS = 13;
-    TRISBbits.TRISB6=0; TRISBbits.TRISB5=1; // SDO, out, SDI in
-    
-    TRISBbits.TRISB4 = 0; // RB4 Salida SCK out
-    
-    //TRISCbits.TRISC0=true;// RC0 input IRQ
-    TRISCbits.TRISC2=false;//RC2 output RST
-    TRISCbits.TRISC1=false;//RC1 output SS    
-    SSPDATPPS = 0x0D;   //RB5->MSSP:SDI;    
-		
-    RB6PPS = 0x14;   //RB6->MSSP:SDO;    
-		
-    RB4PPS = 0x12;   //RB4->MSSP:SCK;    
-		
-    SSPCLKPPS = 0x0C;   //RB4->MSSP:SCK;
-    
-        
+inline void spi_close(void)
+{
+    SSP1CON1bits.SSPEN = 0;
 }
 
-uint8_t SPI_Exchange8bit(uint8_t data)
+
+//Setup SPI for Master Mode
+void spi_master_open(void){
+        TRISAbits.TRISA2 = 0;
+        TRISCbits.TRISC5 = 0;
+        TRISCbits.TRISC1 = 1;
+        //setup PPS pins
+        SSPDATPPS = 0x11;   //RC1->MSSP:SDI;    
+        RA2PPS = 0x10;   //RA2->MSSP:SCK;    
+        RC5PPS = 0x12;   //RC5->MSSP:SDO;    
+        SSPCLKPPS = 0x02;   //RA2->MSSP:SCK;      
+        //setup SPI        
+        SSPSTATbits.CKE=true; // Flancos modo 0
+        SSPSTATbits.SMP=false; //datos de entrada disponible en el medio del ciclo (SMP=0)
+        SSPCON1 = (SSPCON1 & 0xF0) | 0; // Sets clock frequency for SPI in master mode // clock =3 (TMR2/2) =2 (Fosc/64) =1 (Fosc/16)  =0 (Fosc/4)
+        SSPCON1bits.CKP=false; //Polaridad modo 0 Polaridad del reloj
+        SSPCON1bits.SSPEN=true;   // Enable SPI puerto serie sincrono
+        SSP1CON2 = 0x00;
+        SSP1ADD  = 0x4f;
+        TRISCbits.TRISC2=false;//RC2 output RST
+        TRISCbits.TRISC0=false;//RC0 output SS   
+}
+
+// Full Duplex SPI Functions
+unsigned char spi_exchangeByte(unsigned char b)
 {
-    // Clear the Write Collision flag, to allow writing
-    SSP1CON1bits.WCOL = 0;
+    SSP1BUF = b;
+    //while(!PIR1bits.SSP1IF);
+    while(SSP1STATbits.BF == 0);
+    PIR1bits.SSP1IF = 0;
+    return SSP1BUF;
+}
 
-    SSPBUF = data;
-
-    while(SSP1STATbits.BF == SPI_RX_IN_PROGRESS)
+void spi_exchangeBlock(void *block, size_t blockSize)
+{
+    uint8_t *data = block;
+    while(blockSize--)
     {
+        *data = spi_exchangeByte(*data );
+        data++;
     }
-
-    return (SSPBUF);
 }
-/*
-uint8_t SPI_Exchange8bitBuffer(uint8_t *dataIn, uint8_t bufLen, uint8_t *dataOut)
-{
-    uint8_t bytesWritten = 0;
 
-    if(bufLen != 0)
+// Half Duplex SPI Functions
+void spi_writeBlock(void *block, size_t blockSize)
+{
+    uint8_t *data = block;
+    while(blockSize--)
     {
-        if(dataIn != NULL)
-        {
-            while(bytesWritten < bufLen)
-            {
-                if(dataOut == NULL)
-                {
-                    SPI_Exchange8bit(dataIn[bytesWritten]);
-                }
-                else
-                {
-                    dataOut[bytesWritten] = SPI_Exchange8bit(dataIn[bytesWritten]);
-                }
-
-                bytesWritten++;
-            }
-        }
-        else
-        {
-            if(dataOut != NULL)
-            {
-                while(bytesWritten < bufLen )
-                {
-                    dataOut[bytesWritten] = SPI_Exchange8bit(DUMMY_DATA);
-
-                    bytesWritten++;
-                }
-            }
-        }
+        spi_exchangeByte(*data++);
     }
-
-    return bytesWritten;
 }
-*/
-
-bool SPI_IsBufferFull(void)
+void spi_readBlock(void *block, size_t blockSize)
 {
-    return (SSP1STATbits.BF);
+    uint8_t *data = block;
+    while(blockSize--)
+    {
+        *data++ = spi_exchangeByte(0);
+    }
 }
-
-bool SPI_HasWriteCollisionOccured(void)
-{
-    return (SSP1CON1bits.WCOL);
-}
-
-void SPI_ClearWriteCollisionStatus(void)
-{
-    SSP1CON1bits.WCOL = 0;
-}
-/**
- End of File
-*/

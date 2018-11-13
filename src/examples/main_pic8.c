@@ -23,10 +23,14 @@
 #include "SerialDevice.h"
 #include "pylatex.h"
 #include "nucleoPIC.h"
+#include "spi.h"
+
+
 
 #ifdef TEST_6
-    #include "RC522.h"   
+    #include "RC522.h"
 #endif
+
 
 #if defined TEST_2
 void ProcesaHCI();
@@ -41,6 +45,7 @@ volatile unsigned bool pendingmsg;
 //#include "bh1750fvi.h"
 //#include "bmp280.h"
 //#include "nmeaCayenne.h"
+//#include "hdc1010.h" 
 #endif
 #if defined SMACH || defined TEST_4
 #include "ADC.h"
@@ -77,11 +82,16 @@ extern void enviaDebug(char *arreglo,unsigned char largo);
  */
 void main(void)
 {
+    #ifdef RC522_H
+    spi_master_open();
+    PCD_Init();
+    #endif
+    
     setup();
     cambiaSerial (MODEM_LW);
 
     #ifndef TEST_4
-    enableInterrupts();
+    //enableInterrupts();
     #endif
 
     #ifdef TEST_5
@@ -89,13 +99,11 @@ void main(void)
     ms100(10);
     LED=false;    
     #endif
-    
-    #ifdef RC522_H
+    #ifdef TEST_6
     unsigned char phrase[20];
     unsigned char a;
     sprintf(phrase,"Iniciamos\r\n");
     enviaDebug(phrase,0);
-    PCD_Init();
     #endif
 
     #ifdef HDC1010_H
@@ -133,7 +141,6 @@ void main(void)
     while (true) {
         //State Machine Description
         #ifdef SMACH
-
         LED=true;
         LWstat LWstatus;
 
@@ -198,7 +205,6 @@ void main(void)
             enviaDebug(buff,len);
         }
         #endif
-
         //Prueba 1: Verificacion UART y Reloj ~ 1 Hz
         #ifdef TEST_1
         LED = true;
@@ -236,16 +242,18 @@ void main(void)
     #endif
 
 #ifdef TEST_6  
-        /* Codigo de prueba
-        unsigned char a;
-        a=readMFRC522(VersionReg);
-        unsigned char phrase[20];
-        sprintf(phrase,"\r\n%02X",a);//Debe salir 91H 
-        enviaDebug(phrase,0); 
-        */
+        /* Codigo de prueba*/
         a=PCD_ReadRegister(VersionReg);
-        sprintf(phrase,"\r\n%02X",a);//Debe salir 91H 
-        enviaDebug(phrase,0);/*
+        sprintf(phrase,"%02X",a);//Debe salir 91H 
+        enviaDebug(phrase,0); 
+        //PCD_WriteRegister(TxModeReg,0x0);
+        //sprintf(phrase,"%02X ",a);//Debe salir 91H 
+        //enviaDebug(phrase,0);
+        a=PCD_ReadRegister(Status1Reg);
+        sprintf(phrase,"%02X \r\n",a);//Debe salir 91H 
+        enviaDebug(phrase,0);
+        ms100(10);
+        /*
         if (PICC_IsNewCardPresent()){
             sprintf(phrase,"Te encontramos alelulla\r\n");
             enviaDebug(phrase,0);
@@ -253,7 +261,7 @@ void main(void)
             sprintf(phrase,"No Detectada\r\n"); 
             enviaDebug(phrase,0);     
         }*/
-            ms100(10);
+        
 #endif
         
     }
@@ -316,9 +324,9 @@ void __interrupt() ISR (void) {
  */
 void blink (unsigned char cant,unsigned char high,unsigned char low) {
     while (cant--) {
-        LED=true;
+        SS=true;
         ms100(high);
-        LED=false;
+        SS=false;
         ms100(low);
     }
 }

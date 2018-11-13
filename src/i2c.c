@@ -219,7 +219,7 @@ void I2C_Initialize(void)
     // enable the master interrupt
     PIE1bits.SSPIE = 1;
 #endif
-#ifdef _16F1769
+#ifdef _16F1709
     // R_nW write_noTX; P stopbit_notdetected; S startbit_notdetected; BF RCinprocess_TXcomplete; SMP High Speed; UA dontupdate; CKE disabled; D_nA lastbyte_address;
     SSP1STAT = 0x00;
     // SSPEN enabled; WCOL no_collision; CKP Idle:Low, Active:High; SSPM FOSC/4_SSPxADD_I2C; SSPOV no_overflow;
