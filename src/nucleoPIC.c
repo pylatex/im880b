@@ -21,7 +21,7 @@ void setup (void) {
     ANSELA=0;       //All pins as digital
     ANSELB=0;       //All pins as digital
     ANSELC=0;       //All pins as digital
-    ODCONCbits.ODC1 = true;    //Enable Open Drain to drive DVI
+    //ODCONCbits.ODC1 = true;    //Enable Open Drain to drive DVI
     
 #endif
 #ifdef _18F2550

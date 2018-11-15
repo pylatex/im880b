@@ -34,14 +34,10 @@ void PCD_WriteRegisters( unsigned char addr,unsigned char count,unsigned char *v
 
 unsigned char PCD_ReadRegister(unsigned char addr) {
         unsigned char value;
-        //Activa con c0
-        //SSPCON1bits.SSPEN=1;   // Enable SPI port
         SS = false;
         readData = spi_exchangeByte(((addr<<1)&0x7E)|0x80);// Equivalente a SPI.transfer(((addr<<1)&0x7E) | 0x80);
         value = spi_exchangeByte(0x00); // Equivalente a val = SPI.transfer(0x00);
         SS = true;
-        //SSPCON1bits.SSPEN=0;   // Enable SPI port
-        //Desactiva con C1
 	return value;
 } // End PCD_ReadRegister()
 
@@ -129,7 +125,7 @@ unsigned char  PCD_CalculateCRC(	unsigned char *data,		///< In: Pointer to the d
 
 void PCD_Init(void) {
 	// Set the chipSelectPin as digital output, do not select the slave yet
-    spi_master_open();
+    spi_master_open(SPI_CUSTOM0);
     RST = true; //Equivalente a digitalWrite(_NRSTPD,HIGH)
     SS = true;
     RST=false;		// Make shure we have a clean LOW state.

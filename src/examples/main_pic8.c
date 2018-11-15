@@ -82,11 +82,7 @@ extern void enviaDebug(char *arreglo,unsigned char largo);
  */
 void main(void)
 {
-    #ifdef RC522_H
-    spi_master_open();
-    PCD_Init();
-    #endif
-    
+
     setup();
     cambiaSerial (MODEM_LW);
 
@@ -99,11 +95,13 @@ void main(void)
     ms100(10);
     LED=false;    
     #endif
+
     #ifdef TEST_6
     unsigned char phrase[20];
     unsigned char a;
     sprintf(phrase,"Iniciamos\r\n");
     enviaDebug(phrase,0);
+    spi_master_open(SPI_CUSTOM0);
     #endif
 
     #ifdef HDC1010_H
@@ -126,6 +124,10 @@ void main(void)
     char mem[30];
     BMP280init(false);
     BMP280writeCtlMeas(BMPnormalMode | BMPostX1 | BMPospX1);
+    #endif
+
+    #ifdef RC522_H
+    PCD_Init();
     #endif
 
     #ifdef NMEACAYENNE_H
@@ -242,25 +244,10 @@ void main(void)
     #endif
 
 #ifdef TEST_6  
-        /* Codigo de prueba*/
-        a=PCD_ReadRegister(VersionReg);
-        sprintf(phrase,"%02X",a);//Debe salir 91H 
+  
+        sprintf(phrase,"%02X \r\n",PCD_ReadRegister(VersionReg));//Debe salir 91H 
         enviaDebug(phrase,0); 
-        //PCD_WriteRegister(TxModeReg,0x0);
-        //sprintf(phrase,"%02X ",a);//Debe salir 91H 
-        //enviaDebug(phrase,0);
-        a=PCD_ReadRegister(Status1Reg);
-        sprintf(phrase,"%02X \r\n",a);//Debe salir 91H 
-        enviaDebug(phrase,0);
-        ms100(10);
-        /*
-        if (PICC_IsNewCardPresent()){
-            sprintf(phrase,"Te encontramos alelulla\r\n");
-            enviaDebug(phrase,0);
-        }else{
-            sprintf(phrase,"No Detectada\r\n"); 
-            enviaDebug(phrase,0);     
-        }*/
+        __delay_us(30);
         
 #endif
         
@@ -324,9 +311,9 @@ void __interrupt() ISR (void) {
  */
 void blink (unsigned char cant,unsigned char high,unsigned char low) {
     while (cant--) {
-        SS=true;
+        LED=true;
         ms100(high);
-        SS=false;
+        LED=false;
         ms100(low);
     }
 }

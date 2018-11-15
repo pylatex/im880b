@@ -6,16 +6,25 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include "nucleoPIC.h"
 
 #define INLINE  inline 
-#define RST LATC2 // Pin RST C2
-#define SS LATC0 // Pin RST C0  
+#define RST LATB7 // Pin RST C2
+#define SS  LATC2 // Pin RST C0  
 /* arbitration interface */
+
+typedef enum { 
+    SPI_CUSTOM0
+} spi_modes;
+
+
 INLINE void spi_close(void);
 
-void spi_master_open(void);
+
+__bit spi_master_open(spi_modes spiUniqueConfiguration);
+__bit spi_slave_open(spi_modes spiUniqueConfiguration);
 /* SPI native data exchange function */
-unsigned char spi_exchangeByte(unsigned char b);
+uint8_t spi_exchangeByte(uint8_t b);
 /* SPI Block move functions }(future DMA support will be here) */
 void spi_exchangeBlock(void *block, size_t blockSize);
 void spi_writeBlock(void *block, size_t blockSize);
