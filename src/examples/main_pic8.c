@@ -97,8 +97,10 @@ void main(void)
 
     #ifdef TEST_6
     unsigned char phrase[20];
+    unsigned char i;
     sprintf(phrase,"Iniciamos\r\n");
     enviaDebug(phrase,0);
+    
     #endif
 
     #ifdef HDC1010_H
@@ -243,10 +245,24 @@ void main(void)
         #ifdef TEST_6    
         
         if (PICC_IsNewCardPresent()){
-            sprintf(phrase,"Te encontramos alelulla\r\n");
+            sprintf(phrase,"Te encontramos alelulla\n");
             enviaDebug(phrase,0);
+             if (PICC_ReadCardSerial() )
+            {
+                  // Enviamos serialemente su UID
+                  sprintf(phrase,"Card UID:");
+                  enviaDebug(phrase,0);
+                  for (i = 0; i < uid.size; i++) {
+                          sprintf(phrase,uid.uidByte[i] < 0x10 ? " " : " ");
+                          enviaDebug(phrase,0);
+                          sprintf(phrase,"%02X",uid.uidByte[i]);   
+                          enviaDebug(phrase,0);
+                  } 
+                  // Terminamos la lectura de la tarjeta  actual
+                  PICC_HaltA(); 
+             }
         }else{
-            sprintf(phrase,"No Detectada\r\n"); 
+            sprintf(phrase,"\n No Detectada\r\n"); 
             enviaDebug(phrase,0);  }
         ms100(10);//1 s
         #endif
