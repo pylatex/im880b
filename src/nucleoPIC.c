@@ -22,6 +22,8 @@ void setup (void) {
     ANSELB=0;       //All pins as digital
     ANSELC=0;       //All pins as digital
     //ODCONCbits.ODC1 = true;    //Enable Open Drain to drive DVI
+    // WDTPS 1:65536; SWDTEN OFF; 
+    WDTCON = 0x16;
     
 #endif
 #ifdef _18F2550

@@ -13,12 +13,10 @@ unsigned char     readData;
 unsigned char     readDummy;
 
 void PCD_WriteRegister(unsigned char addr, unsigned char value) {
-        //SSPCON1bits.SSPEN=1;   // Enable SPI port
         SS = false;
-        readData = spi_exchangeByte( ( addr << 1 ) & 0x7E );//Equivalente a SPI.transfer((addr<<1)&0x7E);
-        readDummy = spi_exchangeByte( value );// Equivalente a  SPI.transfer(val);
+        readData = spi_exchangeByte((addr<<1)&0x7E);//Equivalente a SPI.transfer((addr<<1)&0x7E);
+        readDummy = spi_exchangeByte(value);// Equivalente a  SPI.transfer(val);
         SS = true;
-       // SSPCON1bits.SSPEN=0;   // Enable SPI port
 }
 void PCD_WriteRegisters( unsigned char addr,unsigned char count,unsigned char *values){
 	//SSPCON1bits.SSPEN=1;   // Enable SPI port
@@ -125,13 +123,22 @@ unsigned char  PCD_CalculateCRC(	unsigned char *data,		///< In: Pointer to the d
 
 void PCD_Init(void) {
 	// Set the chipSelectPin as digital output, do not select the slave yet
+    bool hardReset;
     spi_master_open(SPI_CUSTOM0);
-    RST = true; //Equivalente a digitalWrite(_NRSTPD,HIGH)
     SS = true;
+        
+    TRISCbits.TRISC3 = 1;//rst entrada
+    if (RC5 == false) {      
+    TRISCbits.TRISC3 = 0;//rst salida
     RST=false;		// Make shure we have a clean LOW state.
-    __delay_us(2);				// 8.8.1 Reset timing requirements says about 100ns. Let us be generous: 2?sl
+    __delay_us(20);				// 8.8.1 Reset timing requirements says about 100ns. Let us be generous: 2?sl
     RST=true; // Exit power down mode. This triggers a hard reset.
+    __delay_ms(50);
+	hardReset = true;   
+    }
+    if(!hardReset){
 	PCD_Reset();
+    }
 	// Reset baud rates
 	PCD_WriteRegister(TxModeReg, 0x00);
 	PCD_WriteRegister(RxModeReg, 0x00);

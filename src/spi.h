@@ -9,8 +9,8 @@
 #include "nucleoPIC.h"
 
 #define INLINE  inline 
-#define RST LATB7 // Pin RST C2
-#define SS  LATC2 // Pin RST C0  
+#define RST LATC3 // Pin RST C3
+#define SS  LATC2 // Pin RST C2  
 /* arbitration interface */
 
 typedef enum { 

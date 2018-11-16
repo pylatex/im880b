@@ -57,12 +57,12 @@ __bit spi_master_open(spi_modes spiUniqueConfiguration)
         SSP1CON2 = 0x00;
         SSP1ADD  = (uint8_t) (spi_configuration[spiUniqueConfiguration].add | 0);
 
-        
+        SSPCON1 = (SSPCON1 & 0xF0) | 0b00000010;
         TRISCbits.TRISC2 = 0;//c2 ss
         TRISAbits.TRISA2 = 0;//SCK
         TRISCbits.TRISC0 = 0;//MOSI
         TRISCbits.TRISC1 = 1;//MISO
-        TRISBbits.TRISB7 = 0;//rst
+        TRISCbits.TRISC3 = 0;//rst
         return true;
     }
     return false;

@@ -85,7 +85,6 @@ void main(void)
 
     setup();
     cambiaSerial (MODEM_LW);
-
     #ifndef TEST_4
     //enableInterrupts();
     #endif
@@ -98,10 +97,8 @@ void main(void)
 
     #ifdef TEST_6
     unsigned char phrase[20];
-    unsigned char a;
     sprintf(phrase,"Iniciamos\r\n");
     enviaDebug(phrase,0);
-    spi_master_open(SPI_CUSTOM0);
     #endif
 
     #ifdef HDC1010_H
@@ -243,13 +240,16 @@ void main(void)
         }    
     #endif
 
-#ifdef TEST_6  
-  
-        sprintf(phrase,"%02X \r\n",PCD_ReadRegister(VersionReg));//Debe salir 91H 
-        enviaDebug(phrase,0); 
-        __delay_us(30);
+        #ifdef TEST_6    
         
-#endif
+        if (PICC_IsNewCardPresent()){
+            sprintf(phrase,"Te encontramos alelulla\r\n");
+            enviaDebug(phrase,0);
+        }else{
+            sprintf(phrase,"No Detectada\r\n"); 
+            enviaDebug(phrase,0);  }
+        ms100(10);//1 s
+        #endif
         
     }
 }
