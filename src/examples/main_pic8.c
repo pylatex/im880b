@@ -104,14 +104,16 @@ void main(void)
     initNC(&NMEA);
     #endif
 
+    #ifdef PYLATEX_H
+    LWstat LWstatus;
+    initLW((serialTransmitHandler)enviaIMST,&LWstatus);
+    #endif
+
     while (true) {
         //State Machine Description
         #ifdef SMACH
 
         LED=true;
-        LWstat LWstatus;
-
-        initLW((serialTransmitHandler)enviaIMST,&LWstatus);
         do {
             flag_t catch;
             WiMOD_LoRaWAN_nextRequest(&catch);
@@ -129,16 +131,16 @@ void main(void)
             #ifdef T6700_H //T6713 reading though I2C
             unsigned short rsp;
             if (T67xx_CO2(&rsp))
-                AppendMeasure(PY_CO2,short2charp(rsp));
+                AppendMeasure(1,pCO2,short2charp(rsp));
             #endif
             //AppendMeasure(PY_GAS,short2charp(valorPropano()));
             #ifdef BMP280_H //Pruebas con BMP280
             if (BMP280readTrimming(&mem[0]) && BMP280readValues(&mem[24]))
-                AppendMeasure(PY_COMP1,mem);
+                AppendMeasure(1,pCOMP1,mem);
             #endif
             #ifdef BH1750FVI_H
             if (BHread(&light))
-                AppendMeasure(PY_ILUM1,short2charp(light));
+                AppendMeasure(1,pILUM1,short2charp(light));
             #endif
             #ifdef NMEACAYENNE_H
             if (NCupdated()) {
@@ -152,7 +154,7 @@ void main(void)
                 buff[6] = (NMEA.height >> 16) & 0xFF;
                 buff[7] = (NMEA.height >> 8) & 0xFF;
                 buff[8] = NMEA.height & 0xFF;
-                AppendMeasure(PY_GPS,buff);
+                AppendMeasure(1,pGPS,buff);
                 ms100(1);
                 LED=false;
                 ms100(1);
@@ -211,9 +213,11 @@ void __interrupt ISR (void) {
             case MODEM_LW:
                 pylatexRx(RCREG);
                 break;
+            #ifdef NMEACAYENNE_H
             case GPS:
                 NCinputSerial(RCREG);
                 break;
+            #endif
             case HPM:
                 libre = false;
             default:

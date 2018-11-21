@@ -14,21 +14,22 @@ extern "C" {
 
     #include <stdbool.h>
     #include "WiMOD_LoRaWAN_API.h"
-                                            //MEDIDA             FORMATO
-    #define PY_CO2              1           //CO2                   A
-    #define PY_TVOC             2           //TVOC                  A
-    #define PY_PM025            3           //PM 2.5                A
-    #define PY_PM100            4           //PM 10                 A
-    #define PY_RH1              5           //RH                    A --> B
-    #define PY_TEMP1            6           //TEMP                  A --> B
-    #define PY_ILUM1            7           //LUX                   A/1.2
-    #define PY_GAS              8           //GAS                   A
-    #define PY_ILUM2            9           //LUX                   A/2.4
-    #define PY_COMP1            10          //Presion + Temp        E
-    #define PY_PRESS1           PY_COMP1    //DEPRECADO             E
-    #define PY_PRECIPITATION    11          //                      A
-    #define PY_WINDSPEED        12          //                      A
-    #define PY_GPS              13          //Posicion              F
+
+    typedef enum {              //MEDIDA            FORMATO
+        pCO2            = 1,    //CO2               A
+        pTVOC           = 2,    //TVOC              A
+        pPM025          = 3,    //PM 2.5            A
+        pPM100          = 4,    //PM 10             A
+        pRH1            = 5,    //RH                A --> B
+        pTEMP1          = 6,    //TEMP              A --> B
+        pILUM1          = 7,    //LUX               A/1.2
+        pGAS            = 8,    //GAS               A
+        pILUM2          = 9,    //LUX               A/2.4
+        pCOMP1          = 10,   //Presion + Temp    E
+        pPRECIPITATION  = 11,   //                  A
+        pWINDSPEED      = 12,   //                  A
+        pGPS            = 13    //Posicion          F
+    } pymeasure;
 
     typedef void (*delayHandlerFunction)(unsigned char mscant);
     typedef enum {PY_UNCONFIRMED=0,PY_CONFIRMED} pyModeType;
@@ -41,11 +42,12 @@ extern "C" {
 
     /**
      * Intenta agregar una medida a la cola de envio.
+     * @param channel: Canal del sensor, permite identificar medidas del mismo tipo
      * @param variable: Constante que indica el tipo de medida
      * @param medida: Posicion en memoria en que inicia la carga util a enviar
      * @return true o false dependiendo de si hubo o no, espacio para la medida.
      */
-    bool AppendMeasure (char variable,char *medida);
+    bool AppendMeasure (uint8_t channel, pymeasure variable, uint8_t *medida);
 
     /**
      * Envia los datos de los sensores anexados.
