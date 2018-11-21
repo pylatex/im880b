@@ -63,9 +63,9 @@ extern "C" {
             struct {
             unsigned char   SapID;  // Service Access Point Identifier
             unsigned char   MsgID;  // Message Identifier
-            unsigned char   Payload[WIMOD_HCI_MSG_PAYLOAD_SIZE-2];    // Payload Field
+            unsigned char   Payload[WIMOD_HCI_MSG_PAYLOAD_SIZE];    // Payload Field
             };
-            unsigned char   HCI[WIMOD_HCI_MSG_PAYLOAD_SIZE];
+            unsigned char   HCI[WIMOD_HCI_MSG_PAYLOAD_SIZE+2];
         };
         unsigned char       CRC[WIMOD_HCI_MSG_FCS_SIZE];  // Frame Check Sequence Field
     } HCIMessage_t;

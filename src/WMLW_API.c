@@ -11,6 +11,8 @@
 
 static HCIMessage_t TxMessage;
 static void ProcesaHCI(HCIMessage_t *receivedHCI); //Procesamiento de HCI entrante
+static void defaultAdditionalHCIhandler(HCIMessage_t *HCImsg);
+static WMHCIuserProc additionalHandler = defaultAdditionalHCIhandler;
 static LWstat *userStat;
 static flag_t *catched;
 
@@ -27,6 +29,10 @@ bool WiMOD_LoRaWAN_Init (serialTransmitHandler transmitter, LWstat *LWstatus) {
     userStat = LWstatus;
     *userStat = CONNECTING;
     return true;
+}
+
+void registerAdditionalHandler (WMHCIuserProc additionalHCIhandler) {
+    additionalHandler = additionalHCIhandler;
 }
 
 void
@@ -114,50 +120,44 @@ WiMOD_LoRaWAN_SendCRadioData(UINT8 port, UINT8* data, UINT8 length){
 static void ProcesaHCI(HCIMessage_t *receivedHCI) {
     if (receivedHCI->check) {
         *catched = true;
-        switch (*userStat) {
+        if (receivedHCI->SapID == LORAWAN_ID) {
+            switch (receivedHCI->MsgID) {
 
-            case CONNECTING:
-                if (receivedHCI->SapID == LORAWAN_ID) {
-                    switch (receivedHCI->MsgID) {
-
-                        case LORAWAN_MSG_GET_NWK_STATUS_RSP:
-                            switch (receivedHCI->Payload[1]) {
-                                //case 1: //Active (ABP)
-                                case 2: //Active (OTAA)
-                                    *userStat = ACTIVE;
-                                default:
-                                    break;
-                            }
-                            break;
-
-                        case LORAWAN_MSG_JOIN_NETWORK_IND:
-                            //The incoming HCI message is a join event
-                            switch (receivedHCI->Payload[0]) {
-                                case 0x00:  //device successfully activated
-                                case 0x01:  //device successfully activated, Rx Channel Info attached
-                                    *userStat = ACTIVE;
-                                default:
-                                    break;
-                            }
-                            break;
-
-                        case LORAWAN_MSG_JOIN_NETWORK_RSP:
-                            *userStat = CONNECTING;
-                            break;
-
+                case LORAWAN_MSG_GET_NWK_STATUS_RSP:
+                    switch (receivedHCI->Payload[1]) {
+                        //case 1: //Active (ABP)
+                        case 2: //Active (OTAA)
+                            *userStat = ACTIVE;
                         default:
                             break;
                     }
-                }
-                break;
+                    break;
 
-            default:
-                break;
+                case LORAWAN_MSG_JOIN_NETWORK_IND:
+                    //The incoming HCI message is a join event
+                    switch (receivedHCI->Payload[0]) {
+                        case 0x00:  //device successfully activated
+                        case 0x01:  //device successfully activated, Rx Channel Info attached
+                            *userStat = ACTIVE;
+                        default:
+                            break;
+                    }
+                    break;
+
+                case LORAWAN_MSG_JOIN_NETWORK_RSP:
+                    *userStat = CONNECTING;
+                    break;
+
+                default:
+                    break;
+            }
         }
+        additionalHandler(receivedHCI);
     }
 }
 
-//Receiver Process
-void
-WiMOD_LoRaWAN_Process() {
-}
+/* Unknown Receiver Process. PLEASE DON'T IMPLEMENT THIS FUNCTION.
+ * Instead of that, implement your own function and pass
+ * it to registerAdditionalHandler();
+ */
+static void defaultAdditionalHCIhandler(HCIMessage_t *HCImsg) {}

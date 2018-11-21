@@ -308,3 +308,11 @@ int SerialDevice_ReadData(UINT8 *rxBuffer, int rxBufferSize) {
         } else break;
     }
 }
+
+void DefaultUnhandledHCImessage(HCIMessage_t *HCImsg) {
+    #ifdef TEST_2
+    LED=true;
+    StartTimerDelayMs(100);
+    LED=false;
+    #endif
+}

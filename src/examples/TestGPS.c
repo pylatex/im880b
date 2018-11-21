@@ -24,11 +24,11 @@ void main (void) {
     setup();
 
     #ifdef SOFTWARE_REDIRECTION
-    LATC = 0xC0;
-    PORTC = 0xC0;
-    TRISC = 0x7F;   //Salida solo C7
+    LATA = 0x01;
+    PORTA = 0x01;
+    TRISA = 0xFE; //Salida en RA0 solamente
     while(true){
-        RC7=RB5;
+        RA0=RB5;
     }
     #else
     cambiaSerial(GPS);

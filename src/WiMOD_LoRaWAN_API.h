@@ -188,6 +188,13 @@ extern "C" {
     bool
     WiMOD_LoRaWAN_Init(serialTransmitHandler transmitter, LWstat *LWstatus);
 
+    /**
+     * Defines the additional function to be used on an incoming HCI package
+     * @param additionalHCIhandler: A function that receives an HCImessage_t pointer
+     */
+    void
+    registerAdditionalHandler (WMHCIuserProc additionalHCIhandler);
+
     void
     WiMOD_LoRaWAN_nextRequest(flag_t *responseCatched);
 

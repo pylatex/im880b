@@ -24,6 +24,7 @@ void setup (void) {
     ANSELC=0;       //All pins as digital
     ODCONCbits.ODC1 = true;    //Enable Open Drain to drive DVI
     TRISC=0x7C; //RC0 and RC1 as outputs
+    TRISA=0xFE; //RA0 as output for debug
 #endif
 #ifdef _18F2550
     PORTA=0;
