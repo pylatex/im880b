@@ -5,7 +5,6 @@
 #include <stdbool.h>
 #include "I2Cgeneric.h"
 #include "i2c.h"
-
 #define I2C_MAX_ATTEMPTS    30
 
 static bool ready = false;

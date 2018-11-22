@@ -16,7 +16,7 @@
 //------------------------------------------------------------------------------
 //  Definitions and Setup
 //------------------------------------------------------------------------------
-#include <xc.h>
+#include "mcc.h"
 #include <string.h>
 #include <stdio.h>
 #include "SerialDevice.h"
@@ -29,16 +29,12 @@ volatile unsigned bool pendingmsg;
 #endif
 
 #if defined SMACH || defined TEST_3
-#include "i2c.h"
 #include "T67xx.h"
 #include "hdc1010.h"
 #include "iaq.h"
 #include "bh1750fvi.h"
 #include "bmp280.h"
 #include "nmeaCayenne.h"
-#endif
-#if defined SMACH || defined TEST_4
-#include "ADC.h"
 #endif
 
 //------------------------------------------------------------------------------
@@ -69,12 +65,15 @@ extern void enviaDebug(char *arreglo,unsigned char largo);
  */
 void main(void)
 {
-    setup();
+    SYSTEM_Initialize();
+    SerialDevice_Open("",B9600,8,0);
     cambiaSerial (MODEM_LW);
-    I2CPersOn();    //Enciende los perifericos I2C (RC7 - VCC_SENS)
+    VCC_SENS_SetHigh();    //Enciende los perifericos I2C
 
-    #ifndef TEST_4
-    enableInterrupts();
+    #if defined TEST_4 || defined TEST_1
+    #else
+    INTERRUPT_GlobalInterruptEnable();
+    INTERRUPT_PeripheralInterruptEnable();
     #endif
 
     #ifdef HDC1010_H
@@ -84,9 +83,9 @@ void main(void)
 
     #ifdef BH1750FVI_H
     unsigned short light;
-    DVI=false;
+    BH_DVI_SetLow();
     __delay_us(5);
-    DVI=true;
+    BH_DVI_SetHigh();
     BHinit(false);
     BHwrite(BH1750_RESET);
     BHwrite(BH1750_PWR_ON);
@@ -113,20 +112,20 @@ void main(void)
         //State Machine Description
         #ifdef SMACH
 
-        LED=true;
+        LED_SetHigh();
         do {
             flag_t catch;
             WiMOD_LoRaWAN_nextRequest(&catch);
             StartTimerDelayMs(20);
             while (delrun && !catch); //Waits for timeout or HCI response/event
         } while (LWstatus != ACTIVE);
-        LED=false;
+        LED_SetLow();
 
         registerDelayFunction(StartTimerDelayMs,&delrun);
 
         const uint8_t CNT_BEFORE_REAUTH=60;
         for (char cnt=0;cnt<CNT_BEFORE_REAUTH;cnt++) {
-            LED=true;
+            LED_SetHigh();
 
             #ifdef T6700_H //T6713 reading though I2C
             unsigned short rsp;
@@ -156,15 +155,15 @@ void main(void)
                 buff[8] = NMEA.height & 0xFF;
                 AppendMeasure(1,pGPS,buff);
                 ms100(1);
-                LED=false;
+                LED_SetLow();
                 ms100(1);
-                LED=true;
+                LED_SetHigh();
             }
             #endif
             SendMeasures(PY_UNCONFIRMED);
             ms100(1);
 
-            LED=false;
+            LED_SetLow();
             ms100(49);  //Approx. each 5 sec ((49+1)x100ms)
             char buff[20],len;
             len=sprintf(buff,"Intento %2i/%2i\n\r",cnt+1,CNT_BEFORE_REAUTH);
@@ -174,10 +173,10 @@ void main(void)
 
         //Prueba 1: Verificacion UART y Reloj ~ 1 Hz
         #ifdef TEST_1
-        LED = true;
+        LED_SetHigh();
         enviaDebug((char *)"estoy vivo\r\n",0);
         ms100(5);
-        LED = false;
+        LED_SetLow();
         ms100(5);
         #endif
 
@@ -204,6 +203,7 @@ char minibuff,HCIbuff[20],rxcnt;
 /**
  * Rutina de atencion de interrupciones
  */
+/*
 void __interrupt ISR (void) {
     if (RCIE && RCIF) {
         //Error reading
@@ -245,6 +245,7 @@ void __interrupt ISR (void) {
         //Unhandled Interrupt
     }
 }
+// */
 
 /**
  * Para hacer parpadear el led externo (definido anteriormente)
@@ -254,9 +255,9 @@ void __interrupt ISR (void) {
  */
 void blink (unsigned char cant,unsigned char high,unsigned char low) {
     while (cant--) {
-        LED=true;
+        LED_SetHigh();
         ms100(high);
-        LED=false;
+        LED_SetLow();
         ms100(low);
     }
 }

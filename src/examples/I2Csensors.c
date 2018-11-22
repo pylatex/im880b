@@ -7,13 +7,11 @@
  * y han sido ligeramente modificados para soportar tipos estandar.
  */
 
-#include <xc.h>
-#include <string.h>
 #include <stdio.h>
 #include "SerialDevice.h"
 #include "nucleoPIC.h"
 
-#include "i2c.h"
+#include "mcc.h"
 #include "T67xx.h"
 #include "hdc1010.h"
 #include "iaq.h"
@@ -44,11 +42,10 @@ void enableInterrupts (void);   //Habilita las interrupciones
  */
 void main(void)
 {
-    RXPPS=0x0F;     //Rx viene de RB7
-    RC7PPS=0x16;    //Tx va hacia RC7
-    setup();
+    SYSTEM_Initialize();
     SerialDevice_Open("",B115200,8,0);
-    enableInterrupts();
+    INTERRUPT_GlobalInterruptEnable();
+    INTERRUPT_PeripheralInterruptEnable();
 
     #ifdef HDC1010_H
     unsigned short temp,hum;
@@ -57,9 +54,9 @@ void main(void)
 
     #ifdef BH1750FVI_H
     unsigned short light;
-    DVI=false;
+    BH_DVI_SetLow();
     __delay_us(5);
-    DVI=true;
+    BH_DVI_SetHigh();
     BHinit(false);
     BHwrite(BH1750_RESET);
     BHwrite(BH1750_PWR_ON);
@@ -72,7 +69,7 @@ void main(void)
     #endif
 
     while (true) {
-        LED=true;
+        LED_SetHigh();
         char buff[30],phlen;
 
         //Pruebas con T6713
@@ -185,9 +182,9 @@ void main(void)
         #endif
 
         SerialDevice_SendData((char *)"\n\r",0);
-        LED=true;
+        LED_SetHigh();
         ms100(5);
-        LED=false;
+        LED_SetLow();
         ms100(45);
     }
 }
@@ -197,53 +194,12 @@ volatile bool lleno = false;
 char minibuff,HCIbuff[20],rxcnt;
 
 /**
- * Rutina de atencion de interrupciones
- */
-void __interrupt ISR (void) {
-    if (RCIE && RCIF) {
-        rx_err=RCSTA;
-        rx_err=RCREG; //Reception will not be used
-    } else
-    if (CCP1IE && CCP1IF) {
-        //TimeOut
-        CCP1IF = false;
-        TMR1ON = false;
-        #ifdef TEST_2
-        LED=false;
-        #endif
-    }
-    else if (I2C_ISR_COLLISION_CONDITION()) {
-        I2C_BusCollisionISR();
-    } else if (I2C_ISR_EVENT_CONDITION()) {
-        I2C_ISR();
-    }
-    else {
-        //Unhandled Interrupt
-    }
-}
-
-/**
  * Demora activa
  * @param cantidad: Duracion en milisegundos
  */
 void msdelay (unsigned char cantidad) {
     StartTimerDelayMs(cantidad);
     while (TMR1ON);
-}
-
-/**
- * Demora con Timer 1 y CCP 1
- * @param cant: Duracion de la demora, en ms.
- */
-void StartTimerDelayMs(unsigned char cant)
-{
-    //CCPR1=cant*250; //250*A = (256-6)*A = (256-4-2)*A
-    CCPR1=(unsigned short)((cant<<8)-(cant<<2)-(cant<<1));
-    CCP1IF=false;   //Restablecer comparador
-    CCP1CON=0x8B;   //Modulo CCP en Comparacion a (representado) cant/ms
-    T1CON=0x30;     //Prescale 1:8
-    TMR1=0;
-    TMR1ON=true;
 }
 
 /**

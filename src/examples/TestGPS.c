@@ -9,7 +9,7 @@
 
 //#define SOFTWARE_REDIRECTION    //GPS redirection to debug port by software
 
-#include "nucleoPIC.h"
+#include "mcc.h"
 #ifndef SOFTWARE_REDIRECTION
 #include <stdio.h>
 #include "nmeaCayenne.h"
@@ -22,25 +22,17 @@ extern void enviaGPS(char *arreglo,unsigned char largo);
 #endif
 
 void main (void) {
-    setup();
+    SYSTEM_Initialize();
 
     #ifdef SOFTWARE_REDIRECTION
-    /*
-    LATC = 0xC0;
-    TRISC = 0x7F;   //Salida solo C7
     while(true){
-        RC7=RB5;
-    }
-    // */
-    //*
-    LATC = 0x40;
-    TRISC = 0xBF;   //Salida solo en C6
-    while(true){
-        RC6=RB5;
+        //VCC_SENS_LAT = GNS_TX_PORT; //DEBUG
+        GNS_RX_LAT = GNS_TX_PORT; //GPS
     }
     #else
     cambiaSerial(DEBUG1);
-    enableInterrupts();
+    //INTERRUPT_GlobalInterruptEnable();
+    //INTERRUPT_PeripheralInterruptEnable();
 
     NMEAdata_t NMEA;
     initNC(&NMEA);
@@ -51,7 +43,6 @@ void main (void) {
         __delay_ms(1000);
         // */
         //*
-        //processPending();
         if (NCupdated()) {
             uint8_t buff[50];
             sprintf(buff, "Lat: %li, Lon: %li, Height: %li\r\n",
@@ -66,6 +57,7 @@ void main (void) {
 
 }
 
+/*
 #ifndef SOFTWARE_REDIRECTION
 void __interrupt ISR (void) {
     uint8_t rx_err;  //Error de recepcion en UART
@@ -80,3 +72,4 @@ void __interrupt ISR (void) {
     }
 }
 #endif
+// */
