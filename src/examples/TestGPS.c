@@ -17,29 +17,39 @@
 #include "pylatex.h"
 extern serial_t modoSerial;     //Elemento Serial que se esta controlando
 extern void cambiaSerial (serial_t serial);    //Para cambiar el elemento a controlar
-void enviaDebug(char *arreglo,unsigned char largo);
+extern void enviaDebug(char *arreglo,unsigned char largo);
+extern void enviaGPS(char *arreglo,unsigned char largo);
 #endif
 
 void main (void) {
     setup();
 
     #ifdef SOFTWARE_REDIRECTION
+    /*
     LATC = 0xC0;
-    PORTC = 0xC0;
     TRISC = 0x7F;   //Salida solo C7
     while(true){
         RC7=RB5;
     }
+    // */
+    //*
+    LATC = 0x40;
+    TRISC = 0xBF;   //Salida solo en C6
+    while(true){
+        RC6=RB5;
+    }
     #else
-    cambiaSerial(GPS);
+    cambiaSerial(DEBUG1);
     enableInterrupts();
 
     NMEAdata_t NMEA;
     initNC(&NMEA);
 
     while (1) {
-        //enviaDebug("estoy vivo\r\n",0);
-        //__delay_ms(1000);
+        /*
+        enviaGPS("estoy vivo\r\n",0);
+        __delay_ms(1000);
+        // */
         //*
         //processPending();
         if (NCupdated()) {
@@ -47,7 +57,7 @@ void main (void) {
             sprintf(buff, "Lat: %li, Lon: %li, Height: %li\r\n",
                     (long int)NMEA.latitude, (long int)NMEA.longitude, (long int)NMEA.height );
             enviaDebug(buff,0);
-            cambiaSerial(GPS);
+            //cambiaSerial(DEBUG1);
         }
 
         // */
