@@ -20,6 +20,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "SerialDevice.h"
+#include "serialSwitch.h"
 #include "pylatex.h"
 #include "nucleoPIC.h"
 
@@ -49,12 +50,6 @@ void ms100(unsigned char q);    //Demora de (100*q) ms
 void msdelay (unsigned char cantidad);  //Demora activa en ms
 void StartTimerDelayMs(unsigned char cant); //Demora por TIMER 1
 void blink (unsigned char cant,unsigned char high,unsigned char low); //Parpadeo
-
-//Utilidades Serial
-extern void cambiaSerial (serial_t serial);    //Para cambiar el elemento a controlar
-extern void enviaIMST(char *arreglo,unsigned char largo);
-extern void enviaGPS(char *arreglo,unsigned char largo);
-extern void enviaDebug(char *arreglo,unsigned char largo);
 
 //------------------------------------------------------------------------------
 //  Section Code

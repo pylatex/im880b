@@ -14,12 +14,11 @@
 #include <stdio.h>
 #include "nmeaCayenne.h"
 #include "SerialDevice.h"
+#include "serialSwitch.h"
 #include "pylatex.h"
-extern serial_t modoSerial;     //Elemento Serial que se esta controlando
-extern void cambiaSerial (serial_t serial);    //Para cambiar el elemento a controlar
-extern void enviaDebug(char *arreglo,unsigned char largo);
-extern void enviaGPS(char *arreglo,unsigned char largo);
 #endif
+
+void procesaRx (void);
 
 void main (void) {
     SYSTEM_Initialize();
@@ -30,9 +29,10 @@ void main (void) {
         GNS_RX_LAT = GNS_TX_PORT; //GPS
     }
     #else
-    cambiaSerial(DEBUG1);
-    //INTERRUPT_GlobalInterruptEnable();
-    //INTERRUPT_PeripheralInterruptEnable();
+    EUSART_SetRxInterruptHandler(procesaRx);
+    cambiaSerial(GPS);
+    INTERRUPT_GlobalInterruptEnable();
+    INTERRUPT_PeripheralInterruptEnable();
 
     NMEAdata_t NMEA;
     initNC(&NMEA);
@@ -57,19 +57,8 @@ void main (void) {
 
 }
 
-/*
 #ifndef SOFTWARE_REDIRECTION
-void __interrupt ISR (void) {
-    uint8_t rx_err;  //Error de recepcion en UART
-    if (RCIE && RCIF) {
-        //Error reading
-        rx_err=RCSTA;
-        //As RCREG is argument, their reading implies the RCIF erasing
-        NCinputSerial(RCREG);
-    }
-    else {
-        //Unhandled Interrupt
-    }
+void procesaRx (void) {
+    NCinputSerial(RC1REG);
 }
 #endif
-// */
