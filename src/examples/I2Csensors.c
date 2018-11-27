@@ -9,9 +9,9 @@
 
 #include <stdio.h>
 #include "SerialDevice.h"
-#include "nucleoPIC.h"
-
+#include "serialSwitch.h"
 #include "mcc.h"
+
 #include "T67xx.h"
 #include "hdc1010.h"
 #include "iaq.h"
@@ -74,13 +74,13 @@ void main(void)
 
         //Pruebas con T6713
         #ifdef T6700_H
-        SerialDevice_SendData((char *)"T6713 - ",0);
+        enviaDebug((char *)"T6713 - ",0);
         unsigned short rsp;
         if (T67xx_CO2(&rsp)) {
             phlen=(char)sprintf(buff,"CO2: %u PPM\r\n",rsp);
-            SerialDevice_SendData(buff,phlen);
+            enviaDebug(buff,phlen);
         } else {
-            SerialDevice_SendData((char *)"No hubo lectura\r\n",0);
+            enviaDebug((char *)"No hubo lectura\r\n",0);
         }
         #endif
 
@@ -90,36 +90,36 @@ void main(void)
         unsigned long val2;
         char i=0,mem[30];
         if (BMP280readTrimming(&mem[0]) && BMP280readValues(&mem[24])){
-            SerialDevice_SendData((char *)"BMP - TRIM VALUES (T1 T2 T3 P1 ... P9):\n\r",0);
+            enviaDebug((char *)"BMP - TRIM VALUES (T1 T2 T3 P1 ... P9):\n\r",0);
             while (i<24) {
                 val  = (unsigned short)mem[i++] << 8;
                 val += mem[i++];
                 phlen=(char)sprintf(buff,(i==2 || i==8)?"%u ":"%i ",val);
-                SerialDevice_SendData(buff,phlen);
+                enviaDebug(buff,phlen);
             }
-            SerialDevice_SendData((char *)"\n\rBMP - SENS VALUES (PRESS TEMP):\n\r",0);
+            enviaDebug((char *)"\n\rBMP - SENS VALUES (PRESS TEMP):\n\r",0);
             while (i<30) {
                 val2  = (unsigned long)mem[i++] << 12;
                 val2 += (unsigned long)mem[i++] << 4;
                 val2 += (unsigned long)mem[i++] >> 4;
                 phlen = (char)sprintf(buff,"%lu ",val2);
-                SerialDevice_SendData(buff,phlen);
+                enviaDebug(buff,phlen);
             }
-            SerialDevice_SendData((char *)"\n\r",0);
+            enviaDebug((char *)"\n\r",0);
         } else {
-            SerialDevice_SendData((char *)"BMP - No hubo lectura\n\r",0);
+            enviaDebug((char *)"BMP - No hubo lectura\n\r",0);
         }
         #endif
 
         //Pruebas con BH1750FVI
         #ifdef BH1750FVI_H
 
-        SerialDevice_SendData((char *)"BH1750 - ",0);
+        enviaDebug((char *)"BH1750 - ",0);
         if (BHread(&light)) {
             phlen=(char) sprintf(buff,"Luz: %u\n\r",light);
-            SerialDevice_SendData(buff,phlen);
+            enviaDebug(buff,phlen);
         } else {
-            SerialDevice_SendData((char *)"No hubo lectura\n\r",0);
+            enviaDebug((char *)"No hubo lectura\n\r",0);
         }
         #endif
 
@@ -132,7 +132,7 @@ void main(void)
         char const *rspsens;
         IAQ_T iaq;
 
-        SerialDevice_SendData((char *)"iAQ Core - ",0);
+        enviaDebug((char *)"iAQ Core - ",0);
         if (iaq_read(&iaq)) {
             /*
             for (char i=0;i<9;i++){
@@ -158,30 +158,30 @@ void main(void)
                     break;
             }
             phlen=(char)sprintf(buff,"CO2: %u PPM, ",iaq.pred);
-            SerialDevice_SendData(buff,phlen);
+            enviaDebug(buff,phlen);
             phlen=(char)sprintf(buff,"Estado: %s, ",rspsens);
-            SerialDevice_SendData(buff,phlen);
+            enviaDebug(buff,phlen);
             phlen=(char)sprintf(buff,"Resistencia: %lu, ",iaq.resistance);
-            SerialDevice_SendData(buff,phlen);
+            enviaDebug(buff,phlen);
             phlen=(char)sprintf(buff,"TVOC: %u PPB\n\r",iaq.tvoc);
-            SerialDevice_SendData(buff,phlen);
+            enviaDebug(buff,phlen);
         } else {
-            SerialDevice_SendData((char *)"No hubo lectura\r\n",0);
+            enviaDebug((char *)"No hubo lectura\r\n",0);
         }
         #endif
 
         //Pruebas con HDC1010
         #ifdef HDC1010_H
-        SerialDevice_SendData((char *)"HDC1010 - ",0);
+        enviaDebug((char *)"HDC1010 - ",0);
         if (HDCboth()) {
             phlen=(char)sprintf(buff,"Temperatura: %u, Humedad: %u\n\r",temp,hum);
-            SerialDevice_SendData(buff,phlen);
+            enviaDebug(buff,phlen);
         } else {
-            SerialDevice_SendData((char *)"No hubo lectura\n\r",0);
+            enviaDebug((char *)"No hubo lectura\n\r",0);
         }
         #endif
 
-        SerialDevice_SendData((char *)"\n\r",0);
+        enviaDebug((char *)"\n\r",0);
         LED_SetHigh();
         ms100(5);
         LED_SetLow();

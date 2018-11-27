@@ -22,7 +22,6 @@
 #include "SerialDevice.h"
 #include "serialSwitch.h"
 #include "pylatex.h"
-#include "nucleoPIC.h"
 
 #if defined TEST_2
 void ProcesaHCI();
