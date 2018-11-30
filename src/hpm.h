@@ -7,7 +7,8 @@ extern "C" {
 
     #include <stdbool.h>
 
-    typedef int (*hpm_enviaSerie_t)(const char *carga,char largo);
+    typedef void (*hpm_enviaSerie_t)(const char *carga,char largo);
+    typedef void (*hpm_timStarter)(int msdelay, bool *runningFlag);
 
     void InicializacionHPM(hpm_enviaSerie_t enviaSerie);
 
@@ -22,8 +23,8 @@ extern "C" {
 
     //
     void RespuestaSensor(char *carga,char peso);
-    
-    typedef void (*hpm_timStarter)(int msdelay, bool *runningFlag);
+
+    void HPMinput(char octeto);
 
 #ifdef	__cplusplus
 }

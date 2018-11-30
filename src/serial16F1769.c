@@ -131,6 +131,10 @@ void cambiaSerial (serial_t serial){
         case DEBUG1:
             RC7PPS=0;
             break;
+            
+        case HPM:
+            RC3PPS=0;
+            break;
 
         default:
             break;
@@ -155,6 +159,12 @@ void cambiaSerial (serial_t serial){
             //Entradas y salidas UART
             RXPPS=0x0F;     //Rx viene de RB7
             RC7PPS=0x16;    //Tx va hacia RC7
+            nuevaTasa = B9600;
+            break;
+            
+        case HPM:
+            RXPPS=0x0F; //Rx viene de RB7
+            RC3PPS=0x16;  //Tx va hacia RC3
             nuevaTasa = B9600;
             break;
 
@@ -184,5 +194,10 @@ void enviaGPS(char *arreglo,unsigned char largo) {
 
 void enviaDebug(char *arreglo,unsigned char largo) {
     compruebaModo(DEBUG1);
+    SerialDevice_SendData(arreglo,largo);
+}
+
+void enviaHPM(char *arreglo,unsigned char largo) {
+    compruebaModo(HPM);
     SerialDevice_SendData(arreglo,largo);
 }
