@@ -161,11 +161,13 @@ void main(void)
                 LED=true;
             }
             #endif
+
             SendMeasures(PY_UNCONFIRMED);
             ms100(1);
-
             LED=false;
-            ms100(49);  //Approx. each 5 sec ((49+1)x100ms)
+            ms100(24); //Waits 2.5 seconds (LoRaWAN Rx Windows) prior changing to GPS
+            cambiaSerial(GPS);
+            ms100(75);  //Approx. each 10 sec ((75+24+1)x100ms)
             char buff[20],len;
             len=sprintf(buff,"Intento %2i/%2i\n\r",cnt+1,CNT_BEFORE_REAUTH);
             enviaDebug(buff,len);
