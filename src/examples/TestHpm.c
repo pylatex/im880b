@@ -7,7 +7,7 @@
 #include "nucleoPIC.h"
 #ifndef SOFTWARE_REDIRECTION
 #include <stdio.h>
-#include "hpm.c"
+#include "hpm.h"
 #include "SerialDevice.h"
 #include "pylatex.h"
 extern serial_t modoSerial;     //Elemento Serial que se esta controlando
@@ -67,7 +67,7 @@ void __interrupt ISR (void) {
         //Error reading
         rx_err=RCSTA;
         //As RCREG is argument, their reading implies the RCIF erasing
-        NCinputSerial(RCREG);
+        HPMinput(RCREG);
     }
     else {
         //Unhandled Interrupt

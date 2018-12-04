@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "hpm.h"
-#ifdef DEBUG
-#include <time.h>
-#endif // DEBUG
 
 typedef struct {
     hpm_enviaSerie_t    enviar;
@@ -62,7 +59,7 @@ bool SensorAnswer(char *carga) {
 void StartHPM(bool modo)//si modo es true es auto send
 {
     StartMeasure();
-    if (bool=true){
+    if (modo=true){
         StartAutoSend();
     }
     else{
@@ -129,6 +126,10 @@ char ReadPM10(char *carga, bool modo)//si modo es true es auto send
         printf("\n\r");
     }
 }*/
+
+void HPMinput(char octeto) {
+    //TODO: Implementar... Puede ser la misma smHPM()
+}
 
 void smHPM (char val) {
     if (hpm.bandera) {

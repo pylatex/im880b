@@ -40,7 +40,7 @@
         <itemPath>src/examples/main_pic8.c</itemPath>
         <itemPath>src/examples/I2Csensors.c</itemPath>
         <itemPath>src/examples/TestGPS.c</itemPath>
-        <itemPath>src/TestHpm.c</itemPath>
+        <itemPath>src/examples/TestHpm.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="LoRaWAN" projectFiles="true">
         <itemPath>src/WiMOD_LoRaWAN_API.c</itemPath>
@@ -78,8 +78,6 @@
   </logicalFolder>
   <sourceRootList>
     <Elem>.</Elem>
-    <Elem>mcc_generated_files</Elem>
-    <Elem>src</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -92,7 +90,7 @@
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC8</languageToolchain>
         <languageToolchainVersion>2.00</languageToolchainVersion>
-        <platform>3</platform>
+        <platform>2</platform>
       </toolsSet>
       <packs>
         <pack name="PIC12-16F1xxx_DFP" vendor="Microchip" version="1.0.10"/>
@@ -678,6 +676,14 @@
         <XC8-config-global>
         </XC8-config-global>
       </item>
+      <item path="src/examples/TestHpm.c" ex="true" overriding="false">
+        <HI-TECH-COMP>
+        </HI-TECH-COMP>
+        <HI-TECH-LINK>
+        </HI-TECH-LINK>
+        <XC8-config-global>
+        </XC8-config-global>
+      </item>
       <item path="src/examples/main_pic8.c" ex="true" overriding="false">
         <HI-TECH-COMP>
         </HI-TECH-COMP>
@@ -728,7 +734,7 @@
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC8</languageToolchain>
         <languageToolchainVersion>2.00</languageToolchainVersion>
-        <platform>3</platform>
+        <platform>2</platform>
       </toolsSet>
       <packs>
         <pack name="PIC12-16F1xxx_DFP" vendor="Microchip" version="1.0.10"/>
@@ -1298,6 +1304,14 @@
         <XC8-config-global>
         </XC8-config-global>
       </item>
+      <item path="src/examples/TestHpm.c" ex="true" overriding="false">
+        <HI-TECH-COMP>
+        </HI-TECH-COMP>
+        <HI-TECH-LINK>
+        </HI-TECH-LINK>
+        <XC8-config-global>
+        </XC8-config-global>
+      </item>
       <item path="src/nmea.c" ex="false" overriding="false">
         <HI-TECH-COMP>
         </HI-TECH-COMP>
@@ -1316,7 +1330,7 @@
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC8</languageToolchain>
         <languageToolchainVersion>2.00</languageToolchainVersion>
-        <platform>3</platform>
+        <platform>2</platform>
       </toolsSet>
       <packs>
         <pack name="PIC12-16F1xxx_DFP" vendor="Microchip" version="1.0.10"/>
@@ -1934,6 +1948,14 @@
         <XC8-config-global>
         </XC8-config-global>
       </item>
+      <item path="src/examples/TestHpm.c" ex="true" overriding="false">
+        <HI-TECH-COMP>
+        </HI-TECH-COMP>
+        <HI-TECH-LINK>
+        </HI-TECH-LINK>
+        <XC8-config-global>
+        </XC8-config-global>
+      </item>
       <item path="src/examples/main_pic8.c" ex="true" overriding="false">
         <HI-TECH-COMP>
         </HI-TECH-COMP>
@@ -2007,7 +2029,7 @@
         </XC8-config-global>
       </item>
     </conf>
-    <conf name="Test_hpm" type="2">
+    <conf name="Test_HPM" type="2">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC16F1769</targetDevice>
@@ -2016,7 +2038,7 @@
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC8</languageToolchain>
         <languageToolchainVersion>2.00</languageToolchainVersion>
-        <platform>3</platform>
+        <platform>2</platform>
       </toolsSet>
       <packs>
         <pack name="PIC12-16F1xxx_DFP" vendor="Microchip" version="1.0.10"/>
