@@ -7,7 +7,7 @@
  * Created on 30 de junio de 2018, 01:04 PM
  */
 
-//#define SOFTWARE_REDIRECTION    //GPS redirection to debug port by software
+#define SOFTWARE_REDIRECTION    //GPS redirection to debug port by software
 
 #include "nucleoPIC.h"
 #ifndef SOFTWARE_REDIRECTION
@@ -26,18 +26,19 @@ void main (void) {
 
     #ifdef SOFTWARE_REDIRECTION
     /*
-    LATC = 0xC0;
-    TRISC = 0x7F;   //Salida solo C7
+    LATA = 0x10;
+    TRISA = 0xEF;   //Salida solo en A4
     while(true){
-        RC7=RB5;
+        LATA4 = RA5;  //Eco local en DEBUG1
     }
     // */
     //*
-    LATC = 0x40;
-    TRISC = 0xBF;   //Salida solo en C6
+    LATA = 0x10;
+    TRISA = 0xEF;   //Salida solo en A4
     while(true){
-        RC6=RB5;
+        LATA4 = RB5;  //Eco local en DEBUG1
     }
+    // */
     #else
     cambiaSerial(DEBUG1);
     enableInterrupts();
