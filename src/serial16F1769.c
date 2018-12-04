@@ -129,7 +129,7 @@ void cambiaSerial (serial_t serial){
             break;
 
         case DEBUG1:
-            RC7PPS=0;
+            RA4PPS=0;
             break;
 
         default:
@@ -153,8 +153,8 @@ void cambiaSerial (serial_t serial){
 
         case DEBUG1:
             //Entradas y salidas UART
-            RXPPS=0x0F;     //Rx viene de RB7
-            RC7PPS=0x16;    //Tx va hacia RC7
+            RXPPS=0x05;     //Rx viene de RA5
+            RA4PPS=0x16;    //Tx va hacia RA4
             nuevaTasa = B9600;
             break;
 
