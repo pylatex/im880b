@@ -30,25 +30,74 @@ void HPMregistraTimer(hpm_timStarter timerFunction) {
 /**
  * Envio de mensaje por UART
  */
-void SolicitarMedida() {
+void ReadMeasure() {
     const char orden[] = {0x68,0x01,0x04,0x93};
     hpm.enviar(orden,4);
 }
 
-void InciarMedicion() {
+void StartMeasure() {
     const char orden[] = {0x68,0x01,0x01,0x96};
     hpm.enviar(orden,4);
 }
 
-void PararMedicion() {
+void StopMeasure() {
     const char orden[] = {0x68,0x01,0x02,0x95};
     hpm.enviar(orden,4);
+}
+void StartAutoSend() {
+    const char orden[] = {0x68,0x01,0x40,0x57};
+    hpm.enviar(orden,4);
+}
+void StopAutoSend() {
+    const char orden[] = {0x68,0x01,0x20,0x77};
+    hpm.enviar(orden,4);
+}
+bool SensorAnswer(char *carga) {
+    bool medida=true;
+    if (carga[0]==0x96 && carga[1] == 0x96) {
+        medida=false;
+   }
+    return medida;
+}
+void StartHPM(bool modo)//si modo es true es auto send
+{
+    StartMeasure();
+    if (bool=true){
+        StartAutoSend();
+    }
+    else{
+        StopAutoSend();
+    }
+}
+char ReadPM25 (char *carga, bool modo)//si modo es true es auto send
+{
+    char pm25;
+    if (modo=true){
+        pm25=(carga[6]<<8)+carga[7];
+    }
+    else{
+        ReadMeasure();
+        pm25=(carga[3]<<8)+carga[4];
+    }
+    return pm25;
+}
+char ReadPM10(char *carga, bool modo)//si modo es true es auto send
+{
+    char pm10;
+    if (modo=true){
+        pm10=(carga[8]<<8)+carga[9];
+    }
+    else{
+        ReadMeasure();
+        pm10=(carga[5]<<8)+carga[6];
+    }
+    return pm10;
 }
 
 /**
  * Procesamiento de mensaje UART entrante
  */
-void RespuestaSensor(char *carga,char peso) {
+/*void RespuestaSensor(char *carga,char peso) {
     if (carga[0]==0x96 && carga[1] == 0x96) {
         //Instruccion no aceptada por el sensor
         printf("Algo Malio Sal. Reintente\r\n");
@@ -70,7 +119,7 @@ void RespuestaSensor(char *carga,char peso) {
         else{
             printf(" Medicion Detenida\r\n");
         }
-        // */
+        // 
     } else {
         //Caso por defecto, procesamiento no implementado.
         printf("Respuesta (%i):",peso);
@@ -79,7 +128,7 @@ void RespuestaSensor(char *carga,char peso) {
         }
         printf("\n\r");
     }
-}
+}*/
 
 void smHPM (char val) {
     if (hpm.bandera) {

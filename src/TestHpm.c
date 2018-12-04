@@ -7,7 +7,7 @@
 #include "nucleoPIC.h"
 #ifndef SOFTWARE_REDIRECTION
 #include <stdio.h>
-#include "nmeaCayenne.h"
+#include "hpm.c"
 #include "SerialDevice.h"
 #include "pylatex.h"
 extern serial_t modoSerial;     //Elemento Serial que se esta controlando
@@ -39,13 +39,13 @@ void main (void) {
 
     InicializacionHPM(enviaHPM);
 
-    while (1) {
+    /*while (1) {
         /*
         enviaGPS("estoy vivo\r\n",0);
         __delay_ms(1000);
-        // */
-        //*
-        //processPending();
+        // 
+        
+        processPending();
         if (NCupdated()) {
             uint8_t buff[50];
             sprintf(buff, "Lat: %li, Lon: %li, Height: %li\r\n",
@@ -54,8 +54,8 @@ void main (void) {
             //cambiaSerial(DEBUG1);
         }
 
-        // */
-    }
+         
+    }*/
     #endif
 
 }
