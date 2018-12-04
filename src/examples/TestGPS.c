@@ -7,7 +7,7 @@
  * Created on 30 de junio de 2018, 01:04 PM
  */
 
-#define SOFTWARE_REDIRECTION    //GPS redirection to debug port by software
+//#define SOFTWARE_REDIRECTION    //GPS redirection to debug port by software
 
 #include "nucleoPIC.h"
 #ifndef SOFTWARE_REDIRECTION
@@ -40,7 +40,7 @@ void main (void) {
     }
     // */
     #else
-    cambiaSerial(DEBUG1);
+    cambiaSerial(GPS);
     enableInterrupts();
 
     NMEAdata_t NMEA;
@@ -48,7 +48,7 @@ void main (void) {
 
     while (1) {
         /*
-        enviaGPS("estoy vivo\r\n",0);
+        enviaDebug("estoy vivo\r\n",0);
         __delay_ms(1000);
         // */
         //*
@@ -58,9 +58,8 @@ void main (void) {
             sprintf(buff, "Lat: %li, Lon: %li, Height: %li\r\n",
                     (long int)NMEA.latitude, (long int)NMEA.longitude, (long int)NMEA.height );
             enviaDebug(buff,0);
-            //cambiaSerial(DEBUG1);
+            cambiaSerial(GPS);
         }
-
         // */
     }
     #endif
