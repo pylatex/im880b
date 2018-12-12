@@ -44,7 +44,7 @@ void main (void) {
         enviaGPS("estoy vivo\r\n",0);
         __delay_ms(1000);
         // 
-        
+
         processPending();
         if (NCupdated()) {
             uint8_t buff[50];
@@ -54,7 +54,6 @@ void main (void) {
             //cambiaSerial(DEBUG1);
         }
 
-         
     }*/
     #endif
 

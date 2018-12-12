@@ -2,147 +2,120 @@
 #include <string.h>
 #include "hpm.h"
 
-typedef struct {
-    hpm_enviaSerie_t    enviar;
-    char                idx,buffer[8];
-    hpm_timStarter      timer;
-    bool                bandera;
-} hpm_t;
+#define RXBUFLEN    32  //Tamaño del buffer de recepcion
 
-static hpm_t hpm;
+static hpm_enviaSerie_t     handlerEnvio;
+static char                 rxBuffer[RXBUFLEN];   //Buffer de recepcion
+static char                 rxIdx;          //Indice del buffer de recepcion
+static bool                 autosend;
+static uint16_t             pm25;
+static uint16_t             pm10;
 
-#define iniciatim()   if (hpm.timer) hpm.timer(5,&hpm.bandera);
+static void enviaOrden (char *const orden, char largo);
 
-
-void InicializacionHPM(hpm_enviaSerie_t enviaSerie) {
-    hpm.enviar = enviaSerie;
-    hpm.idx = 0;
-    hpm.timer = 0;
+//si modo es true es auto send
+void StartHPM(hpm_enviaSerie_t enviaSerie) {
+    handlerEnvio = enviaSerie;
+    rxIdx = 0;
+    hpmChangeAutosend(false);
 }
 
-void HPMregistraTimer(hpm_timStarter timerFunction) {
-    hpm.timer = timerFunction;
+void hpmChangeAutosend (bool enable) {
+    if (enable){
+        hpmSendEnableAutoSend();
+    }
+    else{
+        hpmSendDisableAutoSend();
+    }
+    autosend = enable;
 }
 
-/**
- * Envio de mensaje por UART
- */
-void ReadMeasure() {
+void hpmSendReadMeasure(void) {
     const char orden[] = {0x68,0x01,0x04,0x93};
-    hpm.enviar(orden,4);
+    enviaOrden(orden,4);
 }
 
-void StartMeasure() {
+void hpmSendStartMeasure(void) {
     const char orden[] = {0x68,0x01,0x01,0x96};
-    hpm.enviar(orden,4);
+    enviaOrden(orden,4);
 }
 
-void StopMeasure() {
+void hpmSendStopMeasure(void) {
     const char orden[] = {0x68,0x01,0x02,0x95};
-    hpm.enviar(orden,4);
+    enviaOrden(orden,4);
 }
-void StartAutoSend() {
+
+void hpmSendEnableAutoSend(void) {
     const char orden[] = {0x68,0x01,0x40,0x57};
-    hpm.enviar(orden,4);
+    enviaOrden(orden,4);
 }
-void StopAutoSend() {
+
+void hpmSendDisableAutoSend(void) {
     const char orden[] = {0x68,0x01,0x20,0x77};
-    hpm.enviar(orden,4);
+    enviaOrden(orden,4);
 }
+
 bool SensorAnswer(char *carga) {
     bool medida=true;
     if (carga[0]==0x96 && carga[1] == 0x96) {
         medida=false;
-   }
+    }
     return medida;
 }
-void StartHPM(bool modo)//si modo es true es auto send
+
+uint16_t getLastPM25 (void)
 {
-    StartMeasure();
-    if (modo=true){
-        StartAutoSend();
-    }
-    else{
-        StopAutoSend();
-    }
-}
-char ReadPM25 (char *carga, bool modo)//si modo es true es auto send
-{
-    char pm25;
-    if (modo=true){
+    /*
+    //Quizas no sea necesario este bloque de codigo, teniendo en cuenta la descripcion
+    //de la funcion HPMinput() - TODO: Eliminar este comentario, de ser necesario
+    if (modo == true){
         pm25=(carga[6]<<8)+carga[7];
     }
     else{
         ReadMeasure();
         pm25=(carga[3]<<8)+carga[4];
     }
+    // */
     return pm25;
 }
-char ReadPM10(char *carga, bool modo)//si modo es true es auto send
+
+uint16_t getLastPM10(void)
 {
-    char pm10;
-    if (modo=true){
+    /*
+    //Quizas no sea necesario este bloque de codigo, teniendo en cuenta la descripcion
+    //de la funcion HPMinput() - TODO: Eliminar este comentario, de ser necesario
+    if (modo == true){
         pm10=(carga[8]<<8)+carga[9];
     }
     else{
         ReadMeasure();
         pm10=(carga[5]<<8)+carga[6];
     }
+    // */
     return pm10;
 }
 
-/**
- * Procesamiento de mensaje UART entrante
- */
-/*void RespuestaSensor(char *carga,char peso) {
-    if (carga[0]==0x96 && carga[1] == 0x96) {
-        //Instruccion no aceptada por el sensor
-        printf("Algo Malio Sal. Reintente\r\n");
-        return;
-    }
-    else if ((carga[0]==0x40)&&(carga[1]==0x05)&&(carga[2]==0x04))
-    {
-        //Mostrar mediciones
-        printf(" PM 2.5: %d, PM 10: %d\r\n",((carga[3]<<8)+carga[4]),((carga[5]<<8)+carga[6]));
-    }
-    else if ((carga[0]==0xA5)&&(carga[1]==0xA5))
-    {
-        printf(" OK\r\n");
-        /*
-        if(flag == 1)
-        {
-                printf(" Medicion Iniciada\r\n");
-        }
-        else{
-            printf(" Medicion Detenida\r\n");
-        }
-        // 
-    } else {
-        //Caso por defecto, procesamiento no implementado.
-        printf("Respuesta (%i):",peso);
-        for (unsigned char i=0;i<peso;i++) {
-            printf(" %02X",carga[i]);
-        }
-        printf("\n\r");
-    }
-}*/
-
 void HPMinput(char octeto) {
-    //TODO: Implementar... Puede ser la misma smHPM()
-}
-
-void smHPM (char val) {
-    if (hpm.bandera) {
-        //Esta corriendo, quiere decir que aun no se ha cortado la recepcion
-        iniciatim();
-        hpm.buffer[hpm.idx++] = val;
-    } else {
-        //Desborde, por tanto: fin de mensaje
-        
+    if (rxIdx < RXBUFLEN) {
+        rxBuffer[rxIdx++] = octeto;
+        /* La gracia del siguiente bloque de codigo es que vaya definiendo el
+         * valor de las variables pm25 y pm10 dejadas al comienzo de este archivo.
+         * Adicionalmente, hay la posibilidad de cambiar las funciones getLast*
+         * para que en vez de devolver la variable directamente (como esta en
+         * esta version), devuelvan un booleano, "updated", que se puede declarar
+         * al comienzo del codigo. Y es en este bloque de codigo que ese "updated"
+         * se ha de actualizar. Idealmente, se habria de poner a true, cuando
+         * ya se tengan los octetos suficientes segun el modo y/u orden enviada.
+         */
+        if (autosend) {
+            //TODO: Procesamiento segun Tabla 5 del Datasheet
+        } else {
+            //TODO: Procesamiento segun Tabla 4 del Datasheet
+        }
     }
 }
 
-void enviaOrden (char *const orden) {
-    hpm.enviar(orden,4);
-    iniciatim();
+void enviaOrden (char *const orden, char largo) {
+    handlerEnvio(orden,largo);
+    rxIdx = 0;
 }
