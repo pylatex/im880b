@@ -3,6 +3,13 @@
 #include "hpm.h"
 
 #define RXBUFLEN    32  //Tamaño del buffer de recepcion
+typedef enum{ 
+    ReadMeasure,
+    StartMeasure, 
+    StopMeasure,
+    EnableAutosend,
+    DisableAutosend,
+    }comandoEnviar_t;
 
 static hpm_enviaSerie_t     handlerEnvio;
 static char                 rxBuffer[RXBUFLEN];   //Buffer de recepcion
@@ -10,17 +17,7 @@ static char                 rxIdx;          //Indice del buffer de recepcion
 static bool                 autosend;
 static uint16_t             pm25;
 static uint16_t             pm10;
-static comandoEnviar_t ultimoComandoEnviado;
-
-typedef enum{ 
-    ReadMeasure,
-    StartMeasure, 
-    StopMeasure,
-    EnableAutosend,
-    DisableAutosend
-    
-}comandoEnviar_t;
-
+static comandoEnviar_t      ultimoComandoEnviado;
 
 static void enviaOrden (char *const orden, char largo);
 
@@ -111,32 +108,6 @@ uint16_t getLastPM10(void)
     // */
     return pm10;
 }
-/*
-void HPMinput(char octeto) {
-    if (rxIdx < RXBUFLEN) {
-        rxBuffer[rxIdx++] = octeto;
-        /* La gracia del siguiente bloque de codigo es que vaya definiendo el
-         * valor de las variables pm25 y pm10 dejadas al comienzo de este archivo.
-         * Adicionalmente, hay la posibilidad de cambiar las funciones getLast*
-         * para que en vez de devolver la variable directamente (como esta en
-         * esta version), devuelvan un booleano, "updated", que se puede declarar
-         * al comienzo del codigo. Y es en este bloque de codigo que ese "updated"
-         * se ha de actualizar. Idealmente, se habria de poner a true, cuando
-         * ya se tengan los octetos suficientes segun el modo y/u orden enviada.
-         
-        if (autosend) {
-            /*TODO: Procesamiento segun Tabla 5 del Datasheet
-             
-              
-        } else {
-            /*TODO: Procesamiento segun Tabla 4 del Datasheet
-             
-            
-        }
-    }
-}
-*/
-
 void HPMinput(char octeto) {
     if (rxIdx < RXBUFLEN) {
         rxBuffer[rxIdx++] = octeto;
