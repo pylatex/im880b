@@ -16,7 +16,7 @@
 //  Definitions, Declarations and Variables
 //------------------------------------------------------------------------------
 
-#define LARGO   50
+#define LARGO   70
 #define PUERTO  5
 
 static struct {
