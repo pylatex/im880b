@@ -22,7 +22,7 @@ static comandoEnviar_t      ultimoComandoEnviado;
 static void enviaOrden (char *const orden, char largo);
 
 //si modo es true es auto send
-void StartHPM(hpm_enviaSerie_t enviaSerie) {
+void InicializacionHPM(hpm_enviaSerie_t enviaSerie) {
     handlerEnvio = enviaSerie;
     rxIdx = 0;
     hpmChangeAutosend(false);
@@ -117,26 +117,22 @@ void HPMinput(char octeto) {
                 pm10=(rxBuffer[8]<<8)+rxBuffer[9];
                 pm25=(rxBuffer[6]<<8)+rxBuffer[7];
                 rxIdx=0;
-                
             }else{
                 switch(ultimoComandoEnviado){
                     case ReadMeasure:
-                     if (rxIdx == RXBUFLEN){
-                        rxBuffer[rxIdx++]=octeto;
-                        pm10=(rxBuffer[5]<<8)+rxBuffer[6];
-                        pm25=(rxBuffer[3]<<8)+rxBuffer[4];
-                        rxIdx=0;
-                        break;
-                
-            }   
+                        if (rxIdx == RXBUFLEN){
+                           rxBuffer[rxIdx++]=octeto;
+                           pm10=(rxBuffer[5]<<8)+rxBuffer[6];
+                           pm25=(rxBuffer[3]<<8)+rxBuffer[4];
+                           rxIdx=0;
+                           break;
+                     }
                     
                 } 
-                
-            }
+            }  
+        } else {
             /*TODO: Procesamiento segun Tabla 5 del Datasheet*/
-             
-              
-        } 
+        }
     }
 }
          

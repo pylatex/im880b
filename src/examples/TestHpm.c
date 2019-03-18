@@ -39,22 +39,13 @@ void main (void) {
 
     InicializacionHPM(enviaHPM);
 
-    /*while (1) {
-        /*
-        enviaGPS("estoy vivo\r\n",0);
-        __delay_ms(1000);
-        // 
-
-        processPending();
-        if (NCupdated()) {
-            uint8_t buff[50];
-            sprintf(buff, "Lat: %li, Lon: %li, Height: %li\r\n",
-                    (long int)NMEA.latitude, (long int)NMEA.longitude, (long int)NMEA.height );
-            enviaDebug(buff,0);
-            //cambiaSerial(DEBUG1);
-        }
-
-    }*/
+    //TODO: Desactivar autosend
+    while(1) {
+        //TODO: Solicitar medicion
+        //TODO: Esperar respuesta
+        //TODO: Procesar respuesta
+        //TODO: Imprimir valor en el debug usando enviaDebug()
+    }
     #endif
 
 }
