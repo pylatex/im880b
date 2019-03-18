@@ -8,10 +8,10 @@
  */
 
 //MODOS DE COMPILACION. Descomentar el que se quiera probar:
-#define SMACH       //Maquina de estados (principal)
+//#define SMACH       //Maquina de estados (principal)
 //#define TEST_1      //Verificacion UART/Reloj
 //#define TEST_2      //Verificacion comunicacion PIC-WiMOD
-//#define TEST_4      //Medicion ADC y envio por UART
+#define TEST_4      //Medicion ADC y envio por UART
 
 //------------------------------------------------------------------------------
 //  Definitions and Setup
@@ -76,7 +76,9 @@ void main(void)
     #ifndef TEST_4
     enableInterrupts();
     #endif
-
+    #ifdef ADC_H
+    Config_ADC();
+    #endif
     #ifdef HDC1010_H
     unsigned short temp,hum;
     HDCinit (&temp,&hum,msdelay);
@@ -191,10 +193,13 @@ void main(void)
 
         //Prueba 4: Medicion ADC y envio por UART
         #ifdef TEST_4
-        unsigned char phrase[15],phlen;
-        phlen=sprintf(phrase,"Propano:%u\r\n",valorPropano());
-        SerialDevice_SendData(phrase,phlen);
-        ms100(10);
+        float aa=valorozono(),bb=valor135(),cc=valorCO();
+        
+        ////        phlen=sprintf(phrase,"Propano:%u\r\nOzono:%u\r\nCalidad del Aire:%u\r\nMonoxido de Carbono:%u\r\n\n\n",valorPropano(),valorozono(),valor135(),valorCO());
+        printf("%f\n%f\n",aa,bb);
+//        phlen=sprintf(phrase,"Ozono:%f\r\nCalidad del Aire:%f\r\nMonoxido de Carbono:%f\r\n\n\n",aa,bb,cc);
+//        SerialDevice_SendData(phrase,phlen);
+//        ms100(10);
         #endif
     }
 }
