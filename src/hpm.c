@@ -11,6 +11,7 @@ typedef enum{
     DisableAutosend,
     }comandoEnviar_t;
 
+static bool updated = false; //Copiado de nmeaCayenne
 static hpm_enviaSerie_t     handlerEnvio;
 static char                 rxBuffer[RXBUFLEN];   //Buffer de recepcion
 static char                 rxIdx;          //Indice del buffer de recepcion
@@ -26,6 +27,14 @@ void InicializacionHPM(hpm_enviaSerie_t enviaSerie) {
     handlerEnvio = enviaSerie;
     rxIdx = 0;
     hpmChangeAutosend(false);
+}
+//Copiado de nmeacayenne
+bool NCupdated(void) {//NO SABEMOS COMO CAMBIA
+    if (updated) {
+        updated = false;
+        return true;
+    }
+    return false;
 }
 
 void hpmChangeAutosend (bool enable) {
@@ -117,6 +126,7 @@ void HPMinput(char octeto) {
                 pm10=(rxBuffer[8]<<8)+rxBuffer[9];
                 pm25=(rxBuffer[6]<<8)+rxBuffer[7];
                 rxIdx=0;
+                updated=true;//Verificar
             }else{
                 switch(ultimoComandoEnviado){
                     case ReadMeasure:
@@ -125,6 +135,7 @@ void HPMinput(char octeto) {
                            pm10=(rxBuffer[5]<<8)+rxBuffer[6];
                            pm25=(rxBuffer[3]<<8)+rxBuffer[4];
                            rxIdx=0;
+                           updated=true;//Verificar
                            break;
                      }
                     

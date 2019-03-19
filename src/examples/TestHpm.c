@@ -40,11 +40,26 @@ void main (void) {
     InicializacionHPM(enviaHPM);
 
     //TODO: Desactivar autosend
+    //En la inicializaciòn del hpm esta la desactivacion del autosend
+    HPMdata_t HPM;
     while(1) {
         //TODO: Solicitar medicion
+        hpmSendStartMeasure (); //Inicia la medicion
+        hpmSendReadMeasure(); //Lee la medicion
+        hpmSendStopMeasure(); //Deja de medir
+        HPMinput(enviaHPM);//Obtiene el valor dependinedo del modo de uso para PM10 y PM25
         //TODO: Esperar respuesta
         //TODO: Procesar respuesta
+        
         //TODO: Imprimir valor en el debug usando enviaDebug()
+        if (NCupdated()) {
+            uint8_t buff[50];//verificar el tamaño
+            sprintf(buff, "PM10: PM25",
+                    (long int)HPM.pm10, (long int)HPM.pm25 );
+            enviaDebug(buff,0);
+            //cambiaSerial(DEBUG1);
+        }
+        
     }
     #endif
 

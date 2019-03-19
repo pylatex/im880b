@@ -8,6 +8,13 @@ extern "C" {
     #include <stdbool.h>
     #include <stdint.h>
 
+    typedef struct {
+        int16_t pm10;
+        int16_t pm25;
+    } HPMdata_t;
+    
+     bool NCupdated(void);//Copiado de nmeacayenne.h
+    
     typedef void (*hpm_enviaSerie_t)(const char *carga,char largo);
 
     void InicializacionHPM(hpm_enviaSerie_t enviaSerie);
