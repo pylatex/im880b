@@ -13,7 +13,7 @@ extern "C" {
         int16_t pm25;
     } HPMdata_t;
     
-     bool NCupdated(void);//Copiado de nmeacayenne.h
+     bool HPMupdated(void);//Copiado de nmeacayenne.h
     
     typedef void (*hpm_enviaSerie_t)(const char *carga,char largo);
 

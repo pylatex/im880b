@@ -47,12 +47,12 @@ void main (void) {
         hpmSendStartMeasure (); //Inicia la medicion
         hpmSendReadMeasure(); //Lee la medicion
         hpmSendStopMeasure(); //Deja de medir
-        HPMinput(enviaHPM);//Obtiene el valor dependinedo del modo de uso para PM10 y PM25
+        //HPMinput(enviaHPM);Obtiene el valor dependinedo del modo de uso para PM10 y PM25
         //TODO: Esperar respuesta
         //TODO: Procesar respuesta
         
         //TODO: Imprimir valor en el debug usando enviaDebug()
-        if (NCupdated()) {
+        if (HPMupdated()) {
             uint8_t buff[50];//verificar el tamaño
             sprintf(buff, "PM10: PM25",
                     (long int)HPM.pm10, (long int)HPM.pm25 );

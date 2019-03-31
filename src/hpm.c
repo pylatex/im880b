@@ -9,7 +9,7 @@ typedef enum{
     StopMeasure,
     EnableAutosend,
     DisableAutosend,
-    }comandoEnviar_t;
+}comandoEnviar_t;
 
 static bool updated = false; //Copiado de nmeaCayenne
 static hpm_enviaSerie_t     handlerEnvio;
@@ -29,7 +29,7 @@ void InicializacionHPM(hpm_enviaSerie_t enviaSerie) {
     hpmChangeAutosend(false);
 }
 //Copiado de nmeacayenne
-bool NCupdated(void) {//NO SABEMOS COMO CAMBIA
+bool HPMupdated(void) {
     if (updated) {
         updated = false;
         return true;
@@ -147,7 +147,7 @@ void HPMinput(char octeto) {
     }
 }
          
-void enviaOrden (char *const orden, char largo) {
+static void enviaOrden (char *const orden, char largo) {
     handlerEnvio(orden,largo);
     rxIdx = 0;
 }
