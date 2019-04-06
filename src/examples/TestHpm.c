@@ -47,7 +47,7 @@ void main (void) {
         hpmSendStartMeasure (); //Inicia la medicion
         hpmSendReadMeasure(); //Lee la medicion
         hpmSendStopMeasure(); //Deja de medir
-        //HPMinput(enviaHPM);Obtiene el valor dependinedo del modo de uso para PM10 y PM25
+        //HPMinput(enviaHPM);//Obtiene el valor dependinedo del modo de uso para PM10 y PM25
         //TODO: Esperar respuesta
         //TODO: Procesar respuesta
         
@@ -57,7 +57,7 @@ void main (void) {
             sprintf(buff, "PM10: PM25",
                     (long int)HPM.pm10, (long int)HPM.pm25 );
             enviaDebug(buff,0);
-            //cambiaSerial(DEBUG1);
+            cambiaSerial(DEBUG1);
         }
         
     }
