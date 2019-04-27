@@ -157,8 +157,8 @@ void cambiaSerial (serial_t serial){
 
         case DEBUG1:
             //Entradas y salidas UART
-            RXPPS=0x05;     //Rx viene de RB7
-            RA4PPS=0x16;    //Tx va hacia RC7
+            RXPPS=0x05;     //Rx viene de RA5
+            RA4PPS=0x16;    //Tx va hacia RA4
             nuevaTasa = B9600;
             break;
             

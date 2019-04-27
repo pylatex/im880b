@@ -16,6 +16,13 @@ extern void enviaDebug(char *arreglo,unsigned char largo);
 extern void enviaHPM(char *arreglo,unsigned char largo);
 #endif
 
+void retardo (void){
+    long i =0;
+    while (i<=150000){
+        i++;
+    }
+}
+
 void main (void) {
     setup();
 
@@ -28,34 +35,52 @@ void main (void) {
     }
     // */
     //*
-    LATC = 0x40;
-    TRISC = 0xBF;   //Salida solo en C6
+    TRISC = 0xF7;   //Salida solo en C3
+    TRISA = 0xEF;   //salida solo en A4
     while(true){
-        RC6=RB5;
+        RA4=RB7;
+        RC3=RA5;
     }
     #else
     cambiaSerial(DEBUG1);
     enableInterrupts();
 
+    HPMdata_t HPM;
+    HPM.pm10=15;
+    HPM.pm25=20;
     InicializacionHPM(enviaHPM);
+    //retardo();
 
     //TODO: Desactivar autosend
     //En la inicializaciòn del hpm esta la desactivacion del autosend
-    HPMdata_t HPM;
+    
+    
     while(1) {
         //TODO: Solicitar medicion
+        
         hpmSendStartMeasure (); //Inicia la medicion
+        retardo();
         hpmSendReadMeasure(); //Lee la medicion
+        retardo();
         hpmSendStopMeasure(); //Deja de medir
+        retardo();
         //HPMinput(enviaHPM);//Obtiene el valor dependinedo del modo de uso para PM10 y PM25
         //TODO: Esperar respuesta
         //TODO: Procesar respuesta
         
         //TODO: Imprimir valor en el debug usando enviaDebug()
         if (HPMupdated()) {
+            HPM.pm10=getLastPM10();
+            HPM.pm25=getLastPM25();
             uint8_t buff[50];//verificar el tamaño
-            sprintf(buff, "PM10: PM25",
-                    (long int)HPM.pm10, (long int)HPM.pm25 );
+            sprintf(buff, "PM10: %i, PM25: %i \n",
+                    (unsigned int)HPM.pm10, (unsigned int)HPM.pm25 );
+            enviaDebug(buff,0);
+            cambiaSerial(DEBUG1);
+        }
+        else{ 
+          uint8_t buff[50];   
+        sprintf(buff," fallo ");
             enviaDebug(buff,0);
             cambiaSerial(DEBUG1);
         }

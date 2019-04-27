@@ -13,6 +13,7 @@ typedef enum{
 
 static bool updated = false; //Copiado de nmeaCayenne
 static hpm_enviaSerie_t     handlerEnvio;
+static HPMdata_t HPM; //Equivalente de static NMEAdata_t *GPS; de nmwaCayenne
 static char                 rxBuffer[RXBUFLEN];   //Buffer de recepcion
 static char                 rxIdx;          //Indice del buffer de recepcion
 static bool                 autosend;
@@ -78,6 +79,7 @@ void hpmSendDisableAutoSend(void) {
     enviaOrden(orden,4);
 }
 
+
 bool SensorAnswer(char *carga) {
     bool medida=true;
     if (carga[0]==0x96 && carga[1] == 0x96) {
@@ -127,10 +129,11 @@ void HPMinput(char octeto) {
                 pm25=(rxBuffer[6]<<8)+rxBuffer[7];
                 rxIdx=0;
                 updated=true;//Verificar
+            }
             }else{
                 switch(ultimoComandoEnviado){
                     case ReadMeasure:
-                        if (rxIdx == RXBUFLEN){
+                        if (rxIdx == 8){
                            rxBuffer[rxIdx++]=octeto;
                            pm10=(rxBuffer[5]<<8)+rxBuffer[6];
                            pm25=(rxBuffer[3]<<8)+rxBuffer[4];
@@ -145,7 +148,7 @@ void HPMinput(char octeto) {
             /*TODO: Procesamiento segun Tabla 5 del Datasheet*/
         }
     }
-}
+
          
 static void enviaOrden (char *const orden, char largo) {
     handlerEnvio(orden,largo);

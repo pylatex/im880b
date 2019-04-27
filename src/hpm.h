@@ -9,8 +9,8 @@ extern "C" {
     #include <stdint.h>
 
     typedef struct {
-        int16_t pm10;
-        int16_t pm25;
+        uint16_t pm10;
+        uint16_t pm25;
     } HPMdata_t;
     
      bool HPMupdated(void);//Copiado de nmeacayenne.h
