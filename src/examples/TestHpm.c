@@ -16,12 +16,7 @@ extern void enviaDebug(char *arreglo,unsigned char largo);
 extern void enviaHPM(char *arreglo,unsigned char largo);
 #endif
 
-void retardo (void){
-    long i =0;
-    while (i<=150000){
-        i++;
-    }
-}
+
 
 void main (void) {
     setup();
@@ -46,8 +41,6 @@ void main (void) {
     enableInterrupts();
 
     HPMdata_t HPM;
-    HPM.pm10=15;
-    HPM.pm25=20;
     InicializacionHPM(enviaHPM);
     //retardo();
 
@@ -59,11 +52,11 @@ void main (void) {
         //TODO: Solicitar medicion
         
         hpmSendStartMeasure (); //Inicia la medicion
-        retardo();
+        __delay_ms(25);
         hpmSendReadMeasure(); //Lee la medicion
-        retardo();
+        __delay_ms(25);
         hpmSendStopMeasure(); //Deja de medir
-        retardo();
+        __delay_ms(25);
         //HPMinput(enviaHPM);//Obtiene el valor dependinedo del modo de uso para PM10 y PM25
         //TODO: Esperar respuesta
         //TODO: Procesar respuesta

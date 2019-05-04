@@ -47,7 +47,21 @@ bool AppendMeasure (uint8_t channel, pymeasure variable,char *medida) {
             case pCO2:
             case pTVOC:
             case pPM025:
+                 if (PY.cnt < (LARGO -4)) {
+                    PY.carga[PY.cnt++]=channel;    //Canal
+                    PY.carga[PY.cnt++]=variable;   //Magnitud
+                    memcpy(&PY.carga[PY.cnt], medida, 2 );
+                    PY.cnt+=2;
+                }
+                break;
             case pPM100:
+                 if (PY.cnt < (LARGO -4)) {
+                    PY.carga[PY.cnt++]=channel;    //Canal
+                    PY.carga[PY.cnt++]=variable;   //Magnitud
+                    memcpy(&PY.carga[PY.cnt], medida, 2 );
+                    PY.cnt+=2;
+                }
+                break;
             case pGAS:
             case pILUM1:
             case pILUM2:

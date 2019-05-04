@@ -36,6 +36,7 @@ volatile unsigned bool pendingmsg;
 #include "bh1750fvi.h"
 #include "bmp280.h"
 #include "nmeaCayenne.h"
+#include "hpm.h"
 #endif
 #if defined SMACH || defined TEST_4
 #include "ADC.h"
@@ -59,6 +60,7 @@ extern void cambiaSerial (serial_t serial);    //Para cambiar el elemento a cont
 extern void enviaIMST(char *arreglo,unsigned char largo);
 extern void enviaGPS(char *arreglo,unsigned char largo);
 extern void enviaDebug(char *arreglo,unsigned char largo);
+extern void enviaHPM(char *arreglo,unsigned char largo);
 
 //------------------------------------------------------------------------------
 //  Section Code
@@ -104,6 +106,17 @@ void main(void)
     initNC(&NMEA);
     #endif
 
+    #ifdef HPM_H_INCLUDED
+    HPMdata_t HPM;
+    InicializacionHPM(enviaHPM);
+    hpmSendStartMeasure (); //Inicia la medicion
+    __delay_ms(25);
+    hpmSendReadMeasure(); //Lee la medicion
+    __delay_ms(25);
+    hpmSendStopMeasure(); //Deja de medir
+    __delay_ms(25);
+    #endif 
+
     #ifdef PYLATEX_H
     LWstat LWstatus;
     initLW((serialTransmitHandler)enviaIMST,&LWstatus);
@@ -141,6 +154,13 @@ void main(void)
             #ifdef BH1750FVI_H
             if (BHread(&light))
                 AppendMeasure(1,pILUM1,short2charp(light));
+            #endif
+            #ifdef HPM_H_INCLUDED
+            
+            if (HPMupdated()) {
+                AppendMeasure(1,pPM025,getLastPM25());
+                AppendMeasure(1,pPM100,getLastPM10());
+            }    
             #endif
             #ifdef NMEACAYENNE_H
             if (NCupdated()) {
@@ -218,8 +238,11 @@ void __interrupt ISR (void) {
                 NCinputSerial(RCREG);
                 break;
             #endif
+            #ifdef HPM_H_INCLUDED
             case HPM:
-                libre = false;
+                HPMinput(RCREG);
+                break;
+            #endif
             default:
                 minibuff = RCREG;
                 break;
