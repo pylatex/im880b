@@ -8,10 +8,10 @@
  */
 
 //MODOS DE COMPILACION. Descomentar el que se quiera probar:
-//#define SMACH       //Maquina de estados (principal)
+#define SMACH       //Maquina de estados (principal)
 //#define TEST_1      //Verificacion UART/Reloj
 //#define TEST_2      //Verificacion comunicacion PIC-WiMOD
-#define TEST_4      //Medicion ADC y envio por UART
+//#define TEST_4      //Medicion ADC y envio por UART
 
 //------------------------------------------------------------------------------
 //  Definitions and Setup
