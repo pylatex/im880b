@@ -21,6 +21,7 @@ void setup (void) {
     ANSELA=0;       //All pins as digital
     ANSELB=0;       //All pins as digital
     ANSELC=0;       //All pins as digital
+    TRISAbits.TRISA1=false;//LED RA1 output
     //ODCONCbits.ODC1 = true;    //Enable Open Drain to drive DVI
     // WDTPS 1:65536; SWDTEN OFF; 
     WDTCON = 0x16;
@@ -34,22 +35,14 @@ void setup (void) {
     TRISA=0xFD; //RA1 as output
 #endif
 
-    //UART & I2C
+    //UART 
 #ifdef _16F1769
-    //Entradas y salidas I2C se dejan en los pines por defecto: SCK:RB6, SDA:RB4
-    //(unicos totalmente compatibles con I2C/SMBus, segun seccion 12.3 del datasheet)
     RB6PPS=0x12;
     RB4PPS=0x13;
-    SSPDATPPS = 0x0C;   //RB4->MSSP:SDA;
-    SSPCLKPPS = 0x0E;   //RB6->MSSP:SCL;
     ppsLock(true);    
 #endif
 
     __delay_ms(200);   //Delay for stabilization of power supply
-
-    #ifdef _I2C_H
-    I2C_Initialize();
-    #endif
 }
 
 #ifdef PPSLOCK

@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-    unsigned short valorPropano(void);
+    unsigned short ADC_Get_Data(void);
 
 #ifdef	__cplusplus
 }

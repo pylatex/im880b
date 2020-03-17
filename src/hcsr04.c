@@ -27,5 +27,4 @@ bool HCSread (int *buffer) { //*  buffer declara la variable tipo puntero de ent
     TMR1_StopTimer();
     *buffer=(unsigned int)(5*TMR1_ReadTimer()/584);     //Conversion para medida en centimetro y  *buffer asigna al contenido de la direccion
     return true;
-
 }

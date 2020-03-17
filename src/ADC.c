@@ -3,18 +3,18 @@
 
 typedef struct {
     unsigned short adcres;
-} MQ2_t;
+} ADC_D_t;
 
-MQ2_t MQ2;
+ADC_D_t ADC_D;
 
 
-void ADCpropano(void) {
-    ADCON0=0x03;    //Inicia Medicion en AD0
+void ADC_Read(void) {
+    ADCON0=0b00100111;    //Inicia Medicion en AN9, osea pin RC7
     while(ADCON0bits.GO);      //Se queda esperando hasta que acabe la conversion
-    MQ2.adcres = ADRES;
+    ADC_D.adcres = ADRES;
 }
 
-unsigned short valorPropano(void) {
-    ADCpropano();
-    return MQ2.adcres;
+unsigned short ADC_Get_Data(void) {
+    ADC_Read();
+    return ADC_D.adcres;
 }

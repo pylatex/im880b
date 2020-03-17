@@ -12,6 +12,26 @@
             <asminc-extensions/>
             <sourceEncoding>ISO-8859-1</sourceEncoding>
             <make-dep-projects/>
+            <sourceRootList>
+                <sourceRootElem>.</sourceRootElem>
+            </sourceRootList>
+            <confList>
+                <confElem>
+                    <name>I2CsensorTest</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>LWmote</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>Test_GPS</name>
+                    <type>2</type>
+                </confElem>
+            </confList>
+            <formatting>
+                <project-formatting-style>false</project-formatting-style>
+            </formatting>
         </data>
     </configuration>
 </project>

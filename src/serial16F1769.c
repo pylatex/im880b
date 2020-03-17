@@ -80,7 +80,7 @@ SerialDevice_Close()
 }
 
 // send data
-int
+int 
 SerialDevice_SendData(uint8_t *txBuffer, uint8_t txLength)
 {
     unsigned char aux=0;
@@ -172,17 +172,17 @@ void compruebaModo (serial_t modo) {
         cambiaSerial(modo);
 }
 
-void enviaIMST(char *arreglo,unsigned char largo) {
+void enviaIMST(uint8_t *arreglo,uint8_t largo) {
     compruebaModo(MODEM_LW);
     SerialDevice_SendData(arreglo,largo);
 }
 
-void enviaGPS(char *arreglo,unsigned char largo) {
+void enviaGPS(uint8_t *arreglo,uint8_t largo) {
     compruebaModo(GPS);
     SerialDevice_SendData(arreglo,largo);
 }
 
-void enviaDebug(char *arreglo,unsigned char largo) {
+void enviaDebug(uint8_t *arreglo,uint8_t largo) {
     compruebaModo(DEBUG1);
     SerialDevice_SendData(arreglo,largo);
 }

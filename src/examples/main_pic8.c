@@ -8,12 +8,11 @@
  */
 
 //MODOS DE COMPILACION. Descomentar el que se quiera probar:
-//#define SMACH       //Maquina de estados (principal)
-//#define TEST_1      //Verificacion UART/Reloj
-//#define TEST_2      //Verificacion comunicacion PIC-WiMOD
-//#define TEST_4      //Medicion ADC y envio por UART
-//#define TEST_5      //Medicion de distancias y envio por UART
-#define TEST_6 //Tarjeta
+//#define SMACH         //Maquina de estados (principal)
+#define TEST_1        //Verificacion UART/Reloj
+//#define TEST_2        //Verificacion comunicacion PIC-WiMOD
+//#define TEST_3        //Medicion Distancia y ACD para envio por UART
+//#define TEST_4        //Tarjeta RFID
 //------------------------------------------------------------------------------
 //  Definitions and Setup
 //------------------------------------------------------------------------------
@@ -26,34 +25,23 @@
 #include "spi.h"
 
 
-
-#ifdef TEST_6
-    #include "RC522.h"
-#endif
-
-
 #if defined TEST_2
 void ProcesaHCI();
-volatile unsigned bool pendingmsg;
+volatile bool pendingmsg;
 #endif
 
 #if defined SMACH || defined TEST_3
-//#include "i2c.h"
-//#include "T67xx.h"
-//#include "hdc1010.h"
-//#include "iaq.h"
-//#include "bh1750fvi.h"
-//#include "bmp280.h"
-//#include "nmeaCayenne.h"
-//#include "hdc1010.h" 
-#endif
-#if defined SMACH || defined TEST_4
+#include "iaq.h"
+#include "hcsr04.h"
 #include "ADC.h"
+#include "iaq.h"
+#include "nmeaCayenne.h"
 #endif
 
-#if defined SMACH || defined TEST_5
-#include "hcsr04.h"
+#if defined SMACH || defined TEST_4
+#include "RC522.h"
 #endif
+
 //------------------------------------------------------------------------------
 //  Declarations, Function Prototypes and Variables
 //------------------------------------------------------------------------------
@@ -69,63 +57,41 @@ void blink (unsigned char cant,unsigned char high,unsigned char low); //Parpadeo
 
 //Utilidades Serial
 extern void cambiaSerial (serial_t serial);    //Para cambiar el elemento a controlar
-extern void enviaIMST(char *arreglo,unsigned char largo);
-extern void enviaGPS(char *arreglo,unsigned char largo);
-extern void enviaDebug(char *arreglo,unsigned char largo);
-
-//------------------------------------------------------------------------------
-//  Section Code
-//------------------------------------------------------------------------------
+extern void enviaIMST(uint8_t *arreglo,uint8_t largo);
+extern void enviaGPS(uint8_t *arreglo,uint8_t largo);
+extern void enviaDebug(uint8_t *arreglo,uint8_t largo);
 
 /**
  * Programa Principal
  */
 void main(void)
 {
-
     setup();
+    enableInterrupts();
     cambiaSerial (MODEM_LW);
-    #ifndef TEST_4
-    //enableInterrupts();
+    
+    #if defined TEST_3 || defined TEST_1
+    LED = true;
+    enviaDebug((char *)"Iniciamos\r\n",0);
+    char phrase[20];
+    unsigned char phlen;
+    phlen = sprintf(&phrase,"ADC DATO:\r\n");
+    enviaDebug(phrase,phlen);
     #endif
-
-    #ifdef TEST_5
-    LED=true;    
-    ms100(10);
-    LED=false;    
+    
+    #if defined HCSR04_H
+    int distance;//Variable donde se guarda la distancia
+    HCSinit();
     #endif
-
-    #ifdef TEST_6
+    
+    #if defined TEST_4
     unsigned char phrase[20];
     unsigned char i;
     sprintf(phrase,"Iniciamos\r\n");
     enviaDebug(phrase,0);
-    
     #endif
 
-    #ifdef HDC1010_H
-    unsigned short temp,hum;
-    HDCinit (&temp,&hum,msdelay);
-    #endif
-
-    #ifdef BH1750FVI_H
-    unsigned short light;
-    DVI=false;
-    __delay_us(5);
-    DVI=true;
-    BHinit(false);
-    BHwrite(BH1750_RESET);
-    BHwrite(BH1750_PWR_ON);
-    BHwrite(BH1750_CONTINOUS | BH1750_LR);
-    #endif
-
-    #ifdef BMP280_H
-    char mem[30];
-    BMP280init(false);
-    BMP280writeCtlMeas(BMPnormalMode | BMPostX1 | BMPospX1);
-    #endif
-
-    #ifdef RC522_H
+    #if defined RC522_H
     PCD_Init();
     #endif
 
@@ -134,15 +100,14 @@ void main(void)
     initNC(&NMEA);
     #endif
 
-    #ifdef HCSR04_H
-    HCSinit();
-    int distance;
+    #ifdef SMACH
+    LWstat LWstatus;
+    initLW((serialTransmitHandler)enviaIMST,&LWstatus);
     #endif
 
     while (true) {
         //State Machine Description
-        #ifdef SMACH
-        LED=true;
+        #if defined SMACH
         LWstat LWstatus;
 
         initLW((serialTransmitHandler)enviaIMST,&LWstatus);
@@ -155,94 +120,53 @@ void main(void)
         LED=false;
 
         registerDelayFunction(StartTimerDelayMs,&delrun);
-
+        
         const uint8_t CNT_BEFORE_REAUTH=60;
+        
         for (char cnt=0;cnt<CNT_BEFORE_REAUTH;cnt++) {
-            LED=true;
-
-            #ifdef T6700_H //T6713 reading though I2C
-            unsigned short rsp;
-            if (T67xx_CO2(&rsp))
-                AppendMeasure(PY_CO2,short2charp(rsp));
-            #endif
-            //AppendMeasure(PY_GAS,short2charp(valorPropano()));
-            #ifdef BMP280_H //Pruebas con BMP280
-            if (BMP280readTrimming(&mem[0]) && BMP280readValues(&mem[24]))
-                AppendMeasure(PY_COMP1,mem);
-            #endif
-            #ifdef BH1750FVI_H
-            if (BHread(&light))
-                AppendMeasure(PY_ILUM1,short2charp(light));
-            #endif
-            #ifdef NMEACAYENNE_H
-            if (NCupdated()) {
-                uint8_t buff[9];
-                buff[0] = (NMEA.latitude >> 16) & 0xFF;
-                buff[1] = (NMEA.latitude >> 8) & 0xFF;
-                buff[2] = NMEA.latitude & 0xFF;
-                buff[3] = (NMEA.longitude >> 16) & 0xFF;
-                buff[4] = (NMEA.longitude >> 8) & 0xFF;
-                buff[5] = NMEA.longitude & 0xFF;
-                buff[6] = (NMEA.height >> 16) & 0xFF;
-                buff[7] = (NMEA.height >> 8) & 0xFF;
-                buff[8] = NMEA.height & 0xFF;
-                AppendMeasure(PY_GPS,buff);
-                ms100(1);
-                LED=false;
-                ms100(1);
-                LED=true;
-            }
-            #endif
-            #ifdef HCSR04_H
-            if (HCSread(&distance))//le indica la direccion de la variable tipo entero distancia
+            if (HCSread(&distance)){//le indica la direccion de la variable tipo entero distancia
                 AppendMeasure(PY_DISTANCE,short2charp(distance));
-            #endif
+            }
+            AppendMeasure(PY_GAS,short2charp(ADC_Get_Data()));   
             SendMeasures(PY_UNCONFIRMED);
-            ms100(1);
-            LED=false;
-            ms100(49);  //Approx. each 5 sec ((49+1)x100ms)
+            ms100(50);  //Approx. each 5 sec ((49+1)x100ms)
             char buff[20],len;
             len=sprintf(buff,"Intento %2i/%2i\n\r",cnt+1,CNT_BEFORE_REAUTH);
             enviaDebug(buff,len);
         }
         #endif
+
         //Prueba 1: Verificacion UART y Reloj ~ 1 Hz
-        #ifdef TEST_1
+        #if defined TEST_1
         LED = true;
-        enviaDebug((char *)"estoy vivo\r\n",0);
         ms100(5);
         LED = false;
         ms100(5);
+        enviaDebug((char *)"estoy vivo\r\n",0);
+        enviaDebug(&phrase,phlen);
         #endif
 
         //Prueba 2: Envio de Ping hacia iM880B (puede verse con WiMOD LoRaWAN DevTool)
-        #ifdef TEST_2
+        #if defined TEST_2
         WiMOD_LoRaWAN_SendPing();
         ms100(10);
         #endif
 
         //Prueba 4: Medicion ADC y envio por UART
-        #ifdef TEST_4
-        unsigned char phrase[20];
-        sprintf(phrase,"Propano: %u\r\n",valorPropano());
+        #if defined TEST_3
+        sprintf(phrase,"ADC DATO: %u\r\n",ADC_Get_Data());
         enviaDebug(phrase,0);
-        ms100(10);
+        if (HCSread(&distance)) {//le indica la direccion de la variable tipo entero distancia
+            sprintf(phrase,"Distancia:%i\r\n",distance);// construye la cadena y la guarda phrase y el tamaño en phlen
+        }else{
+            sprintf(phrase,"Distancia: No se envio nada\r\n"); 
+        }  
+        enviaDebug(phrase,0);
+        ms100(1);
         #endif
 
-        //Prueba 5: Test con sensor de ultrasonido HCSR04
-        #ifdef TEST_5
-        if (HCSread(&distance)) {//le indica la direccion de la variable tipo entero distancia
-            unsigned char phrase[20];
-            sprintf(phrase,"Distancia:%i\r\n",distance);// construye la cadena y la guarda phrase y el tamaño en phlen
-            enviaDebug(phrase,0);
-        }else{
-            unsigned char phrase[20];
-            sprintf(phrase,"Distancia: No se envio nada\r\n");
-            enviaDebug(phrase,0);
-        }    
-    #endif
-
-        #ifdef TEST_6    
+        //Prueba de tarjeta RFID
+        #if defined TEST_4    
         
         if (PICC_IsNewCardPresent()){
             sprintf(phrase,"Te encontramos alelulla\n");
@@ -277,7 +201,8 @@ char minibuff,HCIbuff[20],rxcnt;
 /**
  * Rutina de atencion de interrupciones
  */
-void __interrupt() ISR (void) {
+void __interrupt() ISR (void) 
+{
     if (RCIE && RCIF) {
         //Error reading
         rx_err=RCSTA;
@@ -325,7 +250,8 @@ void __interrupt() ISR (void) {
  * @param high: Tiempo en alto (centenas de ms)
  * @param low:  Tiempo en bajo (centenas de ms)
  */
-void blink (unsigned char cant,unsigned char high,unsigned char low) {
+void blink (unsigned char cant,unsigned char high,unsigned char low) 
+{
     while (cant--) {
         LED=true;
         ms100(high);
@@ -338,7 +264,8 @@ void blink (unsigned char cant,unsigned char high,unsigned char low) {
  * Demora activa
  * @param cantidad: Duracion en milisegundos
  */
-void msdelay (unsigned char cantidad) {
+void msdelay (unsigned char cantidad) 
+{
     StartTimerDelayMs(cantidad);
     while (TMR1ON);
 }
@@ -363,7 +290,8 @@ void StartTimerDelayMs(unsigned char cant)
  * Generates a delay of q*100 ms
  * @param q: multiplier.
  */
-void ms100 (unsigned char q) {
+void ms100 (unsigned char q) 
+{
     while (q--)
         __delay_ms(100);    //XC8 compiler
 }
