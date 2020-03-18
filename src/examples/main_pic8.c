@@ -5,13 +5,21 @@
  * La mayoria de archivos vienen del comprimido
  * WiMOD_LoRaWAN_ExampleCode_HCI_C_V0_1.zip
  * y han sido ligeramente modificados para soportar tipos estandar.
+ * Para Debug
+ * Rx viene de RB7
+ * Tx va hacia RC7
+ * El Ultra sonido funciona a 5 V
+ *  Pin Trigger HC-SR04
+ *  Pin Echo HC-SR04
+ * Inicia Medicion del ACD en AN7, osea pin RC3
+ * 
  */
 
 //MODOS DE COMPILACION. Descomentar el que se quiera probar:
 //#define SMACH         //Maquina de estados (principal)
-#define TEST_1        //Verificacion UART/Reloj
+//#define TEST_1        //Verificacion UART/Reloj
 //#define TEST_2        //Verificacion comunicacion PIC-WiMOD
-//#define TEST_3        //Medicion Distancia y ACD para envio por UART
+#define TEST_3        //Medicion Distancia y ACD para envio por UART
 //#define TEST_4        //Tarjeta RFID
 //------------------------------------------------------------------------------
 //  Definitions and Setup
@@ -72,10 +80,9 @@ void main(void)
     
     #if defined TEST_3 || defined TEST_1
     LED = true;
-    enviaDebug((char *)"Iniciamos\r\n",0);
     char phrase[20];
     unsigned char phlen;
-    phlen = sprintf(&phrase,"ADC DATO:\r\n");
+    phlen = sprintf(&phrase,"Iniciamos:\r\n");
     enviaDebug(phrase,phlen);
     #endif
     
@@ -139,10 +146,10 @@ void main(void)
         //Prueba 1: Verificacion UART y Reloj ~ 1 Hz
         #if defined TEST_1
         LED = true;
-        ms100(5);
+        ms100(10);
         LED = false;
-        ms100(5);
-        enviaDebug((char *)"estoy vivo\r\n",0);
+        ms100(10);
+        phlen = sprintf(&phrase,"Estoy Vivo\r\n");
         enviaDebug(&phrase,phlen);
         #endif
 
@@ -154,14 +161,18 @@ void main(void)
 
         //Prueba 4: Medicion ADC y envio por UART
         #if defined TEST_3
-        sprintf(phrase,"ADC DATO: %u\r\n",ADC_Get_Data());
-        enviaDebug(phrase,0);
+        LED = true;
+        ms100(10);
+        LED = false;
+        ms100(10);
+        phlen = sprintf(&phrase,"ADC DATO: %u\r\n",ADC_Get_Data());
+        enviaDebug(&phrase,phlen);
         if (HCSread(&distance)) {//le indica la direccion de la variable tipo entero distancia
-            sprintf(phrase,"Distancia:%i\r\n",distance);// construye la cadena y la guarda phrase y el tamaño en phlen
+            phlen = sprintf(phrase,"Distancia:%i\r\n",distance);// construye la cadena y la guarda phrase y el tamaño en phlen
         }else{
-            sprintf(phrase,"Distancia: No se envio nada\r\n"); 
+            phlen = sprintf(phrase,"Distancia: No se envio nada\r\n"); 
         }  
-        enviaDebug(phrase,0);
+        enviaDebug(&phrase,phlen);
         ms100(1);
         #endif
 
